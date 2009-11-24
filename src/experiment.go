@@ -25,8 +25,14 @@ func (c *Context) Specify(description string, closure func()) {
 
 
 func main() {
-	count := 0;
 	c := new(Context);
+
+	// the framework will call the spec dynamically like this:
+	WerewolfSpec(c);
+}
+
+func WerewolfSpec(c *Context) {
+	count := 0;	// debug
 
 	/*
 	  GoSpec will execute the following specs in this order, so that each
@@ -67,5 +73,5 @@ func main() {
 		});
 	});
 
-	fmt.Printf("number of specs: %v \n", count);
+	fmt.Printf("number of specs: %v \n", count);	// debug
 }
