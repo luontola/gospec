@@ -9,11 +9,18 @@ import (
 )
 
 
-type Context struct{}
+type Context struct {
+	level int;
+}
 
 func (c *Context) Specify(description string, closure func()) {
-	fmt.Println(description);
+	for i := 0; i < c.level; i++ {
+		fmt.Print("  ")
+	}
+	fmt.Println(" - " + description);
+	c.level++;
 	closure();
+	c.level--;
 }
 
 
@@ -21,25 +28,42 @@ func main() {
 	count := 0;
 	c := new(Context);
 
+	/*
+	  GoSpec will execute the following specs in this order, so that each
+	  of these rows is executed in its own isolated goroutine:
+	  - 1, 1.1, 1.1.1
+	  - 1, 1.1, 1.1.2
+	  - 2, 2.1, 2.1.1
+	  - 2, 2.1, 2.1.2
+	*/
+
 	c.Specify("Given the moon is full", func() {
-		count++;
+		count++;	// 1
 		c.Specify("When you walk in the woods", func() {
-			count++;
+			count++;	// 1.1
 
-			c.Specify("Then you can hear werevolves howling", func() { count++ });
+			c.Specify("Then you can hear werevolves howling", func() {
+				count++	// 1.1.1
+			});
 
-			c.Specify("Then you wish you had a silver bullet", func() { count++ });
+			c.Specify("Then you wish you had a silver bullet", func() {
+				count++	// 1.1.2
+			});
 		});
 	});
 
 	c.Specify("Given the moon is not full", func() {
-		count++;
+		count++;	// 2
 		c.Specify("When you walk in the woods", func() {
-			count++;
+			count++;	// 2.1
 
-			c.Specify("Then you do not hear any werevolves", func() { count++ });
+			c.Specify("Then you do not hear any werevolves", func() {
+				count++	// 2.1.1
+			});
 
-			c.Specify("Then you are not afraid", func() { count++ });
+			c.Specify("Then you are not afraid", func() {
+				count++	// 2.1.2
+			});
 		});
 	});
 
