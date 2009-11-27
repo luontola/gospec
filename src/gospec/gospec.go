@@ -13,16 +13,16 @@ import (
 // Context coordinates the spec execution
 
 type Context struct {
-	targetPath []int;
+	targetPath path;
 	currentSpec *specification;
 	specs *vector.Vector;
 }
 
 func newInitialContext() *Context {
-	return newExplicitContext([]int{})
+	return newExplicitContext(emptyPath())
 }
 
-func newExplicitContext(targetPath []int) *Context {
+func newExplicitContext(targetPath path) *Context {
 	c := new(Context);
 	c.targetPath = targetPath;
 	c.currentSpec = nil;
@@ -49,23 +49,14 @@ func (c *Context) shouldExecuteCurrentSpec() bool {
 //	fmt.Println("targetPath:", c.targetPath);
 //	fmt.Println("currentSpec:", c.currentSpec);
 	
-	isBelowTargetPath := currentIsBelowTargetPath(c.currentSpec.path, c.targetPath);
-	isUnseen := len(c.currentSpec.path) > len(c.targetPath);
-	isFirstChild := c.currentSpec.lastPathIndex() == 0;
+	currentPath := c.currentSpec.path;
+	targetPath := c.targetPath;
 	
-	return isBelowTargetPath || (isUnseen && isFirstChild)
-}
-
-func currentIsBelowTargetPath(current []int, target []int) bool {
-	if len(current) > len(target) {
-		return false
-	}
-	for i := 0; i < len(current); i++ {
-		if current[i] != target[i] {
-			return false
-		}
-	}
-	return true
+	isOnTargetPath := currentPath.isOn(targetPath);
+	isUnseen := currentPath.isBeyond(targetPath);
+	isFirstChild := currentPath.lastIndex() == 0;
+	
+	return isOnTargetPath || (isUnseen && isFirstChild)
 }
 
 func (c *Context) executeCurrentSpec() {
@@ -77,6 +68,47 @@ func (c *Context) exitSpec() {
 }
 
 
+// Spec paths
+
+type path []int;
+
+func emptyPath() path {
+	return []int{};
+}
+
+func (parent path) append(index int) path {
+	result := make([]int, len(parent) + 1);
+	for i, v := range parent {
+		result[i] = v
+	}
+	result[len(parent)] = index;
+	return result
+}
+
+func (current path) isOn(target path) bool {
+	if current.isBeyond(target) {
+		return false
+	}
+	for i := 0; i < len(current); i++ {
+		if current[i] != target[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func (current path) isBeyond(target path) bool {
+	return len(current) > len(target)
+}
+
+func (path path) lastIndex() int {
+	if len(path) == 0 {
+		return -1	// empty path, i.e. root specification
+	}
+	return path[len(path) - 1]
+}
+
+
 // Represents a spec in a tree of specs
 
 type specification struct {
@@ -84,36 +116,21 @@ type specification struct {
 	closure func();
 	parent *specification;
 	numberOfChildren int;
-	path []int;
+	path path;
 }
 
 func newSpecification(name string, closure func(), parent *specification) *specification {
-	path := []int{};
+	path := emptyPath();
 	if parent != nil {
-		path = pathForChildOf(parent.path, parent.numberOfChildren);
+		currentIndex := parent.numberOfChildren;
+		path = parent.path.append(currentIndex);
 		parent.numberOfChildren++;
 	}
 	return &specification{name, closure, parent, 0, path}
 }
 
-func pathForChildOf(parentPath []int, childIndex int) []int {
-	childPath := make([]int, len(parentPath) + 1);
-	for i, v := range parentPath {
-		childPath[i] = v
-	}
-	childPath[len(parentPath)] = childIndex;
-	return childPath
-}
-
 func (s *specification) execute() {
 	s.closure();
-}
-
-func (s *specification) lastPathIndex() int {
-	if len(s.path) == 0 {
-		return 0	// root specification
-	}
-	return s.path[len(s.path) - 1]
 }
 
 func (s *specification) String() string {
