@@ -14,27 +14,30 @@ http://groups.google.com/group/golang-nuts
 
 With this framework you should be able to:
 
-  - Organize the tests/specs in BDD style. Although usually two levels of
-    nesting is enough for that, GoSpec supports unlimitedly nested specs.
+  - Write tests/specs in BDD style.  Although usually two levels of nesting is
+    enough for that, GoSpec supports unlimitedly nested specs.
 
-  - Write the names of the specs as strings. You are not restricted to using
+  - Write the names of the specs as strings.  You are not restricted to using
     only those characters that are allowed in method names.
 
-  - Write the specs using a fluent API, so that the code is be easily readable.
+  - Write specs using a fluent API, so that the code is easily readable.
 
-  - Execute the specs concurrently on multiple CPU cores. Running the specs
-    quickly (i.e. less than 10-20 seconds) is a must for using TDD, so being
-    able to take advantage of all processing power is important.
-
-  - Specs are isolated from the side-effects of their sibling specs. Each spec
-    will see only the side-effects of its parent specs. In effect, the parent
-    specs work similar to the "before" test code in many test frameworks. This
+  - Write specs which are isolated [1] from the side-effects of their sibling
+    specs.  Each spec will see only the side-effects of its parent specs.  In
+    effect, the parent specs work similar to the "before" test code in many test
+    frameworks, and by default none of the specs can see its siblings.  This
     will make it easier to write tests which are executed safely in isolation.
+
+  - Execute the specs concurrently on multiple CPU cores.  Running the specs
+    quickly [1] (i.e. less than 10-20 seconds) is a must for using TDD, so being
+    able to take advantage of all processing power is important, and multiple
+    CPU cores is the only way to go fast in the foreseen future.
+
+[1] http://agileinaflash.blogspot.com/2009/02/first.html
 
 
   **  License  **
 
-Copyright (c) 2009 Esko Luontola <www.orfjackal.net>
+Copyright © 2009 Esko Luontola <www.orfjackal.net>
 This software is released under the Apache License 2.0.
 The license text is at http://www.apache.org/licenses/LICENSE-2.0
-
