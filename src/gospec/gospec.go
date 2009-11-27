@@ -121,7 +121,6 @@ func (s *specification) String() string {
 }
 
 
-
 // Starts the spec execution
 
 type RootSpecRunner struct {
