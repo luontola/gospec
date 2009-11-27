@@ -14,7 +14,7 @@ import (
 func Test__Given_a_spec_with_no_children__When_it_is_run_initially__Then_the_root_is_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithNoChildren};
+	r := NewRootSpecRunner("DummySpecWithNoChildren", DummySpecWithNoChildren);
 	r.runInContext(newInitialContext());
 
 	assertTestSpyHas("root", t);
@@ -23,7 +23,7 @@ func Test__Given_a_spec_with_no_children__When_it_is_run_initially__Then_the_roo
 func Test__Given_a_spec_with_one_child__When_it_is_run_initially__Then_the_child_is_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithOneChild};
+	r := NewRootSpecRunner("DummySpecWithOneChild", DummySpecWithOneChild);
 	r.runInContext(newInitialContext());
 
 	assertTestSpyHas("root,a", t);
@@ -32,7 +32,7 @@ func Test__Given_a_spec_with_one_child__When_it_is_run_initially__Then_the_child
 func Test__Given_a_spec_with_nested_children__When_it_is_run_initially__Then_the_nested_children_are_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithNestedChildren};
+	r := NewRootSpecRunner("DummySpecWithNestedChildren", DummySpecWithNestedChildren);
 	r.runInContext(newInitialContext());
 
 	assertTestSpyHas("root,a,aa", t);
@@ -66,7 +66,7 @@ func DummySpecWithNestedChildren(c *Context) {
 func Test__Given_a_spec_with_two_children__When_it_is_run_initially__Then_the_1st_child_is_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithTwoChildren};
+	r := NewRootSpecRunner("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.runInContext(newInitialContext());
 
 	assertTestSpyHas("root,a", t);
@@ -75,27 +75,27 @@ func Test__Given_a_spec_with_two_children__When_it_is_run_initially__Then_the_1s
 func Test__Given_a_spec_with_two_children__When_the_1st_child_is_run_explicitly__Then_the_1st_child_is_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithTwoChildren};
+	r := NewRootSpecRunner("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.runInContext(newExplicitContext([]int{0}));
 
 	assertTestSpyHas("root,a", t);
 }
-/* TODO
+
 func Test__Given_a_spec_with_two_children__When_the_2nd_child_is_run_explicitly__Then_the_2nd_child_is_executed(t *testing.T) {
 	resetTestSpy();
 
-	r := &RootSpecRunner{DummySpecWithTwoChildren};
+	r := NewRootSpecRunner("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.runInContext(newExplicitContext([]int{1}));
 
 	assertTestSpyHas("root,b", t);
 }
-*/
+
 func DummySpecWithTwoChildren(c *Context) {
 	testSpy += "root";
 	c.Specify("Child A", func() {
 		testSpy += ",a";
 	});
-	c.Specify("Child A", func() {
+	c.Specify("Child B", func() {
 		testSpy += ",b";
 	});
 }

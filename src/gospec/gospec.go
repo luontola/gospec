@@ -6,68 +6,136 @@ package gospec
 
 import (
 	"container/vector";
-//	"fmt";
+	"fmt";
 )
 
 
-// Context
+// Context coordinates the spec execution
 
 type Context struct {
 	targetPath []int;
-	currentPath *vector.IntVector;
-	currentSiblingPos int;
+	currentSpec *specification;
+	specs *vector.Vector;
 }
 
 func newInitialContext() *Context {
-	return newExplicitContext([]int{});
+	return newExplicitContext([]int{})
 }
 
 func newExplicitContext(targetPath []int) *Context {
 	c := new(Context);
 	c.targetPath = targetPath;
-	c.currentPath = vector.NewIntVector(5);
-	c.currentSiblingPos = 0;
-	return c;
+	c.currentSpec = nil;
+	c.specs = vector.New(0);
+	return c
 }
 
 func (c *Context) Specify(name string, closure func()) {
-	c.enterChildSpec();
-	if c.shouldExecuteCurrentChild() {
-		c.executeCurrentChild(closure);
+	c.enterSpec(name, closure);
+	if c.shouldExecuteCurrentSpec() {
+		c.executeCurrentSpec();
 	}
-	c.exitChildSpec();
+	c.exitSpec();
 }
 
-func (c *Context) enterChildSpec() {
+func (c *Context) enterSpec(name string, closure func()) {
+	spec := newSpecification(name, closure, c.currentSpec);
+	c.specs.Push(spec);
+	c.currentSpec = spec;
 }
 
-func (c *Context) shouldExecuteCurrentChild() bool {
-//	fmt.Printf("targetPath: %v\n", c.targetPath);
-//	fmt.Printf("currentPath: %v\n", c.currentPath);
-//	fmt.Printf("currentSiblingPos: %v\n", c.currentSiblingPos);
+func (c *Context) shouldExecuteCurrentSpec() bool {
+//	fmt.Println();
+//	fmt.Println("targetPath:", c.targetPath);
+//	fmt.Println("currentSpec:", c.currentSpec);
 	
-	if c.currentSiblingPos == 0 {
-		return true;
+	isBelowTargetPath := currentIsBelowTargetPath(c.currentSpec.path, c.targetPath);
+	isUnseen := len(c.currentSpec.path) > len(c.targetPath);
+	isFirstChild := c.currentSpec.lastPathIndex() == 0;
+	
+	return isBelowTargetPath || (isUnseen && isFirstChild)
+}
+
+func currentIsBelowTargetPath(current []int, target []int) bool {
+	if len(current) > len(target) {
+		return false
 	}
-	return false;
+	for i := 0; i < len(current); i++ {
+		if current[i] != target[i] {
+			return false
+		}
+	}
+	return true
 }
 
-func (c *Context) executeCurrentChild(closure func()) {
-	closure();
+func (c *Context) executeCurrentSpec() {
+	c.currentSpec.execute();
 }
 
-func (c *Context) exitChildSpec() {
-	c.currentSiblingPos++;
+func (c *Context) exitSpec() {
+	c.currentSpec = c.currentSpec.parent;
 }
 
 
-// Spec Runner
+// Represents a spec in a tree of specs
+
+type specification struct {
+	name string;
+	closure func();
+	parent *specification;
+	numberOfChildren int;
+	path []int;
+}
+
+func newSpecification(name string, closure func(), parent *specification) *specification {
+	path := []int{};
+	if parent != nil {
+		path = pathForChildOf(parent.path, parent.numberOfChildren);
+		parent.numberOfChildren++;
+	}
+	return &specification{name, closure, parent, 0, path}
+}
+
+func pathForChildOf(parentPath []int, childIndex int) []int {
+	childPath := make([]int, len(parentPath) + 1);
+	for i, v := range parentPath {
+		childPath[i] = v
+	}
+	childPath[len(parentPath)] = childIndex;
+	return childPath
+}
+
+func (s *specification) execute() {
+	s.closure();
+}
+
+func (s *specification) lastPathIndex() int {
+	if len(s.path) == 0 {
+		return 0	// root specification
+	}
+	return s.path[len(s.path) - 1]
+}
+
+func (s *specification) String() string {
+	return fmt.Sprintf("specification{%v @ %v}", s.name, s.path)
+}
+
+
+
+// Starts the spec execution
 
 type RootSpecRunner struct {
-	closure func(*Context);
+	specName string;
+	specClosure func(*Context);
 }
 
-func (self *RootSpecRunner) runInContext(c *Context) {
-	self.closure(c);
+func NewRootSpecRunner(specName string, specClosure func(*Context)) *RootSpecRunner {
+	return &RootSpecRunner{specName, specClosure};
+}
+
+func (r *RootSpecRunner) runInContext(c *Context) {
+	c.Specify(r.specName, func() { r.specClosure(c) });
+	
+	//fmt.Println(c.specs);
 }
 
