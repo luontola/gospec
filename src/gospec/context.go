@@ -16,7 +16,6 @@ type Context struct {
 	currentSpec *specification;
 	executedSpecs *list.List;
 	postponedSpecs *list.List;
-	done chan bool;
 }
 
 func newInitialContext() *Context {
@@ -29,7 +28,6 @@ func newExplicitContext(targetPath path) *Context {
 	c.currentSpec = nil;
 	c.executedSpecs = list.New();
 	c.postponedSpecs = list.New();
-	c.done = make(chan bool);
 	return c
 }
 
