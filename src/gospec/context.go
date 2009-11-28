@@ -9,8 +9,8 @@ import (
 )
 
 
-// Context coordinates the spec execution
-
+// Context controls the execution of the current spec. Child specs can be
+// created with the Specify method.
 type Context struct {
 	targetPath path;
 	currentSpec *specification;
@@ -33,6 +33,10 @@ func newExplicitContext(targetPath path) *Context {
 	return c
 }
 
+// Creates a child spec for the currently executing spec. Specs can be nested
+// unlimitedly. The name should describe what is the behaviour being specified
+// by this spec, and the closure should contain the same specification written
+// as code.
 func (c *Context) Specify(name string, closure func()) {
 	c.enterSpec(name, closure);
 	c.processCurrentSpec();

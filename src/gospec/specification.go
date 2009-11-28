@@ -10,8 +10,7 @@ import (
 )
 
 
-// Represents a spec in a tree of specs
-
+// Represents a spec in a tree of specs.
 type specification struct {
 	name string;
 	closure func();
@@ -51,12 +50,11 @@ func asSpecArray(list *list.List) []*specification {
 }
 
 
-// Path of a specification
-
+// Path of a specification.
 type path []int;
 
 func rootPath() path {
-	return []int{};
+	return []int{}
 }
 
 func (parent path) append(index int) path {

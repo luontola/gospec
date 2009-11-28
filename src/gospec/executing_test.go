@@ -5,7 +5,6 @@
 package gospec
 
 import (
-	//"fmt";
 	"testing";
 )
 
@@ -66,7 +65,4 @@ func Test__Multiple_specs_can_be_executed_in_one_batch(t *testing.T) {
 	assertEquals(1, runCounts["DummySpecWithOneChild"], t);
 	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t);
 }
-
-
-// TODO: concurrency
 

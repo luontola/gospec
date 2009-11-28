@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	"runtime";
 	"testing";
 	"time";
 )
@@ -13,9 +14,14 @@ import (
 // Executing specs using multiple threads
 
 const (
-	millisecond = 1000000;
-	delay = 50 * millisecond;
+	MILLISECOND = 1000000;
+	DELAY = 50 * MILLISECOND;
+	THREADS = 4;
 )
+
+func init() {
+	runtime.GOMAXPROCS(THREADS);
+}
 
 func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	r := NewSpecRunner();
@@ -27,16 +33,16 @@ func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	totalTime := end - start;
 	
 	// If the spec is executed single-threadedly, then it would take
-	// at least "4 * delay" to execute. If executed multi-threadedly, it
-	// would take at least "2 * delay" to execute, because the first spec
+	// at least 4*DELAY to execute. If executed multi-threadedly, it
+	// would take at least 2*DELAY to execute, because the first spec
 	// needs to be executed fully before the other specs are found, but
 	// after that the other specs can be executed in parallel.
-	expectedMaxTime := int64(2.5 * delay);
+	expectedMaxTime := int64(2.5 * DELAY);
 	
 	if totalTime > expectedMaxTime {
-		t.Errorf("Expected to take less than %v ms but it took %v ms", 
-			expectedMaxTime / millisecond,
-			totalTime / millisecond);
+		t.Errorf("Expected the run to take less than %v ms but it took %v ms", 
+			expectedMaxTime / MILLISECOND,
+			totalTime / MILLISECOND);
 	}
 	
 	runCounts := countSpecNames(r.executed);
@@ -48,7 +54,7 @@ func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 
 func VerySlowDummySpec(c *Context) {
 	c.Specify("A very slow test setup", func() {
-		time.Sleep(delay);
+		time.Sleep(DELAY);
 		c.Specify("Child A", func() {
 		});
 		c.Specify("Child B", func() {

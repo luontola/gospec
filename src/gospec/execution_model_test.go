@@ -58,7 +58,7 @@ func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__The
 	runs := vector.NewStringVector(0);
 	for r.hasScheduledTasks() {
 		resetTestSpy();
-		r.executeNextScheduledTask();
+		r.executeNextScheduledTaskSingleThreadedly();
 		runs.Push(testSpy);
 	}
 	sort.Sort(runs);

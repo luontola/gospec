@@ -32,7 +32,7 @@ func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 
 // GoSpec specific test utilites
 
-func runSpec(name string, closure func(*Context), context *Context) *runResult {
+func runSpec(name string, closure func(*Context), context *Context) *taskResult {
 	resetTestSpy();
 	r := NewSpecRunner();
 	return r.execute(name, closure, context);
