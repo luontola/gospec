@@ -8,12 +8,6 @@ import (
 	"testing";
 )
 
-func runSpec(name string, closure func(*Context), context *Context) {
-	resetTestSpy();
-	r := NewRootSpecRunner(name, closure);
-	r.runInContext(context);
-}
-
 
 // Specs with children, but without siblings
 
@@ -30,28 +24,6 @@ func Test__Given_a_spec_with_one_child__When_it_is_run_initially__Then_the_child
 func Test__Given_a_spec_with_nested_children__When_it_is_run_initially__Then_the_nested_children_are_executed(t *testing.T) {
 	runSpec("DummySpecWithNestedChildren", DummySpecWithNestedChildren, newInitialContext());
 	assertTestSpyHas("root,a,aa", t);
-}
-
-
-func DummySpecWithNoChildren(c *Context) {
-	testSpy += "root";
-}
-
-func DummySpecWithOneChild(c *Context) {
-	testSpy += "root";
-	c.Specify("Child A", func() {
-		testSpy += ",a";
-	});
-}
-
-func DummySpecWithNestedChildren(c *Context) {
-	testSpy += "root";
-	c.Specify("Child A", func() {
-		testSpy += ",a";
-		c.Specify("Child AA", func() {
-			testSpy += ",aa";
-		});
-	});
 }
 
 
@@ -72,16 +44,6 @@ func Test__Given_a_spec_with_two_children__When_the_2nd_child_is_run_explicitly_
 	assertTestSpyHas("root,b", t);
 }
 
-func DummySpecWithTwoChildren(c *Context) {
-	testSpy += "root";
-	c.Specify("Child A", func() {
-		testSpy += ",a";
-	});
-	c.Specify("Child B", func() {
-		testSpy += ",b";
-	});
-}
-
 
 // Specs with nested siblings, execute eventually all siblings, one at a time
 
@@ -97,30 +59,5 @@ func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__The
 	assertTestSpyHas("root,b,bb", t);
 	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newExplicitContext([]int{1, 2}));
 	assertTestSpyHas("root,b,bc", t);
-}
-
-func DummySpecWithMultipleNestedChildren(c *Context) {
-	testSpy += "root";
-	c.Specify("Child A", func() {
-		testSpy += ",a";
-		c.Specify("Child AA", func() {
-			testSpy += ",aa";
-		});
-		c.Specify("Child AB", func() {
-			testSpy += ",ab";
-		});
-	});
-	c.Specify("Child B", func() {
-		testSpy += ",b";
-		c.Specify("Child BA", func() {
-			testSpy += ",ba";
-		});
-		c.Specify("Child BB", func() {
-			testSpy += ",bb";
-		});
-		c.Specify("Child BC", func() {
-			testSpy += ",bc";
-		});
-	});
 }
 

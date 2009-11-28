@@ -5,7 +5,7 @@
 package gospec
 
 import (
-	"container/vector";
+	"container/list";
 	"fmt";
 )
 
@@ -15,64 +15,74 @@ import (
 type Context struct {
 	targetPath path;
 	currentSpec *specification;
-	specs *vector.Vector;
+	executedSpecs *list.List;
+	postponedSpecs *list.List;
+	done chan bool;
 }
 
 func newInitialContext() *Context {
-	return newExplicitContext(emptyPath())
+	return newExplicitContext(rootPath())
 }
 
 func newExplicitContext(targetPath path) *Context {
 	c := new(Context);
 	c.targetPath = targetPath;
 	c.currentSpec = nil;
-	c.specs = vector.New(0);
+	c.executedSpecs = list.New();
+	c.postponedSpecs = list.New();
+	c.done = make(chan bool);
 	return c
 }
 
 func (c *Context) Specify(name string, closure func()) {
 	c.enterSpec(name, closure);
-	if c.shouldExecuteCurrentSpec() {
-		c.executeCurrentSpec();
-	}
+	c.processCurrentSpec();
 	c.exitSpec();
 }
 
 func (c *Context) enterSpec(name string, closure func()) {
 	spec := newSpecification(name, closure, c.currentSpec);
-	c.specs.Push(spec);
 	c.currentSpec = spec;
 }
 
-func (c *Context) shouldExecuteCurrentSpec() bool {
-//	fmt.Println();
-//	fmt.Println("targetPath:", c.targetPath);
-//	fmt.Println("currentSpec:", c.currentSpec);
-	
-	currentPath := c.currentSpec.path;
-	targetPath := c.targetPath;
-	
-	isOnTargetPath := currentPath.isOn(targetPath);
-	isUnseen := currentPath.isBeyond(targetPath);
-	isFirstChild := currentPath.lastIndex() == 0;
-	
-	return isOnTargetPath || (isUnseen && isFirstChild)
-}
-
-func (c *Context) executeCurrentSpec() {
-	c.currentSpec.execute();
+func (c *Context) processCurrentSpec() {
+	spec := c.currentSpec;
+	switch {
+	case c.shouldExecute(spec):
+		c.execute(spec)
+	case c.shouldPostpone(spec):
+		c.postpone(spec)
+	}
 }
 
 func (c *Context) exitSpec() {
 	c.currentSpec = c.currentSpec.parent;
 }
 
+func (c *Context) shouldExecute(spec *specification) bool {
+	return spec.isOnTargetPath(c) || (spec.isUnseen(c) && spec.isFirstChild())
+}
+
+func (c *Context) shouldPostpone(spec *specification) bool {
+	return spec.isUnseen(c) && !spec.isFirstChild()
+}
+
+func (c *Context) execute(spec *specification) {
+	c.executedSpecs.PushBack(spec);
+	spec.execute();
+}
+
+func (c *Context) postpone(spec *specification) {
+	c.postponedSpecs.PushBack(spec);
+}
+
+
 
 // Spec paths
 
 type path []int;
 
-func emptyPath() path {
+func rootPath() path {
 	return []int{};
 }
 
@@ -103,7 +113,7 @@ func (current path) isBeyond(target path) bool {
 
 func (path path) lastIndex() int {
 	if len(path) == 0 {
-		return -1	// empty path, i.e. root specification
+		return -1	// root path
 	}
 	return path[len(path) - 1]
 }
@@ -120,7 +130,7 @@ type specification struct {
 }
 
 func newSpecification(name string, closure func(), parent *specification) *specification {
-	path := emptyPath();
+	path := rootPath();
 	if parent != nil {
 		currentIndex := parent.numberOfChildren;
 		path = parent.path.append(currentIndex);
@@ -129,12 +139,14 @@ func newSpecification(name string, closure func(), parent *specification) *speci
 	return &specification{name, closure, parent, 0, path}
 }
 
-func (s *specification) execute() {
-	s.closure();
-}
+func (spec *specification) isOnTargetPath(c *Context) bool	{ return spec.path.isOn(c.targetPath) }
+func (spec *specification) isUnseen(c *Context) bool		{ return spec.path.isBeyond(c.targetPath) }
+func (spec *specification) isFirstChild() bool			{ return spec.path.lastIndex() == 0 }
 
-func (s *specification) String() string {
-	return fmt.Sprintf("specification{%v @ %v}", s.name, s.path)
+func (spec *specification) execute()	{ spec.closure() }
+
+func (spec *specification) String() string {
+	return fmt.Sprintf("specification{%v @ %v}", spec.name, spec.path)
 }
 
 
@@ -149,9 +161,30 @@ func NewRootSpecRunner(specName string, specClosure func(*Context)) *RootSpecRun
 	return &RootSpecRunner{specName, specClosure};
 }
 
-func (r *RootSpecRunner) runInContext(c *Context) {
+func (r *RootSpecRunner) runInContext(c *Context) *runResult {
 	c.Specify(r.specName, func() { r.specClosure(c) });
-	
-	//fmt.Println(c.specs);
+	return &runResult{
+		toSpecArray(c.executedSpecs),
+		toSpecArray(c.postponedSpecs)
+	}
 }
+
+func toSpecArray(list *list.List) []*specification {
+	arr := make([]*specification, list.Len());
+	i := 0;
+	for v := range list.Iter() {
+		arr[i] = v.(*specification);
+		i++;
+	}
+	return arr
+}
+
+
+// Spec run results
+
+type runResult struct {
+	executedSpecs []*specification;
+	postponedSpecs []*specification;
+}
+
 
