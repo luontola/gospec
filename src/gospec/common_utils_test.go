@@ -34,8 +34,8 @@ func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 
 func runSpec(name string, closure func(*Context), context *Context) *runResult {
 	resetTestSpy();
-	r := NewSpecRunner(name, closure);
-	return r.runInContext(context);
+	r := NewSpecRunner();
+	return r.execute(name, closure, context);
 }
 
 func countSpecNames(specs iterable.Iterable) map[string]int {

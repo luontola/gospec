@@ -45,7 +45,8 @@ func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
 // Scheduling specs for execution
 
 func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
-	r := NewSpecRunner("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
+	r := NewSpecRunner();
+	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.Run();
 	
 	runCounts := countSpecNames(r.executed);
@@ -53,6 +54,17 @@ func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_b
 	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t);
 	assertEquals(1, runCounts["Child A"], t);
 	assertEquals(1, runCounts["Child B"], t);
+}
+
+func Test__Multiple_specs_can_be_executed_in_one_batch(t *testing.T) {
+	r := NewSpecRunner();
+	r.AddSpec("DummySpecWithOneChild", DummySpecWithOneChild);
+	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
+	r.Run();
+	
+	runCounts := countSpecNames(r.executed);
+	assertEquals(1, runCounts["DummySpecWithOneChild"], t);
+	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t);
 }
 
 

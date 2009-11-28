@@ -9,54 +9,75 @@ import (
 )
 
 
-// Starts the spec execution
+// Starts the spec execution and collects the results
 
 type SpecRunner struct {
-	specName string;
-	specClosure func(*Context);
 	executed *vector.Vector;
-	pathsToExecute *vector.Vector;
+	scheduled *vector.Vector;
 }
 
-func NewSpecRunner(specName string, specClosure func(*Context)) *SpecRunner {
-	executed := vector.New(0);
-	pathsToExecute := vector.New(0);
-	pathsToExecute.Push(rootPath());
-	return &SpecRunner{specName, specClosure, executed, pathsToExecute};
+func NewSpecRunner() *SpecRunner {
+	r := new(SpecRunner);
+	r.executed = vector.New(0);
+	r.scheduled = vector.New(0);
+	return r
+}
+
+func (r *SpecRunner) AddSpec(name string, closure func(*Context)) {
+	r.scheduled.Push(newScheduledTask(name, closure, newInitialContext()));
 }
 
 func (r *SpecRunner) Run() {
-	for r.hasPathsToExecute() {
-		r.executeNextPath();
+	for r.hasScheduledTasks() {
+		r.executeNextScheduledTask();
 	}
 }
 
-func (r *SpecRunner) executeNextPath() {
-	targetPath := r.nextPathToExecute();
-	context := newExplicitContext(targetPath);
-	result := r.runInContext(context);
-	r.saveResult(result);
+func (r *SpecRunner) executeNextScheduledTask() {
+	task := r.nextScheduledTask();
+	result := r.execute(task.name, task.closure, task.context);
+	r.saveResult(task, result);
 }
 
-func (r *SpecRunner) hasPathsToExecute() bool	{ return r.pathsToExecute.Len() > 0 }
-func (r *SpecRunner) nextPathToExecute() path	{ return r.pathsToExecute.Pop().(path) }
+func (r *SpecRunner) hasScheduledTasks() bool		{ return r.scheduled.Len() > 0 }
+func (r *SpecRunner) nextScheduledTask() *scheduledTask	{ return r.scheduled.Pop().(*scheduledTask) }
 
-func (r *SpecRunner) runInContext(c *Context) *runResult {
-	c.Specify(r.specName, func() { r.specClosure(c) });
+func (r *SpecRunner) execute(name string, closure func(*Context), c *Context) *runResult {
+	c.Specify(name, func() { closure(c) });
 	return &runResult{
 		asSpecArray(c.executedSpecs),
 		asSpecArray(c.postponedSpecs)
 	}
 }
 
-func (r *SpecRunner) saveResult(result *runResult) {
+func (r *SpecRunner) saveResult(task *scheduledTask, result *runResult) {
 	for _, spec := range result.executedSpecs {
 		r.executed.Push(spec);
 	}
 	for _, spec := range result.postponedSpecs {
-		r.pathsToExecute.Push(spec.path);
+		r.scheduled.Push(task.copy(spec.path));
 	}
 }
+
+
+// Scheduled spec execution
+
+type scheduledTask struct {
+	name string;
+	closure func(*Context);
+	context *Context;
+}
+
+func newScheduledTask(name string, closure func(*Context), context *Context) *scheduledTask {
+	return &scheduledTask{name, closure, context}
+}
+
+func (task *scheduledTask) copy(targetPath path) *scheduledTask {
+	return newScheduledTask(task.name, task.closure, newExplicitContext(targetPath))
+}
+
+
+// Results of a spec execution
 
 type runResult struct {
 	executedSpecs []*specification;
