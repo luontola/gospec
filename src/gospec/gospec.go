@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"container/list";
+	"container/vector";
 	"fmt";
 )
 
@@ -75,7 +76,6 @@ func (c *Context) execute(spec *specification) {
 func (c *Context) postpone(spec *specification) {
 	c.postponedSpecs.PushBack(spec);
 }
-
 
 
 // Spec paths
@@ -149,27 +149,7 @@ func (spec *specification) String() string {
 	return fmt.Sprintf("specification{%v @ %v}", spec.name, spec.path)
 }
 
-
-// Starts the spec execution
-
-type RootSpecRunner struct {
-	specName string;
-	specClosure func(*Context);
-}
-
-func NewRootSpecRunner(specName string, specClosure func(*Context)) *RootSpecRunner {
-	return &RootSpecRunner{specName, specClosure};
-}
-
-func (r *RootSpecRunner) runInContext(c *Context) *runResult {
-	c.Specify(r.specName, func() { r.specClosure(c) });
-	return &runResult{
-		toSpecArray(c.executedSpecs),
-		toSpecArray(c.postponedSpecs)
-	}
-}
-
-func toSpecArray(list *list.List) []*specification {
+func asSpecArray(list *list.List) []*specification {
 	arr := make([]*specification, list.Len());
 	i := 0;
 	for v := range list.Iter() {
@@ -180,11 +160,57 @@ func toSpecArray(list *list.List) []*specification {
 }
 
 
-// Spec run results
+// Starts the spec execution
+
+type SpecRunner struct {
+	specName string;
+	specClosure func(*Context);
+	executed *vector.Vector;
+	pathsToExecute *vector.Vector;
+}
+
+func NewSpecRunner(specName string, specClosure func(*Context)) *SpecRunner {
+	executed := vector.New(0);
+	pathsToExecute := vector.New(0);
+	pathsToExecute.Push(rootPath());
+	return &SpecRunner{specName, specClosure, executed, pathsToExecute};
+}
+
+func (r *SpecRunner) Run() {
+	for r.hasPathsToExecute() {
+		r.executeNextPath();
+	}
+}
+
+func (r *SpecRunner) executeNextPath() {
+	targetPath := r.nextPathToExecute();
+	context := newExplicitContext(targetPath);
+	result := r.runInContext(context);
+	r.saveResult(result);
+}
+
+func (r *SpecRunner) hasPathsToExecute() bool	{ return r.pathsToExecute.Len() > 0 }
+func (r *SpecRunner) nextPathToExecute() path	{ return r.pathsToExecute.Pop().(path) }
+
+func (r *SpecRunner) runInContext(c *Context) *runResult {
+	c.Specify(r.specName, func() { r.specClosure(c) });
+	return &runResult{
+		asSpecArray(c.executedSpecs),
+		asSpecArray(c.postponedSpecs)
+	}
+}
+
+func (r *SpecRunner) saveResult(result *runResult) {
+	for _, spec := range result.executedSpecs {
+		r.executed.Push(spec);
+	}
+	for _, spec := range result.postponedSpecs {
+		r.pathsToExecute.Push(spec.path);
+	}
+}
 
 type runResult struct {
 	executedSpecs []*specification;
 	postponedSpecs []*specification;
 }
-
 

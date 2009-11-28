@@ -5,6 +5,8 @@
 package gospec
 
 import (
+	"container/vector";
+	"sort";
 	"testing";
 )
 
@@ -48,16 +50,21 @@ func Test__Given_a_spec_with_two_children__When_the_2nd_child_is_run_explicitly_
 // Specs with nested siblings, execute eventually all siblings, one at a time
 
 func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__Then_all_the_children_are_executed_in_isolation(t *testing.T) {
-	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newInitialContext());
-	assertTestSpyHas("root,a,aa", t);
-	// TODO: replace explicit target paths with ones reported by the spec runner
-	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newExplicitContext([]int{0, 1}));
-	assertTestSpyHas("root,a,ab", t);
-	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newExplicitContext([]int{1}));
-	assertTestSpyHas("root,b,ba", t);
-	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newExplicitContext([]int{1, 1}));
-	assertTestSpyHas("root,b,bb", t);
-	runSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren, newExplicitContext([]int{1, 2}));
-	assertTestSpyHas("root,b,bc", t);
+	r := NewSpecRunner("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren);
+	
+	runs := vector.NewStringVector(0);
+	for r.hasPathsToExecute() {
+		resetTestSpy();
+		r.executeNextPath();
+		runs.Push(testSpy);
+	}
+	sort.Sort(runs);
+	
+	assertEquals(5, runs.Len(), t);
+	assertEquals("root,a,aa", runs.At(0), t);
+	assertEquals("root,a,ab", runs.At(1), t);
+	assertEquals("root,b,ba", runs.At(2), t);
+	assertEquals("root,b,bb", runs.At(3), t);
+	assertEquals("root,b,bc", runs.At(4), t);
 }
 

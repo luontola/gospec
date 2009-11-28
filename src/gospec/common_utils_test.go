@@ -5,12 +5,13 @@
 package gospec
 
 import (
-	"testing";
+	"exp/iterable";
 	"fmt";
+	"testing";
 )
 
 
-// Test utilities for all test cases
+// Generic test utilities
 
 var testSpy = "";
 
@@ -28,10 +29,26 @@ func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 	}
 }
 
+
+// GoSpec specific test utilites
+
 func runSpec(name string, closure func(*Context), context *Context) *runResult {
 	resetTestSpy();
-	r := NewRootSpecRunner(name, closure);
+	r := NewSpecRunner(name, closure);
 	return r.runInContext(context);
+}
+
+func countSpecNames(specs iterable.Iterable) map[string]int {
+	results := make(map[string]int);
+	for v := range specs.Iter() {
+		spec := v.(*specification);
+		key := spec.name;
+		if _, preset := results[key]; !preset {
+			results[key] = 0;
+		}
+		results[key]++;
+	}
+	return results
 }
 
 
@@ -48,16 +65,6 @@ func DummySpecWithOneChild(c *Context) {
 	});
 }
 
-func DummySpecWithNestedChildren(c *Context) {
-	testSpy += "root";
-	c.Specify("Child A", func() {
-		testSpy += ",a";
-		c.Specify("Child AA", func() {
-			testSpy += ",aa";
-		});
-	});
-}
-
 func DummySpecWithTwoChildren(c *Context) {
 	testSpy += "root";
 	c.Specify("Child A", func() {
@@ -65,6 +72,16 @@ func DummySpecWithTwoChildren(c *Context) {
 	});
 	c.Specify("Child B", func() {
 		testSpy += ",b";
+	});
+}
+
+func DummySpecWithNestedChildren(c *Context) {
+	testSpy += "root";
+	c.Specify("Child A", func() {
+		testSpy += ",a";
+		c.Specify("Child AA", func() {
+			testSpy += ",aa";
+		});
 	});
 }
 

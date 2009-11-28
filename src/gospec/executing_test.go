@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	//"fmt";
 	"testing";
 )
 
@@ -39,4 +40,21 @@ func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
 	postponed := result.postponedSpecs;
 	assertEquals(0, len(postponed), t);
 }
+
+
+// Scheduling specs for execution
+
+func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
+	r := NewSpecRunner("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
+	r.Run();
+	
+	runCounts := countSpecNames(r.executed);
+	assertEquals(3, len(runCounts), t);
+	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t);
+	assertEquals(1, runCounts["Child A"], t);
+	assertEquals(1, runCounts["Child B"], t);
+}
+
+
+// TODO: concurrency
 
