@@ -53,20 +53,20 @@ func Test__Int_should_equal_int(t *testing.T) {
 
 func Test__Struct_should_equal_struct(t *testing.T) {
 	log := new(spyErrorLogger);
-	newMatcher(DummyStruct{42}, log).Should.Equal(DummyStruct{42});
+	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{42, 2});
 	assertEquals(0, log.failures, t);
 	
-	newMatcher(DummyStruct{42}, log).Should.Equal(DummyStruct{13});
+	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{13, 2});
 	assertEquals(1, log.failures, t);
 	assertEquals("Expected 'DummyStruct13' but was 'DummyStruct42'", log.lastMessage, t);
 }
 
 func Test__Struct_pointer_should_equal_struct_pointer(t *testing.T) {
 	log := new(spyErrorLogger);
-	newMatcher(&DummyStruct{42}, log).Should.Equal(&DummyStruct{42});
+	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{42, 2});
 	assertEquals(0, log.failures, t);
 	
-	newMatcher(&DummyStruct{42}, log).Should.Equal(&DummyStruct{13});
+	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{13, 2});
 	assertEquals(1, log.failures, t);
 	assertEquals("Expected 'DummyStruct13' but was 'DummyStruct42'", log.lastMessage, t);
 }
@@ -74,6 +74,7 @@ func Test__Struct_pointer_should_equal_struct_pointer(t *testing.T) {
 
 type DummyStruct struct {
 	value int;
+	ignoredValue int;
 }
 
 func (this DummyStruct) Equals(other interface{}) bool {
