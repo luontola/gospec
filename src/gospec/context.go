@@ -77,3 +77,12 @@ func (c *Context) postpone(spec *spec) {
 	c.postponedSpecs.PushBack(spec);
 }
 
+
+// Then method starts an assertion. Example:
+//    c.Then(actual).Should.Equal(expected);
+func (c *Context) Then(actual interface{}) *Matcher {
+	// TODO
+	return nil
+//	return newMatcher(actual, c.currentSpec)
+}
+
