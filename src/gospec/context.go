@@ -13,7 +13,7 @@ import (
 // created with the Specify method.
 type Context struct {
 	targetPath path;
-	currentSpec *specification;
+	currentSpec *spec;
 	executedSpecs *list.List;
 	postponedSpecs *list.List;
 }
@@ -42,7 +42,7 @@ func (c *Context) Specify(name string, closure func()) {
 }
 
 func (c *Context) enterSpec(name string, closure func()) {
-	spec := newSpecification(name, closure, c.currentSpec);
+	spec := newSpec(name, closure, c.currentSpec);
 	c.currentSpec = spec;
 }
 
@@ -60,20 +60,20 @@ func (c *Context) exitSpec() {
 	c.currentSpec = c.currentSpec.parent;
 }
 
-func (c *Context) shouldExecute(spec *specification) bool {
+func (c *Context) shouldExecute(spec *spec) bool {
 	return spec.isOnTargetPath(c) || (spec.isUnseen(c) && spec.isFirstChild())
 }
 
-func (c *Context) shouldPostpone(spec *specification) bool {
+func (c *Context) shouldPostpone(spec *spec) bool {
 	return spec.isUnseen(c) && !spec.isFirstChild()
 }
 
-func (c *Context) execute(spec *specification) {
+func (c *Context) execute(spec *spec) {
 	c.executedSpecs.PushBack(spec);
 	spec.execute();
 }
 
-func (c *Context) postpone(spec *specification) {
+func (c *Context) postpone(spec *spec) {
 	c.postponedSpecs.PushBack(spec);
 }
 

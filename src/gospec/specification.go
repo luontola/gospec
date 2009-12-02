@@ -11,39 +11,39 @@ import (
 
 
 // Represents a spec in a tree of specs.
-type specification struct {
+type spec struct {
 	name string;
 	closure func();
-	parent *specification;
+	parent *spec;
 	numberOfChildren int;
 	path path;
 }
 
-func newSpecification(name string, closure func(), parent *specification) *specification {
+func newSpec(name string, closure func(), parent *spec) *spec {
 	path := rootPath();
 	if parent != nil {
 		currentIndex := parent.numberOfChildren;
 		path = parent.path.append(currentIndex);
 		parent.numberOfChildren++;
 	}
-	return &specification{name, closure, parent, 0, path}
+	return &spec{name, closure, parent, 0, path}
 }
 
-func (spec *specification) isOnTargetPath(c *Context) bool	{ return spec.path.isOn(c.targetPath) }
-func (spec *specification) isUnseen(c *Context) bool		{ return spec.path.isBeyond(c.targetPath) }
-func (spec *specification) isFirstChild() bool			{ return spec.path.lastIndex() == 0 }
+func (spec *spec) isOnTargetPath(c *Context) bool	{ return spec.path.isOn(c.targetPath) }
+func (spec *spec) isUnseen(c *Context) bool		{ return spec.path.isBeyond(c.targetPath) }
+func (spec *spec) isFirstChild() bool			{ return spec.path.lastIndex() == 0 }
 
-func (spec *specification) execute()	{ spec.closure() }
+func (spec *spec) execute()	{ spec.closure() }
 
-func (spec *specification) String() string {
-	return fmt.Sprintf("specification{%v @ %v}", spec.name, spec.path)
+func (spec *spec) String() string {
+	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
 }
 
-func asSpecArray(list *list.List) []*specification {
-	arr := make([]*specification, list.Len());
+func asSpecArray(list *list.List) []*spec {
+	arr := make([]*spec, list.Len());
 	i := 0;
 	for v := range list.Iter() {
-		arr[i] = v.(*specification);
+		arr[i] = v.(*spec);
 		i++;
 	}
 	return arr

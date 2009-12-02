@@ -55,7 +55,7 @@ func (r *SpecRunner) startNewTasksAndWaitUntilFinished() {
 }
 
 // For testing purposes, so that the specs can be executed deterministically.
-func (r *SpecRunner) executeNextScheduledTaskSingleThreadedly() {
+func (r *SpecRunner) executeNextScheduledTask() {
 	r.startNextScheduledTask();
 	r.processNextFinishedTask();
 }
@@ -78,7 +78,7 @@ func (r *SpecRunner) hasRunningTasks() bool		{ return r.runningTasks > 0 }
 func (r *SpecRunner) hasScheduledTasks() bool		{ return r.scheduled.Len() > 0 }
 func (r *SpecRunner) nextScheduledTask() *scheduledTask	{ return r.scheduled.Pop().(*scheduledTask) }
 
-func (r *SpecRunner) execute(name string, closure func(*Context), c *Context) *taskResult {
+func (r *SpecRunner) execute(name string, closure specRoot, c *Context) *taskResult {
 	c.Specify(name, func() { closure(c) });
 	return &taskResult{
 		name, closure,
@@ -97,15 +97,16 @@ func (r *SpecRunner) saveResult(result *taskResult) {
 	}
 }
 
-
 // Scheduled spec execution.
 type scheduledTask struct {
 	name string;
-	closure func(*Context);
+	closure specRoot;
 	context *Context;
 }
 
-func newScheduledTask(name string, closure func(*Context), context *Context) *scheduledTask {
+type specRoot func(*Context)
+
+func newScheduledTask(name string, closure specRoot, context *Context) *scheduledTask {
 	return &scheduledTask{name, closure, context}
 }
 
@@ -113,8 +114,8 @@ func newScheduledTask(name string, closure func(*Context), context *Context) *sc
 // Results of a spec execution.
 type taskResult struct {
 	name string;
-	closure func(*Context);
-	executedSpecs []*specification;
-	postponedSpecs []*specification;
+	closure specRoot;
+	executedSpecs []*spec;
+	postponedSpecs []*spec;
 }
 

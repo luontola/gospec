@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	"math";
 	"runtime";
 	"testing";
 	"time";
@@ -37,7 +38,7 @@ func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	// would take at least 2*DELAY to execute, because the first spec
 	// needs to be executed fully before the other specs are found, but
 	// after that the other specs can be executed in parallel.
-	expectedMaxTime := int64(2.5 * DELAY);
+	expectedMaxTime := int64(math.Floor(2.9 * DELAY));
 	
 	if totalTime > expectedMaxTime {
 		t.Errorf("Expected the run to take less than %v ms but it took %v ms", 

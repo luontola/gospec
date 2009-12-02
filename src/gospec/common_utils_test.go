@@ -41,7 +41,7 @@ func runSpec(name string, closure func(*Context), context *Context) *taskResult 
 func countSpecNames(specs iterable.Iterable) map[string]int {
 	results := make(map[string]int);
 	for v := range specs.Iter() {
-		spec := v.(*specification);
+		spec := v.(*spec);
 		key := spec.name;
 		if _, preset := results[key]; !preset {
 			results[key] = 0;
