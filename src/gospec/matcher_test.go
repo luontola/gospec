@@ -78,11 +78,10 @@ type DummyStruct struct {
 }
 
 func (this DummyStruct) Equals(other interface{}) bool {
-	// TODO: figure out a better way to do equality, with less code to implement in client code
-	if that, ok := other.(DummyStruct); ok {
+	switch that := other.(type) {
+	case DummyStruct:
 		return this.equals(&that)
-	}
-	if that, ok := other.(*DummyStruct); ok {
+	case *DummyStruct:
 		return this.equals(that)
 	}
 	return false
