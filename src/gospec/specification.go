@@ -39,6 +39,14 @@ func (spec *spec) String() string {
 	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
 }
 
+func (spec *spec) rootParent() *spec {
+	root := spec;
+	for root.parent != nil {
+		root = root.parent;
+	}
+	return root
+}
+
 func asSpecArray(list *list.List) []*spec {
 	arr := make([]*spec, list.Len());
 	i := 0;
@@ -87,5 +95,9 @@ func (path path) lastIndex() int {
 		return -1	// root path
 	}
 	return path[len(path) - 1]
+}
+
+func (path path) isRoot() bool {
+	return len(path) == 0
 }
 

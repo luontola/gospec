@@ -4,6 +4,7 @@ TARG=gospec
 GOFILES=\
 	context.go\
 	matcher.go\
+	reporting.go\
 	runner.go\
 	specification.go\
 
