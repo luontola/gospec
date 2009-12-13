@@ -21,8 +21,8 @@ func NewSpecRunner() *SpecRunner {
 	r := new(SpecRunner);
 	r.runningTasks = 0;
 	r.results = make(chan *taskResult);
-	r.executed = vector.New(0);
-	r.scheduled = vector.New(0);
+	r.executed = new(vector.Vector);
+	r.scheduled = new(vector.Vector);
 	return r
 }
 

@@ -55,7 +55,7 @@ func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__The
 	
 	// Execute manually instead of calling Run(), in order to avoid running
 	// the specs multi-threadedly, which would mess up the test spy.
-	runs := vector.NewStringVector(0);
+	runs := new(vector.StringVector);
 	for r.hasScheduledTasks() {
 		resetTestSpy();
 		r.executeNextScheduledTask();
