@@ -10,35 +10,35 @@ import (
 	"sort";
 )
 
-var x = fmt.Sprintf("keep 'fmt' import during debugging"); // TODO: remove
-
 
 // Collects test results for all specs in a reporting friendly format.
-type specReport struct {
-	rootsByName map[string]*specInfo;
+type ResultCollector struct {
+	rootsByName map[string]*specResult;
 }
 
-func newSpecReport() *specReport {
-	return &specReport{make(map[string]*specInfo)}
+func newResultCollector() *ResultCollector {
+	return &ResultCollector{
+		make(map[string]*specResult)
+	}
 }
 
-func (r *specReport) Update(spec *specRun) {
+func (r *ResultCollector) Update(spec *specRun) {
 	root := r.getOrCreateRoot(spec);
 	root.Update(spec);
 }
 
-func (r *specReport) getOrCreateRoot(spec *specRun) *specInfo {
+func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 	rawRoot := spec.rootParent();
 	name := rawRoot.name;
 	root, contains := r.rootsByName[name];
 	if !contains {
-		root = newSpecInfo(rawRoot);
+		root = newSpecResult(rawRoot);
 		r.rootsByName[name] = root;
 	}
 	return root
 }
 
-func (r *specReport) TotalCount() int {
+func (r *ResultCollector) TotalCount() int {
 	totalCount := 0;
 	for _, root := range r.rootsByName {
 		totalCount += root.TotalCount();
@@ -46,8 +46,8 @@ func (r *specReport) TotalCount() int {
 	return totalCount
 }
 
-func (r *specReport) Roots() <-chan *specInfo {
-	iter := make(chan *specInfo);
+func (r *ResultCollector) Roots() <-chan *specResult {
+	iter := make(chan *specResult);
 	go func() {
 		for _, name := range r.sortedRootNames() {
 			iter <- r.rootsByName[name];
@@ -57,7 +57,7 @@ func (r *specReport) Roots() <-chan *specInfo {
 	return iter
 }
 
-func (r *specReport) sortedRootNames() []string {
+func (r *ResultCollector) sortedRootNames() []string {
 	names := make([]string, len(r.rootsByName));
 	i := 0;
 	for name, _ := range r.rootsByName {
@@ -70,40 +70,40 @@ func (r *specReport) sortedRootNames() []string {
 
 
 // Collects test results for one spec and its children in a reporting friendly format.
-type specInfo struct {
+type specResult struct {
 	name string;
 	path path;
 	children *list.List;
 }
 
-func newSpecInfo(spec *specRun) *specInfo {
-	return &specInfo{spec.name, spec.path, list.New()}
+func newSpecResult(spec *specRun) *specResult {
+	return &specResult{spec.name, spec.path, list.New()}
 }
 
-func (this *specInfo) Update(spec *specRun) {
+func (this *specResult) Update(spec *specRun) {
 	// TODO: build a correct tree structure - create unseen, merge dublicates
 	// TODO: update 'this' if the assert data differs
 	if spec.path.isBeyond(this.path) {
-		this.children.PushBack(newSpecInfo(spec));
+		this.children.PushBack(newSpecResult(spec));
 	}
 }
 
-func (this *specInfo) TotalCount() int {
+func (this *specResult) TotalCount() int {
 	return this.children.Len() + 1
 }
 
-func (this *specInfo) Children() <-chan *specInfo {
-	iter := make(chan *specInfo);
+func (this *specResult) Children() <-chan *specResult {
+	iter := make(chan *specResult);
 	go func() {
 		for child := range this.children.Iter() {
-			iter <- child.(*specInfo);
+			iter <- child.(*specResult);
 		}
 		close(iter);
 	}();
 	return iter
 }
 
-func (this *specInfo) String() string {
+func (this *specResult) String() string {
 	return fmt.Sprintf("%T{%v, %v, %d children}", this, this.name, this.path, this.children.Len());
 }
 

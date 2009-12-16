@@ -13,13 +13,13 @@ import (
 
 
 func Test__When_no_specs_are_executed__Then_the_report_has_in_total_zero_specs(t *testing.T) {
-	report := newSpecReport();
+	report := newResultCollector();
 	
 	assertEquals(0, report.TotalCount(), t);
 }
 
 func Test__When_one_root_spec_is_executed__Then_the_report_has_in_total_one_spec(t *testing.T) {
-	report := newSpecReport();
+	report := newResultCollector();
 	report.Update(newSpecRun("RootSpec", nil, nil));
 	
 	assertEquals(1, report.TotalCount(), t);
@@ -27,7 +27,7 @@ func Test__When_one_root_spec_is_executed__Then_the_report_has_in_total_one_spec
 
 func Test__When_one_root_spec_is_executed__Then_the_report_has_one_root_spec_with_no_children(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
-	report := newSpecReport();
+	report := newResultCollector();
 	report.Update(newSpecRun("RootSpec", nil, nil));
 	
 	roots := report.Roots();
@@ -40,7 +40,7 @@ func Test__When_one_root_spec_is_executed__Then_the_report_has_one_root_spec_wit
 
 func Test__When_many_root_specs_are_executed__Then_the_report_has_many_root_specs(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
-	report := newSpecReport();
+	report := newResultCollector();
 	report.Update(newSpecRun("RootSpec1", nil, nil));
 	report.Update(newSpecRun("RootSpec2", nil, nil));
 	
@@ -55,7 +55,7 @@ func Test__When_many_root_specs_are_executed__Then_the_report_has_many_root_spec
 
 func Test__When_nested_specs_are_executed__Then_the_root_spec_has_children(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
-	report := newSpecReport();
+	report := newResultCollector();
 	s1 := newSpecRun("RootSpec", nil, nil);
 	s2 := newSpecRun("Child", nil, s1);
 	report.Update(s1);
@@ -92,17 +92,15 @@ func DummySpecWithOneFailure(c *Context) {
 	});
 }
 
-func assertHasNoMore(iter <-chan *specInfo, t *testing.T) {
+func assertHasNoMore(iter <-chan *specResult, t *testing.T) {
 	assertEquals(true, nil == <-iter, t);
 }
 
-
-func assertSpecHasName(name string, spec *specInfo, t *testing.T) {
+func assertSpecHasName(name string, spec *specResult, t *testing.T) {
 	if spec == nil {
 		t.Error(fmt.Sprintf("Expected a spec with name '%v' but the spec was nil", name));
 	} else {
 		assertEquals(name, spec.name, t);
 	}
 }
-
 
