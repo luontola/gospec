@@ -17,6 +17,7 @@ type specRun struct {
 	parent *specRun;
 	numberOfChildren int;
 	path path;
+	errors *list.List;
 }
 
 func newSpecRun(name string, closure func(), parent *specRun) *specRun {
@@ -26,17 +27,19 @@ func newSpecRun(name string, closure func(), parent *specRun) *specRun {
 		path = parent.path.append(currentIndex);
 		parent.numberOfChildren++;
 	}
-	return &specRun{name, closure, parent, 0, path}
+	return &specRun{name, closure, parent, 0, path, list.New()}
 }
 
 func (spec *specRun) isOnTargetPath(c *Context) bool { return spec.path.isOn(c.targetPath) }
 func (spec *specRun) isUnseen(c *Context) bool       { return spec.path.isBeyond(c.targetPath) }
 func (spec *specRun) isFirstChild() bool             { return spec.path.lastIndex() == 0 }
 
-func (spec *specRun) execute()	{ spec.closure() }
+func (spec *specRun) execute() {
+	spec.closure();
+}
 
-func (spec *specRun) String() string {
-	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
+func (spec *specRun) addError(message string) {
+	spec.errors.PushBack(message);
 }
 
 func (spec *specRun) rootParent() *specRun {
@@ -46,6 +49,11 @@ func (spec *specRun) rootParent() *specRun {
 	}
 	return root
 }
+
+func (spec *specRun) String() string {
+	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
+}
+
 
 func asSpecArray(list *list.List) []*specRun {
 	arr := make([]*specRun, list.Len());
@@ -75,19 +83,23 @@ func (parent path) append(index int) path {
 }
 
 func (current path) isOn(target path) bool {
-	if current.isBeyond(target) {
-		return false
-	}
-	for i := 0; i < len(current); i++ {
-		if current[i] != target[i] {
-			return false
-		}
-	}
-	return true
+	return commonPrefixLength(current, target) == len(current)
+}
+
+func (current path) isEqual(target path) bool {
+	return current.isOn(target) && len(current) == len(target);
 }
 
 func (current path) isBeyond(target path) bool {
-	return len(current) > len(target)
+	return target.isOn(current) && len(current) > len(target)
+}
+
+func commonPrefixLength(a path, b path) int {
+	length := 0;
+	for i := 0; i < len(a) && i < len(b) && a[i] == b[i]; i++ {
+		length++;
+	}
+	return length
 }
 
 func (path path) lastIndex() int {

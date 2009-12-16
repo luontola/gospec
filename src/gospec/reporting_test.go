@@ -6,101 +6,155 @@ package gospec
 
 import (
 	"testing";
-	"fmt";
 )
 
 
-
-
-func Test__When_no_specs_are_executed__Then_the_report_has_in_total_zero_specs(t *testing.T) {
-	report := newResultCollector();
+func Test__When_results_have_many_root_specs__Then_they_are_sorted_alphabetically(t *testing.T) {
+	results := newResultCollector();
 	
-	assertEquals(0, report.TotalCount(), t);
-}
-
-func Test__When_one_root_spec_is_executed__Then_the_report_has_in_total_one_spec(t *testing.T) {
-	report := newResultCollector();
-	report.Update(newSpecRun("RootSpec", nil, nil));
+	// register in reverse order
+	a1 := newSpecRun("RootSpec2", nil, nil);
+	results.Update(a1);
 	
-	assertEquals(1, report.TotalCount(), t);
-}
-
-func Test__When_one_root_spec_is_executed__Then_the_report_has_one_root_spec_with_no_children(t *testing.T) {
-	// TODO: refactor so that the tree structure is visible
-	report := newResultCollector();
-	report.Update(newSpecRun("RootSpec", nil, nil));
+	b2 := newSpecRun("RootSpec1", nil, nil);
+	results.Update(b2);
 	
-	roots := report.Roots();
-	r1 := <-roots;
-	assertHasNoMore(roots, t);
+	// expect roots to be in alphabetical order
+	assertReportIs(results, `
+- RootSpec1
+- RootSpec2
+	`, 2, 0, t);
+}
+
+func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_declaration_order(t *testing.T) {
+	results := newResultCollector();
 	
-	assertSpecHasName("RootSpec", r1, t);
-	assertHasNoMore(r1.Children(), t);
-}
-
-func Test__When_many_root_specs_are_executed__Then_the_report_has_many_root_specs(t *testing.T) {
-	// TODO: refactor so that the tree structure is visible
-	report := newResultCollector();
-	report.Update(newSpecRun("RootSpec1", nil, nil));
-	report.Update(newSpecRun("RootSpec2", nil, nil));
+	// In tests, when a spec has many children, make sure
+	// to pass a common parent instance to all the siblings.
+	// Otherwise the parent's numberOfChildren is not
+	// incremented and the children's paths will be wrong.
 	
-	roots := report.Roots();
-	r1 := <-roots;
-	r2 := <-roots;
-	assertHasNoMore(roots, t);
-
-	assertSpecHasName("RootSpec1", r1, t);
-	assertSpecHasName("RootSpec2", r2, t);
-}
-
-func Test__When_nested_specs_are_executed__Then_the_root_spec_has_children(t *testing.T) {
-	// TODO: refactor so that the tree structure is visible
-	report := newResultCollector();
-	s1 := newSpecRun("RootSpec", nil, nil);
-	s2 := newSpecRun("Child", nil, s1);
-	report.Update(s1);
-	report.Update(s2);
+	// use names which would not sort alphabetically
+	root := newSpecRun("RootSpec", nil, nil);
+	child1 := newSpecRun("one", nil, root);
+	child2 := newSpecRun("two", nil, root);
+	child3 := newSpecRun("three", nil, root);
 	
-	roots := report.Roots();
-	r1 := <-roots;
-	assertHasNoMore(roots, t);
+	// register in random order
+	results.Update(root);
+	results.Update(child1);
+	
+	results.Update(root);
+	results.Update(child3);
+	
+	results.Update(root);
+	results.Update(child2);
+	
+	// expect children to be in declaration order
+	assertReportIs(results, `
+- RootSpec
+  - one
+  - two
+  - three
+	`, 4, 0, t);
+}
 
-	children := r1.Children();
-	r1c1 := <-children;
-	assertHasNoMore(children, t);
+func Test__Collecting_results_of_zero_specs(t *testing.T) {
+	results := newResultCollector();
+	
+	assertReportIs(results, `
+	`, 0, 0, t);
+}
 
-	assertSpecHasName("RootSpec", r1, t);
-	assertSpecHasName("Child", r1c1, t);
+func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
+	results := newResultCollector();
+	
+	a1 := newSpecRun("RootSpec", nil, nil);
+	results.Update(a1);
+	
+	assertReportIs(results, `
+- RootSpec
+	`, 1, 0, t);
+}
+
+func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
+	results := newResultCollector();
+	
+	a1 := newSpecRun("RootSpec", nil, nil);
+	a2 := newSpecRun("Child A", nil, a1);
+	results.Update(a1);
+	results.Update(a2);
+	
+	assertReportIs(results, `
+- RootSpec
+  - Child A
+	`, 2, 0, t);
+}
+
+func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
+	results := newResultCollector();
+	
+	a1 := newSpecRun("RootSpec", nil, nil);
+	a2 := newSpecRun("Child A", nil, a1);
+	a3 := newSpecRun("Child AA", nil, a2);
+	results.Update(a1);
+	results.Update(a2);
+	results.Update(a3);
+	
+	assertReportIs(results, `
+- RootSpec
+  - Child A
+    - Child AA
+	`, 3, 0, t);
+}
+
+func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing.T) {
+	runner := NewRunner();
+	runner.AddSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren);
+	runner.Run();
+	
+	assertReportIs(runner.compileResults(), `
+- DummySpecWithMultipleNestedChildren
+  - Child A
+    - Child AA
+    - Child AB
+  - Child B
+    - Child BA
+    - Child BB
+    - Child BC
+	`, 8, 0, t);
+}
+
+func Test__Collecting_results_of_failing_specs(t *testing.T) {
+	results := newResultCollector();
+	
+	a1 := newSpecRun("Failing", nil, nil);
+	a1.addError("X did not equal Y");
+	results.Update(a1);
+	
+	b1 := newSpecRun("Passing", nil, nil);
+	b2 := newSpecRun("Child failing", nil, b1);
+	b2.addError("moon was not cheese");
+	results.Update(b1);
+	results.Update(b2);
+	
+	assertReportIs(results, `
+- Failing [FAIL]
+    X did not equal Y
+- Passing
+  - Child failing [FAIL]
+      moon was not cheese
+	`, 1, 2, t);
 }
 
 
-
-
-func Test__The_total_number_of_specs_is_reported(t *testing.T) {
-	/*
-	r := NewSpecRunner();
-	r.AddSpec("DummySpecWithOneFailure", DummySpecWithOneFailure);
-	r.Run();
-	assertEquals(3, r.TotalCount(), t);
-	*/
-}
-
-func DummySpecWithOneFailure(c *Context) {
-	c.Specify("Failing spec", func() {
-	});
-	c.Specify("Passing spec", func() {
-	});
-}
-
-func assertHasNoMore(iter <-chan *specResult, t *testing.T) {
-	assertEquals(true, nil == <-iter, t);
-}
-
-func assertSpecHasName(name string, spec *specResult, t *testing.T) {
-	if spec == nil {
-		t.Error(fmt.Sprintf("Expected a spec with name '%v' but the spec was nil", name));
-	} else {
-		assertEquals(name, spec.name, t);
-	}
+func assertReportIs(results *ResultCollector, expected string, passCount int, failCount int, t *testing.T) {
+	report := newReportPrinter();
+	report.Visit(results);
+	
+	assertEquals(passCount, results.PassCount(), t);
+	assertEquals(failCount, results.FailCount(), t);
+	assertEquals(passCount + failCount, results.TotalCount(), t);
+	assertEqualsTrim(expected, report.String(), t);
 }
 

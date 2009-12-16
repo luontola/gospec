@@ -7,6 +7,7 @@ package gospec
 import (
 	"exp/iterable";
 	"fmt";
+	"strings";
 	"testing";
 )
 
@@ -29,6 +30,9 @@ func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 	}
 }
 
+func assertEqualsTrim(expected string, actual string, t *testing.T) {
+	assertEquals(strings.TrimSpace(expected), strings.TrimSpace(actual), t)
+}
 
 // GoSpec specific test utilites
 
@@ -107,6 +111,14 @@ func DummySpecWithMultipleNestedChildren(c *Context) {
 		c.Specify("Child BC", func() {
 			testSpy += ",bc";
 		});
+	});
+}
+
+func DummySpecWithOneFailure(c *Context) {
+	c.Specify("Failing spec", func() {
+		// TODO: add failing assert
+	});
+	c.Specify("Passing spec", func() {
 	});
 }
 

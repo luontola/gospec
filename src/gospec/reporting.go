@@ -38,12 +38,40 @@ func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 	return root
 }
 
+// TODO: Visit the specs only once and cache the counts? Even count them as they are added?
+
 func (r *ResultCollector) TotalCount() int {
-	totalCount := 0;
+	count := 0;
+	r.visitAllSpecs(func(spec *specResult) {
+		count++;
+	});
+	return count;
+}
+
+func (r *ResultCollector) PassCount() int {
+	count := 0;
+	r.visitAllSpecs(func(spec *specResult) {
+		if !spec.IsFailed() {
+			count++;
+		}
+	});
+	return count
+}
+
+func (r *ResultCollector) FailCount() int {
+	count := 0;
+	r.visitAllSpecs(func(spec *specResult) {
+		if spec.IsFailed() {
+			count++;
+		}
+	});
+	return count
+}
+
+func (r *ResultCollector) visitAllSpecs(visitor func(*specResult)) {
 	for _, root := range r.rootsByName {
-		totalCount += root.TotalCount();
+		root.visit(visitor);
 	}
-	return totalCount
 }
 
 func (r *ResultCollector) Roots() <-chan *specResult {
@@ -74,22 +102,82 @@ type specResult struct {
 	name string;
 	path path;
 	children *list.List;
+	errors *list.List;
 }
 
 func newSpecResult(spec *specRun) *specResult {
-	return &specResult{spec.name, spec.path, list.New()}
-}
-
-func (this *specResult) Update(spec *specRun) {
-	// TODO: build a correct tree structure - create unseen, merge dublicates
-	// TODO: update 'this' if the assert data differs
-	if spec.path.isBeyond(this.path) {
-		this.children.PushBack(newSpecResult(spec));
+	return &specResult{
+		spec.name,
+		spec.path,
+		list.New(),
+		spec.errors, // TODO: do a safe copy?
 	}
 }
 
-func (this *specResult) TotalCount() int {
-	return this.children.Len() + 1
+func (this *specResult) Update(spec *specRun) {
+	isMe := this.path.isEqual(spec.path);
+	isMyChild := this.path.isOn(spec.path) && !isMe;
+	isMyDirectChild := isMyChild && len(this.path) + 1 == len(spec.path);
+	
+	if isMe {
+		// TODO: check error messages and merge if different from previously registered
+		return
+	}
+	
+	if isMyDirectChild {
+		if !this.isRegisteredChild(spec) {
+			this.registerChild(spec);
+		}
+		return
+	}
+	
+	if isMyChild {
+		for child := range this.Children() {
+			child.Update(spec);
+		}
+		return
+	}
+}
+
+func (this *specResult) isRegisteredChild(spec *specRun) bool {
+	for e := this.children.Front(); e != nil; e = e.Next() {
+		other := e.Value.(*specResult);
+		if other.path.isEqual(spec.path) {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *specResult) registerChild(spec *specRun) {
+	newChild := newSpecResult(spec);
+	pos := this.findFirstChildWithGreaterIndex(newChild.path.lastIndex());
+	if pos != nil {
+		this.children.InsertBefore(newChild, pos);
+	} else {
+		this.children.PushBack(newChild);
+	}
+}
+
+func (this *specResult) findFirstChildWithGreaterIndex(targetIndex int) *list.Element {
+	for e := this.children.Front(); e != nil; e = e.Next() {
+		child := e.Value.(*specResult);
+		if child.path.lastIndex() > targetIndex {
+			return e
+		}
+	}
+	return nil
+}
+
+func (this *specResult) IsFailed() bool {
+	return this.errors.Len() > 0
+}
+
+func (this *specResult) visit(visitor func(*specResult)) {
+	visitor(this);
+	for child := range this.children.Iter() {
+		child.(*specResult).visit(visitor);
+	}
 }
 
 func (this *specResult) Children() <-chan *specResult {

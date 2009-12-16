@@ -74,14 +74,15 @@ func (r *Runner) processNextFinishedTask() {
 	r.saveResult(result);
 }
 
-func (r *Runner) hasRunningTasks() bool		{ return r.runningTasks > 0 }
-func (r *Runner) hasScheduledTasks() bool		{ return r.scheduled.Len() > 0 }
-func (r *Runner) nextScheduledTask() *scheduledTask	{ return r.scheduled.Pop().(*scheduledTask) }
+func (r *Runner) hasRunningTasks() bool             { return r.runningTasks > 0 }
+func (r *Runner) hasScheduledTasks() bool           { return r.scheduled.Len() > 0 }
+func (r *Runner) nextScheduledTask() *scheduledTask { return r.scheduled.Pop().(*scheduledTask) }
 
 func (r *Runner) execute(name string, closure specRoot, c *Context) *taskResult {
 	c.Specify(name, func() { closure(c) });
 	return &taskResult{
-		name, closure,
+		name,
+		closure,
 		asSpecArray(c.executedSpecs),
 		asSpecArray(c.postponedSpecs)
 	}
@@ -96,6 +97,21 @@ func (r *Runner) saveResult(result *taskResult) {
 		r.scheduled.Push(task);
 	}
 }
+
+func (r *Runner) compileResults() *ResultCollector {
+	// TODO: Should this be done concurrently with executing the specs?
+	// The result collector could run in its own goroutine, and the
+	// Runner.saveResult() method would send executed specs to it as they
+	// get ready (the channel should be buffered). When all is done, the runner
+	// will get the result collector from a result channel.
+	
+	results := newResultCollector();
+	for spec := range r.executed.Iter() {
+		results.Update(spec.(*specRun));
+	}
+	return results
+}
+
 
 // Scheduled spec execution.
 type scheduledTask struct {
