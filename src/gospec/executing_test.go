@@ -44,7 +44,7 @@ func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
 // Scheduling specs for execution
 
 func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
-	r := NewSpecRunner();
+	r := NewRunner();
 	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.Run();
 	
@@ -56,7 +56,7 @@ func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_b
 }
 
 func Test__Multiple_specs_can_be_executed_in_one_batch(t *testing.T) {
-	r := NewSpecRunner();
+	r := NewRunner();
 	r.AddSpec("DummySpecWithOneChild", DummySpecWithOneChild);
 	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren);
 	r.Run();

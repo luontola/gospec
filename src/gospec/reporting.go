@@ -22,12 +22,12 @@ func newSpecReport() *specReport {
 	return &specReport{make(map[string]*specInfo)}
 }
 
-func (r *specReport) Update(spec *spec) {
+func (r *specReport) Update(spec *specRun) {
 	root := r.getOrCreateRoot(spec);
 	root.Update(spec);
 }
 
-func (r *specReport) getOrCreateRoot(spec *spec) *specInfo {
+func (r *specReport) getOrCreateRoot(spec *specRun) *specInfo {
 	rawRoot := spec.rootParent();
 	name := rawRoot.name;
 	root, contains := r.rootsByName[name];
@@ -76,11 +76,11 @@ type specInfo struct {
 	children *list.List;
 }
 
-func newSpecInfo(spec *spec) *specInfo {
+func newSpecInfo(spec *specRun) *specInfo {
 	return &specInfo{spec.name, spec.path, list.New()}
 }
 
-func (this *specInfo) Update(spec *spec) {
+func (this *specInfo) Update(spec *specRun) {
 	// TODO: build a correct tree structure - create unseen, merge dublicates
 	// TODO: update 'this' if the assert data differs
 	if spec.path.isBeyond(this.path) {

@@ -20,7 +20,7 @@ func Test__When_no_specs_are_executed__Then_the_report_has_in_total_zero_specs(t
 
 func Test__When_one_root_spec_is_executed__Then_the_report_has_in_total_one_spec(t *testing.T) {
 	report := newSpecReport();
-	report.Update(newSpec("RootSpec", nil, nil));
+	report.Update(newSpecRun("RootSpec", nil, nil));
 	
 	assertEquals(1, report.TotalCount(), t);
 }
@@ -28,7 +28,7 @@ func Test__When_one_root_spec_is_executed__Then_the_report_has_in_total_one_spec
 func Test__When_one_root_spec_is_executed__Then_the_report_has_one_root_spec_with_no_children(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
 	report := newSpecReport();
-	report.Update(newSpec("RootSpec", nil, nil));
+	report.Update(newSpecRun("RootSpec", nil, nil));
 	
 	roots := report.Roots();
 	r1 := <-roots;
@@ -41,8 +41,8 @@ func Test__When_one_root_spec_is_executed__Then_the_report_has_one_root_spec_wit
 func Test__When_many_root_specs_are_executed__Then_the_report_has_many_root_specs(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
 	report := newSpecReport();
-	report.Update(newSpec("RootSpec1", nil, nil));
-	report.Update(newSpec("RootSpec2", nil, nil));
+	report.Update(newSpecRun("RootSpec1", nil, nil));
+	report.Update(newSpecRun("RootSpec2", nil, nil));
 	
 	roots := report.Roots();
 	r1 := <-roots;
@@ -56,8 +56,8 @@ func Test__When_many_root_specs_are_executed__Then_the_report_has_many_root_spec
 func Test__When_nested_specs_are_executed__Then_the_root_spec_has_children(t *testing.T) {
 	// TODO: refactor so that the tree structure is visible
 	report := newSpecReport();
-	s1 := newSpec("RootSpec", nil, nil);
-	s2 := newSpec("Child", nil, s1);
+	s1 := newSpecRun("RootSpec", nil, nil);
+	s2 := newSpecRun("Child", nil, s1);
 	report.Update(s1);
 	report.Update(s2);
 	

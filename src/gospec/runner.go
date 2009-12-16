@@ -9,16 +9,16 @@ import (
 )
 
 
-// SpecRunner executes the specs and collects their results.
-type SpecRunner struct {
+// Runner executes the specs and collects their results.
+type Runner struct {
 	runningTasks int;
 	results chan *taskResult;
 	executed *vector.Vector;
 	scheduled *vector.Vector;
 }
 
-func NewSpecRunner() *SpecRunner {
-	r := new(SpecRunner);
+func NewRunner() *Runner {
+	r := new(Runner);
 	r.runningTasks = 0;
 	r.results = make(chan *taskResult);
 	r.executed = new(vector.Vector);
@@ -29,25 +29,25 @@ func NewSpecRunner() *SpecRunner {
 // Adds a spec for later execution. The name of the spec method must be provided,
 // because the program does not know how to find it out at runtime. Example:
 //     r.AddSpec("SomeSpec", SomeSpec);
-func (r *SpecRunner) AddSpec(name string, closure func(*Context)) {
+func (r *Runner) AddSpec(name string, closure func(*Context)) {
 	r.scheduled.Push(newScheduledTask(name, closure, newInitialContext()));
 }
 
 // Executes all the specs which have been added with AddSpec. The specs
 // are executed using as many goroutines as possible, so that even individual
 // spec methods are executed in multiple goroutines.
-func (r *SpecRunner) Run() {
+func (r *Runner) Run() {
 	r.startAllScheduledTasks();
 	r.startNewTasksAndWaitUntilFinished();
 }
 
-func (r *SpecRunner) startAllScheduledTasks() {
+func (r *Runner) startAllScheduledTasks() {
 	for r.hasScheduledTasks() {
 		r.startNextScheduledTask();
 	}
 }
 
-func (r *SpecRunner) startNewTasksAndWaitUntilFinished() {
+func (r *Runner) startNewTasksAndWaitUntilFinished() {
 	for r.hasRunningTasks() {
 		r.processNextFinishedTask();
 		r.startAllScheduledTasks();
@@ -55,12 +55,12 @@ func (r *SpecRunner) startNewTasksAndWaitUntilFinished() {
 }
 
 // For testing purposes, so that the specs can be executed deterministically.
-func (r *SpecRunner) executeNextScheduledTask() {
+func (r *Runner) executeNextScheduledTask() {
 	r.startNextScheduledTask();
 	r.processNextFinishedTask();
 }
 
-func (r *SpecRunner) startNextScheduledTask() {
+func (r *Runner) startNextScheduledTask() {
 	task := r.nextScheduledTask();
 	go func() {
 		r.results <- r.execute(task.name, task.closure, task.context);
@@ -68,17 +68,17 @@ func (r *SpecRunner) startNextScheduledTask() {
 	r.runningTasks++;
 }
 
-func (r *SpecRunner) processNextFinishedTask() {
+func (r *Runner) processNextFinishedTask() {
 	result := <-r.results;
 	r.runningTasks--;
 	r.saveResult(result);
 }
 
-func (r *SpecRunner) hasRunningTasks() bool		{ return r.runningTasks > 0 }
-func (r *SpecRunner) hasScheduledTasks() bool		{ return r.scheduled.Len() > 0 }
-func (r *SpecRunner) nextScheduledTask() *scheduledTask	{ return r.scheduled.Pop().(*scheduledTask) }
+func (r *Runner) hasRunningTasks() bool		{ return r.runningTasks > 0 }
+func (r *Runner) hasScheduledTasks() bool		{ return r.scheduled.Len() > 0 }
+func (r *Runner) nextScheduledTask() *scheduledTask	{ return r.scheduled.Pop().(*scheduledTask) }
 
-func (r *SpecRunner) execute(name string, closure specRoot, c *Context) *taskResult {
+func (r *Runner) execute(name string, closure specRoot, c *Context) *taskResult {
 	c.Specify(name, func() { closure(c) });
 	return &taskResult{
 		name, closure,
@@ -87,7 +87,7 @@ func (r *SpecRunner) execute(name string, closure specRoot, c *Context) *taskRes
 	}
 }
 
-func (r *SpecRunner) saveResult(result *taskResult) {
+func (r *Runner) saveResult(result *taskResult) {
 	for _, spec := range result.executedSpecs {
 		r.executed.Push(spec);
 	}
@@ -115,7 +115,7 @@ func newScheduledTask(name string, closure specRoot, context *Context) *schedule
 type taskResult struct {
 	name string;
 	closure specRoot;
-	executedSpecs []*spec;
-	postponedSpecs []*spec;
+	executedSpecs []*specRun;
+	postponedSpecs []*specRun;
 }
 

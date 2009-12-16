@@ -25,7 +25,7 @@ func init() {
 }
 
 func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
-	r := NewSpecRunner();
+	r := NewRunner();
 	r.AddSpec("VerySlowDummySpec", VerySlowDummySpec);
 	
 	start := time.Nanoseconds();

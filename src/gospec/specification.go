@@ -11,35 +11,35 @@ import (
 
 
 // Represents a spec in a tree of specs.
-type spec struct {
+type specRun struct {
 	name string;
 	closure func();
-	parent *spec;
+	parent *specRun;
 	numberOfChildren int;
 	path path;
 }
 
-func newSpec(name string, closure func(), parent *spec) *spec {
+func newSpecRun(name string, closure func(), parent *specRun) *specRun {
 	path := rootPath();
 	if parent != nil {
 		currentIndex := parent.numberOfChildren;
 		path = parent.path.append(currentIndex);
 		parent.numberOfChildren++;
 	}
-	return &spec{name, closure, parent, 0, path}
+	return &specRun{name, closure, parent, 0, path}
 }
 
-func (spec *spec) isOnTargetPath(c *Context) bool	{ return spec.path.isOn(c.targetPath) }
-func (spec *spec) isUnseen(c *Context) bool		{ return spec.path.isBeyond(c.targetPath) }
-func (spec *spec) isFirstChild() bool			{ return spec.path.lastIndex() == 0 }
+func (spec *specRun) isOnTargetPath(c *Context) bool { return spec.path.isOn(c.targetPath) }
+func (spec *specRun) isUnseen(c *Context) bool       { return spec.path.isBeyond(c.targetPath) }
+func (spec *specRun) isFirstChild() bool             { return spec.path.lastIndex() == 0 }
 
-func (spec *spec) execute()	{ spec.closure() }
+func (spec *specRun) execute()	{ spec.closure() }
 
-func (spec *spec) String() string {
+func (spec *specRun) String() string {
 	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
 }
 
-func (spec *spec) rootParent() *spec {
+func (spec *specRun) rootParent() *specRun {
 	root := spec;
 	for root.parent != nil {
 		root = root.parent;
@@ -47,11 +47,11 @@ func (spec *spec) rootParent() *spec {
 	return root
 }
 
-func asSpecArray(list *list.List) []*spec {
-	arr := make([]*spec, list.Len());
+func asSpecArray(list *list.List) []*specRun {
+	arr := make([]*specRun, list.Len());
 	i := 0;
 	for v := range list.Iter() {
-		arr[i] = v.(*spec);
+		arr[i] = v.(*specRun);
 		i++;
 	}
 	return arr

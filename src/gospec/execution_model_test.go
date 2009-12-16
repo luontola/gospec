@@ -50,7 +50,7 @@ func Test__Given_a_spec_with_two_children__When_the_2nd_child_is_run_explicitly_
 // Specs with nested siblings, execute eventually all siblings, one at a time
 
 func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__Then_all_the_children_are_executed_in_isolation(t *testing.T) {
-	r := NewSpecRunner();
+	r := NewRunner();
 	r.AddSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren);
 	
 	// Execute manually instead of calling Run(), in order to avoid running
