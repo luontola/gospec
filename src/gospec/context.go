@@ -5,17 +5,17 @@
 package gospec
 
 import (
-	"container/list";
+	"container/list"
 )
 
 
 // Context controls the execution of the current spec. Child specs can be
 // created with the Specify method.
 type Context struct {
-	targetPath path;
-	currentSpec *specRun;
-	executedSpecs *list.List;
-	postponedSpecs *list.List;
+	targetPath     path
+	currentSpec    *specRun
+	executedSpecs  *list.List
+	postponedSpecs *list.List
 }
 
 func newInitialContext() *Context {
@@ -23,11 +23,11 @@ func newInitialContext() *Context {
 }
 
 func newExplicitContext(targetPath path) *Context {
-	c := new(Context);
-	c.targetPath = targetPath;
-	c.currentSpec = nil;
-	c.executedSpecs = list.New();
-	c.postponedSpecs = list.New();
+	c := new(Context)
+	c.targetPath = targetPath
+	c.currentSpec = nil
+	c.executedSpecs = list.New()
+	c.postponedSpecs = list.New()
 	return c
 }
 
@@ -36,18 +36,18 @@ func newExplicitContext(targetPath path) *Context {
 // by this spec, and the closure should contain the same specification written
 // as code.
 func (c *Context) Specify(name string, closure func()) {
-	c.enterSpec(name, closure);
-	c.processCurrentSpec();
-	c.exitSpec();
+	c.enterSpec(name, closure)
+	c.processCurrentSpec()
+	c.exitSpec()
 }
 
 func (c *Context) enterSpec(name string, closure func()) {
-	spec := newSpecRun(name, closure, c.currentSpec);
-	c.currentSpec = spec;
+	spec := newSpecRun(name, closure, c.currentSpec)
+	c.currentSpec = spec
 }
 
 func (c *Context) processCurrentSpec() {
-	spec := c.currentSpec;
+	spec := c.currentSpec
 	switch {
 	case c.shouldExecute(spec):
 		c.execute(spec)
@@ -57,7 +57,7 @@ func (c *Context) processCurrentSpec() {
 }
 
 func (c *Context) exitSpec() {
-	c.currentSpec = c.currentSpec.parent;
+	c.currentSpec = c.currentSpec.parent
 }
 
 func (c *Context) shouldExecute(spec *specRun) bool {
@@ -69,12 +69,12 @@ func (c *Context) shouldPostpone(spec *specRun) bool {
 }
 
 func (c *Context) execute(spec *specRun) {
-	c.executedSpecs.PushBack(spec);
-	spec.execute();
+	c.executedSpecs.PushBack(spec)
+	spec.execute()
 }
 
 func (c *Context) postpone(spec *specRun) {
-	c.postponedSpecs.PushBack(spec);
+	c.postponedSpecs.PushBack(spec)
 }
 
 
@@ -83,6 +83,6 @@ func (c *Context) postpone(spec *specRun) {
 func (c *Context) Then(actual interface{}) *Matcher {
 	// TODO
 	return nil
-//	return newMatcher(actual, c.currentSpec)
+	//	return newMatcher(actual, c.currentSpec)
 }
 

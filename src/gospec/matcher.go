@@ -5,39 +5,40 @@
 package gospec
 
 import (
-	"fmt";
+	"fmt"
 )
 
 
 type Matcher struct {
-	actual interface{};
-	log errorLogger;
-	negation bool;
-	Should *Matcher;
-	ShouldNot *Matcher;
+	actual    interface{}
+	log       errorLogger
+	negation  bool
+	Should    *Matcher
+	ShouldNot *Matcher
 }
 
 func newMatcher(actual interface{}, log errorLogger) *Matcher {
-	pos := new(Matcher);
-	pos.actual = actual;
-	pos.log = log;
-	pos.negation = false;
+	var common Matcher
+	common.actual = actual
+	common.log = log
 	
-	neg := new(Matcher);
-	neg.actual = actual;
-	neg.log = log;
-	neg.negation = true;
+	pos := common
+	pos.negation = false
 	
-	pos.Should = pos;
-	pos.ShouldNot = neg;
-	neg.Should = pos;
-	neg.ShouldNot = neg;
-	return pos
+	neg := common
+	neg.negation = true
+	
+	pos.Should = &pos
+	pos.ShouldNot = &neg
+	neg.Should = &pos
+	neg.ShouldNot = &neg
+	
+	return &pos
 }
 
 func (m *Matcher) Equal(expected interface{}) {
 	if m.fails(areEqual(expected, m.actual)) {
-		m.logError(expected, m.actual);
+		m.logError(expected, m.actual)
 	}
 }
 
@@ -54,10 +55,10 @@ func (m *Matcher) fails(ok bool) bool {
 
 func (m *Matcher) logError(expected interface{}, actual interface{}) {
 	if !m.negation {
-		m.log.logError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual));
+		m.log.logError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
 	}
 	if m.negation {
-		m.log.logError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual));
+		m.log.logError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual))
 	}
 }
 
@@ -65,10 +66,10 @@ func (m *Matcher) logError(expected interface{}, actual interface{}) {
 // Helpers
 
 type Equality interface {
-	Equals(other interface{}) bool;
+	Equals(other interface{}) bool
 }
 
 type errorLogger interface {
-	logError(message string);
+	logError(message string)
 }
 

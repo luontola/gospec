@@ -5,28 +5,28 @@
 package gospec
 
 import (
-	"exp/iterable";
-	"fmt";
-	"strings";
-	"testing";
+	"exp/iterable"
+	"fmt"
+	"strings"
+	"testing"
 )
 
 
 // Generic test utilities
 
-var testSpy = "";
+var testSpy = ""
 
 func resetTestSpy() {
-	testSpy = "";
+	testSpy = ""
 }
 
 func assertTestSpyHas(expected string, t *testing.T) {
-	assertEquals(expected, testSpy, t);
+	assertEquals(expected, testSpy, t)
 }
 
 func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 	if expected != actual {
-		t.Error(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual));
+		t.Error(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
 	}
 }
 
@@ -37,20 +37,20 @@ func assertEqualsTrim(expected string, actual string, t *testing.T) {
 // GoSpec specific test utilites
 
 func runSpec(name string, closure func(*Context), context *Context) *taskResult {
-	resetTestSpy();
-	r := NewRunner();
-	return r.execute(name, closure, context);
+	resetTestSpy()
+	r := NewRunner()
+	return r.execute(name, closure, context)
 }
 
 func countSpecNames(specs iterable.Iterable) map[string]int {
-	results := make(map[string]int);
+	results := make(map[string]int)
 	for v := range specs.Iter() {
-		spec := v.(*specRun);
-		key := spec.name;
+		spec := v.(*specRun)
+		key := spec.name
 		if _, preset := results[key]; !preset {
-			results[key] = 0;
+			results[key] = 0
 		}
-		results[key]++;
+		results[key]++
 	}
 	return results
 }
@@ -59,66 +59,66 @@ func countSpecNames(specs iterable.Iterable) map[string]int {
 // Test dummies for all test cases
 
 func DummySpecWithNoChildren(c *Context) {
-	testSpy += "root";
+	testSpy += "root"
 }
 
 func DummySpecWithOneChild(c *Context) {
-	testSpy += "root";
+	testSpy += "root"
 	c.Specify("Child A", func() {
-		testSpy += ",a";
-	});
+		testSpy += ",a"
+	})
 }
 
 func DummySpecWithTwoChildren(c *Context) {
-	testSpy += "root";
+	testSpy += "root"
 	c.Specify("Child A", func() {
-		testSpy += ",a";
-	});
+		testSpy += ",a"
+	})
 	c.Specify("Child B", func() {
-		testSpy += ",b";
-	});
+		testSpy += ",b"
+	})
 }
 
 func DummySpecWithNestedChildren(c *Context) {
-	testSpy += "root";
+	testSpy += "root"
 	c.Specify("Child A", func() {
-		testSpy += ",a";
+		testSpy += ",a"
 		c.Specify("Child AA", func() {
-			testSpy += ",aa";
-		});
-	});
+			testSpy += ",aa"
+		})
+	})
 }
 
 func DummySpecWithMultipleNestedChildren(c *Context) {
-	testSpy += "root";
+	testSpy += "root"
 	c.Specify("Child A", func() {
-		testSpy += ",a";
+		testSpy += ",a"
 		c.Specify("Child AA", func() {
-			testSpy += ",aa";
-		});
+			testSpy += ",aa"
+		})
 		c.Specify("Child AB", func() {
-			testSpy += ",ab";
-		});
-	});
+			testSpy += ",ab"
+		})
+	})
 	c.Specify("Child B", func() {
-		testSpy += ",b";
+		testSpy += ",b"
 		c.Specify("Child BA", func() {
-			testSpy += ",ba";
-		});
+			testSpy += ",ba"
+		})
 		c.Specify("Child BB", func() {
-			testSpy += ",bb";
-		});
+			testSpy += ",bb"
+		})
 		c.Specify("Child BC", func() {
-			testSpy += ",bc";
-		});
-	});
+			testSpy += ",bc"
+		})
+	})
 }
 
 func DummySpecWithOneFailure(c *Context) {
 	c.Specify("Failing spec", func() {
 		// TODO: add failing assert
-	});
+	})
 	c.Specify("Passing spec", func() {
-	});
+	})
 }
 

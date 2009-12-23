@@ -5,34 +5,34 @@
 package main
 
 import (
-	"fmt";
+	"fmt"
 )
 
 
 type Context struct {
-	level int;
+	level int
 }
 
 func (c *Context) Specify(description string, closure func()) {
 	for i := 0; i < c.level; i++ {
 		fmt.Print("  ")
 	}
-	fmt.Println(" - " + description);
-	c.level++;
-	closure();
-	c.level--;
+	fmt.Println(" - " + description)
+	c.level++
+	closure()
+	c.level--
 }
 
 
 func main() {
-	c := new(Context);
+	c := new(Context)
 
 	// the framework will call the spec dynamically like this:
-	WerewolfSpec(c);
+	WerewolfSpec(c)
 }
 
 func WerewolfSpec(c *Context) {
-	count := 0;	// debug
+	count := 0 // debug
 
 	/*
 	  GoSpec will execute the following specs in this order, so that each
@@ -44,34 +44,34 @@ func WerewolfSpec(c *Context) {
 	*/
 
 	c.Specify("Given the moon is full", func() {
-		count++;	// 1
+		count++ // 1
 		c.Specify("When you walk in the woods", func() {
-			count++;	// 1.1
+			count++ // 1.1
 
 			c.Specify("Then you can hear werevolves howling", func() {
-				count++	// 1.1.1
-			});
+				count++ // 1.1.1
+			})
 
 			c.Specify("Then you wish you had a silver bullet", func() {
-				count++	// 1.1.2
-			});
-		});
-	});
+				count++ // 1.1.2
+			})
+		})
+	})
 
 	c.Specify("Given the moon is not full", func() {
-		count++;	// 2
+		count++ // 2
 		c.Specify("When you walk in the woods", func() {
-			count++;	// 2.1
+			count++ // 2.1
 
 			c.Specify("Then you do not hear any werevolves", func() {
-				count++	// 2.1.1
-			});
+				count++ // 2.1.1
+			})
 
 			c.Specify("Then you are not afraid", func() {
-				count++	// 2.1.2
-			});
-		});
-	});
+				count++ // 2.1.2
+			})
+		})
+	})
 
-	fmt.Printf("number of specs: %v \n", count);	// debug
+	fmt.Printf("number of specs: %v \n", count) // debug
 }

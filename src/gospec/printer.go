@@ -5,14 +5,14 @@
 package gospec
 
 import (
-	"fmt";
+	"fmt"
 )
 
 
 // ReportPrinter formats the spec results into a human-readable format.
 type ReportPrinter struct {
-	report string;
-	indentLevel int;
+	report      string
+	indentLevel int
 }
 
 func newReportPrinter() *ReportPrinter {
@@ -21,33 +21,33 @@ func newReportPrinter() *ReportPrinter {
 
 func (this *ReportPrinter) Visit(results *ResultCollector) {
 	for rootSpec := range results.Roots() {
-		this.visitSpec(rootSpec);
+		this.visitSpec(rootSpec)
 	}
 }
 
 func (this *ReportPrinter) visitSpec(spec *specResult) {
 	// TODO: make the print format pluggable. use this simple version only in tests.
-	errors := "";
+	errors := ""
 	if spec.IsFailed() {
-		errors += " [FAIL]\n";
+		errors += " [FAIL]\n"
 	}
 	for error := range spec.errors.Iter() {
-		errors += fmt.Sprintf("%v    %v", this.indent(), error);
+		errors += fmt.Sprintf("%v    %v", this.indent(), error)
 	}
-	
-	this.report += fmt.Sprintf("%v- %v%v\n", this.indent(), spec.name, errors);
-	
+
+	this.report += fmt.Sprintf("%v- %v%v\n", this.indent(), spec.name, errors)
+
 	for child := range spec.Children() {
-		this.indentLevel++;
-		this.visitSpec(child);
-		this.indentLevel--;
+		this.indentLevel++
+		this.visitSpec(child)
+		this.indentLevel--
 	}
 }
 
 func (this *ReportPrinter) indent() string {
-	s := "";
+	s := ""
 	for i := 0; i < this.indentLevel; i++ {
-		s += "  ";
+		s += "  "
 	}
 	return s
 }

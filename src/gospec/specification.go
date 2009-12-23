@@ -5,27 +5,27 @@
 package gospec
 
 import (
-	"container/list";
-	"fmt";
+	"container/list"
+	"fmt"
 )
 
 
 // Represents a spec in a tree of specs.
 type specRun struct {
-	name string;
-	closure func();
-	parent *specRun;
-	numberOfChildren int;
-	path path;
-	errors *list.List;
+	name             string
+	closure          func()
+	parent           *specRun
+	numberOfChildren int
+	path             path
+	errors           *list.List
 }
 
 func newSpecRun(name string, closure func(), parent *specRun) *specRun {
-	path := rootPath();
+	path := rootPath()
 	if parent != nil {
-		currentIndex := parent.numberOfChildren;
-		path = parent.path.append(currentIndex);
-		parent.numberOfChildren++;
+		currentIndex := parent.numberOfChildren
+		path = parent.path.append(currentIndex)
+		parent.numberOfChildren++
 	}
 	return &specRun{name, closure, parent, 0, path, list.New()}
 }
@@ -35,50 +35,50 @@ func (spec *specRun) isUnseen(c *Context) bool       { return spec.path.isBeyond
 func (spec *specRun) isFirstChild() bool             { return spec.path.lastIndex() == 0 }
 
 func (spec *specRun) execute() {
-	spec.closure();
+	spec.closure()
 }
 
 func (spec *specRun) addError(message string) {
-	spec.errors.PushBack(message);
+	spec.errors.PushBack(message)
 }
 
 func (spec *specRun) rootParent() *specRun {
-	root := spec;
+	root := spec
 	for root.parent != nil {
-		root = root.parent;
+		root = root.parent
 	}
 	return root
 }
 
 func (spec *specRun) String() string {
-	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path);
+	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path)
 }
 
 
 func asSpecArray(list *list.List) []*specRun {
-	arr := make([]*specRun, list.Len());
-	i := 0;
+	arr := make([]*specRun, list.Len())
+	i := 0
 	for v := range list.Iter() {
-		arr[i] = v.(*specRun);
-		i++;
+		arr[i] = v.(*specRun)
+		i++
 	}
 	return arr
 }
 
 
 // Path of a specification.
-type path []int;
+type path []int
 
 func rootPath() path {
 	return []int{}
 }
 
 func (parent path) append(index int) path {
-	result := make([]int, len(parent) + 1);
+	result := make([]int, len(parent)+1)
 	for i, v := range parent {
 		result[i] = v
 	}
-	result[len(parent)] = index;
+	result[len(parent)] = index
 	return result
 }
 
@@ -87,7 +87,7 @@ func (current path) isOn(target path) bool {
 }
 
 func (current path) isEqual(target path) bool {
-	return current.isOn(target) && len(current) == len(target);
+	return current.isOn(target) && len(current) == len(target)
 }
 
 func (current path) isBeyond(target path) bool {
@@ -95,18 +95,18 @@ func (current path) isBeyond(target path) bool {
 }
 
 func commonPrefixLength(a path, b path) int {
-	length := 0;
+	length := 0
 	for i := 0; i < len(a) && i < len(b) && a[i] == b[i]; i++ {
-		length++;
+		length++
 	}
 	return length
 }
 
 func (path path) lastIndex() int {
 	if len(path) == 0 {
-		return -1	// root path
+		return -1 // root path
 	}
-	return path[len(path) - 1]
+	return path[len(path)-1]
 }
 
 func (path path) isRoot() bool {
