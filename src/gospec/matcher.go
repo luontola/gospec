@@ -13,27 +13,40 @@ type Matcher struct {
 	actual    interface{}
 	log       errorLogger
 	negation  bool
+	required  bool
 	Should    *Matcher
 	ShouldNot *Matcher
+	Must      *Matcher
+	MustNot   *Matcher
 }
 
 func newMatcher(actual interface{}, log errorLogger) *Matcher {
-	var common Matcher
-	common.actual = actual
-	common.log = log
+	posOpt := new(Matcher)
+	posOpt.negation = false
+	posOpt.required = false
 	
-	pos := common
-	pos.negation = false
+	posReq := new(Matcher)
+	posReq.negation = false
+	posReq.required = true
 	
-	neg := common
-	neg.negation = true
+	negOpt := new(Matcher)
+	negOpt.negation = true
+	negOpt.required = false
 	
-	pos.Should = &pos
-	pos.ShouldNot = &neg
-	neg.Should = &pos
-	neg.ShouldNot = &neg
+	negReq := new(Matcher)
+	negReq.negation = true
+	negReq.required = true
 	
-	return &pos
+	all := [...]*Matcher{posOpt, posReq, negOpt, negReq}
+	for _, m := range all {
+		m.actual    = actual
+		m.log       = log
+		m.Should    = posOpt
+		m.ShouldNot = negOpt
+		m.Must      = posReq
+		m.MustNot   = negReq
+	}
+	return posOpt
 }
 
 func (m *Matcher) Equal(expected interface{}) {
@@ -54,11 +67,16 @@ func (m *Matcher) fails(ok bool) bool {
 }
 
 func (m *Matcher) addError(expected interface{}, actual interface{}) {
-	if !m.negation {
-		m.log.AddError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
-	}
+	var message string
 	if m.negation {
-		m.log.AddError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual))
+		message = fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual)
+	} else {
+		message = fmt.Sprintf("Expected '%v' but was '%v'", expected, actual)
+	}
+	if m.required {
+		m.log.AddFatalError(message)
+	} else {
+		m.log.AddError(message)
 	}
 }
 
@@ -71,5 +89,6 @@ type Equality interface {
 
 type errorLogger interface {
 	AddError(message string)
+	AddFatalError(message string)
 }
 

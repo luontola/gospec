@@ -71,6 +71,10 @@ func (log *spyErrorLogger) AddError(message string) {
 	log.lastMessage = message
 }
 
+func (log *spyErrorLogger) AddFatalError(message string) {
+	log.AddError(message)
+}
+
 func (log *spyErrorLogger) Reset() {
 	log.failures = 0
 	log.lastMessage = ""

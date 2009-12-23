@@ -18,6 +18,7 @@ type specRun struct {
 	numberOfChildren int
 	path             path
 	errors           *list.List
+	hasFatalErrors   bool
 }
 
 func newSpecRun(name string, closure func(), parent *specRun) *specRun {
@@ -27,7 +28,7 @@ func newSpecRun(name string, closure func(), parent *specRun) *specRun {
 		path = parent.path.append(currentIndex)
 		parent.numberOfChildren++
 	}
-	return &specRun{name, closure, parent, 0, path, list.New()}
+	return &specRun{name, closure, parent, 0, path, list.New(), false}
 }
 
 func (spec *specRun) isOnTargetPath(c *Context) bool { return spec.path.isOn(c.targetPath) }
@@ -42,8 +43,9 @@ func (spec *specRun) AddError(message string) {
 	spec.errors.PushBack(message)
 }
 
-func (spec *specRun) SkipChildren() bool {
-	return spec.errors.Len() > 0
+func (spec *specRun) AddFatalError(message string) {
+	spec.AddError(message)
+	spec.hasFatalErrors = true
 }
 
 func (spec *specRun) rootParent() *specRun {

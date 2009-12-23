@@ -61,7 +61,7 @@ func (c *Context) exitSpec() {
 }
 
 func (c *Context) shouldExecute(spec *specRun) bool {
-	if spec.parent != nil && spec.parent.SkipChildren() {
+	if spec.parent != nil && spec.parent.hasFatalErrors {
 		return false
 	}
 	return spec.isOnTargetPath(c) || (spec.isUnseen(c) && spec.isFirstChild())

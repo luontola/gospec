@@ -25,7 +25,8 @@ func Test__When_a_spec_contains_failing_asserts__Then_the_spec_fails(t *testing.
 	assertEquals(1, results.FailCount(), t)
 }
 
-func Test__When_a_passing_spec_has_children__Then_the_children_are_executed(t *testing.T) {
+
+func Test__When_a_spec_has_passing_SHOULDs__Then_its_children_are_executed(t *testing.T) {
 	results := resultsOfSpec(func(c *Context) {
 		c.Then(1).Should.Equal(1)
 		c.Specify("Child", func() {
@@ -34,9 +35,27 @@ func Test__When_a_passing_spec_has_children__Then_the_children_are_executed(t *t
 	assertEquals(2, results.TotalCount(), t)
 }
 
-func Test__When_a_failing_spec_has_children__Then_the_children_are_not_executed(t *testing.T) {
+func Test__When_a_spec_has_failing_SHOULDs__Then_its_children_are_executed(t *testing.T) {
 	results := resultsOfSpec(func(c *Context) {
 		c.Then(1).Should.Equal(2)
+		c.Specify("Child", func() {
+		})
+	})
+	assertEquals(2, results.TotalCount(), t)
+}
+
+func Test__When_a_spec_has_passing_MUSTs__Then_its_children_are_executed(t *testing.T) {
+	results := resultsOfSpec(func(c *Context) {
+		c.Then(1).Must.Equal(1)
+		c.Specify("Child", func() {
+		})
+	})
+	assertEquals(2, results.TotalCount(), t)
+}
+
+func Test__When_a_spec_has_failing_MUSTs__Then_its_children_are_NOT_executed(t *testing.T) {
+	results := resultsOfSpec(func(c *Context) {
+		c.Then(1).Must.Equal(2)
 		c.Specify("Child", func() {
 		})
 	})
