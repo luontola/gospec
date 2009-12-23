@@ -38,8 +38,12 @@ func (spec *specRun) execute() {
 	spec.closure()
 }
 
-func (spec *specRun) addError(message string) {
+func (spec *specRun) AddError(message string) {
 	spec.errors.PushBack(message)
+}
+
+func (spec *specRun) SkipChildren() bool {
+	return spec.errors.Len() > 0
 }
 
 func (spec *specRun) rootParent() *specRun {

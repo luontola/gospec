@@ -14,50 +14,50 @@ func Test__String_should_equal_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher("hotdog", log).Should.Equal("hotdog")
-	log.shouldHaveNoErrors(t)
+	log.ShouldHaveNoErrors(t)
 
 	newMatcher("hotdog", log).Should.Equal("carrot")
-	log.shouldHaveTheError("Expected 'carrot' but was 'hotdog'", t)
+	log.ShouldHaveTheError("Expected 'carrot' but was 'hotdog'", t)
 }
 
 func Test__String_should_not_equal_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher("hotdog", log).ShouldNot.Equal("carrot")
-	log.shouldHaveNoErrors(t)
+	log.ShouldHaveNoErrors(t)
 
 	newMatcher("hotdog", log).ShouldNot.Equal("hotdog")
-	log.shouldHaveTheError("Did not expect 'hotdog' but was 'hotdog'", t)
+	log.ShouldHaveTheError("Did not expect 'hotdog' but was 'hotdog'", t)
 }
 
 func Test__Int_should_equal_int(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(42, log).Should.Equal(42)
-	log.shouldHaveNoErrors(t)
+	log.ShouldHaveNoErrors(t)
 
 	newMatcher(42, log).Should.Equal(13)
-	log.shouldHaveTheError("Expected '13' but was '42'", t)
+	log.ShouldHaveTheError("Expected '13' but was '42'", t)
 }
 
 func Test__Struct_should_equal_struct(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{42, 2})
-	log.shouldHaveNoErrors(t)
+	log.ShouldHaveNoErrors(t)
 
 	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{13, 2})
-	log.shouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
+	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
 }
 
 func Test__Struct_pointer_should_equal_struct_pointer(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{42, 2})
-	log.shouldHaveNoErrors(t)
+	log.ShouldHaveNoErrors(t)
 
 	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{13, 2})
-	log.shouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
+	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
 }
 
 
@@ -66,25 +66,25 @@ type spyErrorLogger struct {
 	lastMessage string
 }
 
-func (log *spyErrorLogger) logError(message string) {
+func (log *spyErrorLogger) AddError(message string) {
 	log.failures++
 	log.lastMessage = message
 }
 
-func (log *spyErrorLogger) reset() {
+func (log *spyErrorLogger) Reset() {
 	log.failures = 0
 	log.lastMessage = ""
 }
 
-func (log *spyErrorLogger) shouldHaveNoErrors(t *testing.T) {
+func (log *spyErrorLogger) ShouldHaveNoErrors(t *testing.T) {
 	assertEquals(0, log.failures, t)
-	log.reset()
+	log.Reset()
 }
 
-func (log *spyErrorLogger) shouldHaveTheError(message string, t *testing.T) {
+func (log *spyErrorLogger) ShouldHaveTheError(message string, t *testing.T) {
 	assertEquals(1, log.failures, t)
 	assertEquals(message, log.lastMessage, t)
-	log.reset()
+	log.Reset()
 }
 
 

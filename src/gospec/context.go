@@ -61,6 +61,9 @@ func (c *Context) exitSpec() {
 }
 
 func (c *Context) shouldExecute(spec *specRun) bool {
+	if spec.parent != nil && spec.parent.SkipChildren() {
+		return false
+	}
 	return spec.isOnTargetPath(c) || (spec.isUnseen(c) && spec.isFirstChild())
 }
 
@@ -81,8 +84,6 @@ func (c *Context) postpone(spec *specRun) {
 // Then method starts an assertion. Example:
 //    c.Then(actual).Should.Equal(expected);
 func (c *Context) Then(actual interface{}) *Matcher {
-	// TODO
-	return nil
-	//	return newMatcher(actual, c.currentSpec)
+	return newMatcher(actual, c.currentSpec)
 }
 

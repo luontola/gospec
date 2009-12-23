@@ -114,11 +114,3 @@ func DummySpecWithMultipleNestedChildren(c *Context) {
 	})
 }
 
-func DummySpecWithOneFailure(c *Context) {
-	c.Specify("Failing spec", func() {
-		// TODO: add failing assert
-	})
-	c.Specify("Passing spec", func() {
-	})
-}
-

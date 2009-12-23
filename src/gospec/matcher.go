@@ -38,7 +38,7 @@ func newMatcher(actual interface{}, log errorLogger) *Matcher {
 
 func (m *Matcher) Equal(expected interface{}) {
 	if m.fails(areEqual(expected, m.actual)) {
-		m.logError(expected, m.actual)
+		m.addError(expected, m.actual)
 	}
 }
 
@@ -53,12 +53,12 @@ func (m *Matcher) fails(ok bool) bool {
 	return m.negation == ok
 }
 
-func (m *Matcher) logError(expected interface{}, actual interface{}) {
+func (m *Matcher) addError(expected interface{}, actual interface{}) {
 	if !m.negation {
-		m.log.logError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
+		m.log.AddError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
 	}
 	if m.negation {
-		m.log.logError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual))
+		m.log.AddError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual))
 	}
 }
 
@@ -70,6 +70,6 @@ type Equality interface {
 }
 
 type errorLogger interface {
-	logError(message string)
+	AddError(message string)
 }
 
