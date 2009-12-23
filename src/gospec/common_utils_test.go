@@ -36,10 +36,17 @@ func assertEqualsTrim(expected string, actual string, t *testing.T) {
 
 // GoSpec specific test utilites
 
-func runSpec(name string, closure func(*Context), context *Context) *taskResult {
+func runSpec(spec func(*Context)) *ResultCollector {
+	r := NewRunner()
+	r.AddSpec("RootSpec", spec)
+	r.Run()
+	return r.compileResults()
+}
+
+func runSpecWithContext(closure func(*Context), context *Context) *taskResult {
 	resetTestSpy()
 	r := NewRunner()
-	return r.execute(name, closure, context)
+	return r.execute("RootSpec", closure, context)
 }
 
 func countSpecNames(specs iterable.Iterable) map[string]int {

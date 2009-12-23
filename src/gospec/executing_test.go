@@ -12,16 +12,16 @@ import (
 // When specs are run, they should report which specs were executed now and which were postponed
 
 func Test__Executed_specs_are_reported(t *testing.T) {
-	result := runSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren, newInitialContext())
+	result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
 
 	executed := result.executedSpecs
 	assertEquals(2, len(executed), t)
-	assertEquals("DummySpecWithTwoChildren", executed[0].name, t)
+	assertEquals("RootSpec", executed[0].name, t)
 	assertEquals("Child A", executed[1].name, t)
 }
 
 func Test__Postponed_specs_are_reported(t *testing.T) {
-	result := runSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren, newInitialContext())
+	result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
 
 	postponed := result.postponedSpecs
 	assertEquals(1, len(postponed), t)
@@ -29,11 +29,11 @@ func Test__Postponed_specs_are_reported(t *testing.T) {
 }
 
 func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
-	result := runSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren, newExplicitContext([]int{1}))
+	result := runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{1}))
 
 	executed := result.executedSpecs
 	assertEquals(2, len(executed), t)
-	assertEquals("DummySpecWithTwoChildren", executed[0].name, t)
+	assertEquals("RootSpec", executed[0].name, t)
 	assertEquals("Child B", executed[1].name, t)
 
 	postponed := result.postponedSpecs
@@ -43,7 +43,7 @@ func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
 
 // Scheduling specs for execution
 
-func Test__The_postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
+func Test__Postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
 	r := NewRunner()
 	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
 	r.Run()
