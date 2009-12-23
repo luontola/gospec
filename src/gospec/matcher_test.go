@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	"container/list"
 	"testing"
 	"fmt"
 )
@@ -25,11 +26,11 @@ func Test__String_should_EQUAL_string(t *testing.T) {
 func Test__String_should_NOT_EQUAL_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher("hotdog", log).ShouldNot.Equal("carrot")
+	newMatcher("apple", log).ShouldNot.Equal("orange")
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher("hotdog", log).ShouldNot.Equal("hotdog")
-	log.ShouldHaveTheError("Did not expect 'hotdog' but was 'hotdog'", t)
+	newMatcher("apple", log).ShouldNot.Equal("apple")
+	log.ShouldHaveTheError("Did not expect 'apple' but was 'apple'", t)
 }
 
 func Test__Int_should_EQUAL_int(t *testing.T) {
@@ -38,8 +39,8 @@ func Test__Int_should_EQUAL_int(t *testing.T) {
 	newMatcher(42, log).Should.Equal(42)
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(42, log).Should.Equal(13)
-	log.ShouldHaveTheError("Expected '13' but was '42'", t)
+	newMatcher(42, log).Should.Equal(999)
+	log.ShouldHaveTheError("Expected '999' but was '42'", t)
 }
 
 func Test__Struct_should_EQUAL_struct(t *testing.T) {
@@ -48,8 +49,8 @@ func Test__Struct_should_EQUAL_struct(t *testing.T) {
 	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{42, 2})
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{13, 2})
-	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
+	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{999, 2})
+	log.ShouldHaveTheError("Expected 'DummyStruct999' but was 'DummyStruct42'", t)
 }
 
 func Test__Struct_pointer_should_EQUAL_struct_pointer(t *testing.T) {
@@ -58,8 +59,8 @@ func Test__Struct_pointer_should_EQUAL_struct_pointer(t *testing.T) {
 	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{42, 2})
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{13, 2})
-	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
+	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{999, 2})
+	log.ShouldHaveTheError("Expected 'DummyStruct999' but was 'DummyStruct42'", t)
 }
 
 
@@ -85,6 +86,63 @@ func Test__Object_should_NOT_BE_some_expression(t *testing.T) {
 	
 	newMatcher(value, log).ShouldNot.Be(value < 999)
 	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
+}
+
+
+// "Contain" matcher
+
+func Test__Array_should_CONTAIN_a_value(t *testing.T) {
+	log := new(spyErrorLogger)
+	values := [...]string{"one", "two", "three"}
+	
+	newMatcher(values, log).Should.Contain("one")
+	newMatcher(values, log).Should.Contain("two")
+	newMatcher(values, log).Should.Contain("three")
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(values, log).Should.Contain("four")
+	log.ShouldHaveTheError("Expected 'four' to be in '[one two three]' but it was not", t)
+}
+
+func Test__Array_should_NOT_CONTAIN_a_value(t *testing.T) {
+	log := new(spyErrorLogger)
+	values := [...]string{"one", "two", "three"}
+	
+	newMatcher(values, log).ShouldNot.Contain("four")
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(values, log).ShouldNot.Contain("one")
+	log.ShouldHaveTheError("Did not expect 'one' to be in '[one two three]' but it was", t)
+}
+
+func Test__Iterable_should_CONTAIN_a_value(t *testing.T) {
+	log := new(spyErrorLogger)
+	values := list.New()
+	values.PushBack("one")
+	values.PushBack("two")
+	values.PushBack("three")
+	
+	newMatcher(values.Iter(), log).Should.Contain("one")
+	newMatcher(values.Iter(), log).Should.Contain("two")
+	newMatcher(values.Iter(), log).Should.Contain("three")
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(values.Iter(), log).Should.Contain("four")
+	log.ShouldHaveTheError("Expected 'four' to be in '[one two three]' but it was not", t)
+}
+
+func Test__Iterable_should_NOT_CONTAIN_a_value(t *testing.T) {
+	log := new(spyErrorLogger)
+	values := list.New()
+	values.PushBack("one")
+	values.PushBack("two")
+	values.PushBack("three")
+	
+	newMatcher(values.Iter(), log).ShouldNot.Contain("four")
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(values.Iter(), log).ShouldNot.Contain("one")
+	log.ShouldHaveTheError("Did not expect 'one' to be in '[one two three]' but it was", t)
 }
 
 
