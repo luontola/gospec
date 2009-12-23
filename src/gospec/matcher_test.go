@@ -10,17 +10,19 @@ import (
 )
 
 
-func Test__String_should_equal_string(t *testing.T) {
+// "Equal" matcher
+
+func Test__String_should_EQUAL_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher("hotdog", log).Should.Equal("hotdog")
+	newMatcher("apple", log).Should.Equal("apple")
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher("hotdog", log).Should.Equal("carrot")
-	log.ShouldHaveTheError("Expected 'carrot' but was 'hotdog'", t)
+	newMatcher("apple", log).Should.Equal("orange")
+	log.ShouldHaveTheError("Expected 'orange' but was 'apple'", t)
 }
 
-func Test__String_should_not_equal_string(t *testing.T) {
+func Test__String_should_NOT_EQUAL_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher("hotdog", log).ShouldNot.Equal("carrot")
@@ -30,7 +32,7 @@ func Test__String_should_not_equal_string(t *testing.T) {
 	log.ShouldHaveTheError("Did not expect 'hotdog' but was 'hotdog'", t)
 }
 
-func Test__Int_should_equal_int(t *testing.T) {
+func Test__Int_should_EQUAL_int(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(42, log).Should.Equal(42)
@@ -40,7 +42,7 @@ func Test__Int_should_equal_int(t *testing.T) {
 	log.ShouldHaveTheError("Expected '13' but was '42'", t)
 }
 
-func Test__Struct_should_equal_struct(t *testing.T) {
+func Test__Struct_should_EQUAL_struct(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{42, 2})
@@ -50,7 +52,7 @@ func Test__Struct_should_equal_struct(t *testing.T) {
 	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
 }
 
-func Test__Struct_pointer_should_equal_struct_pointer(t *testing.T) {
+func Test__Struct_pointer_should_EQUAL_struct_pointer(t *testing.T) {
 	log := new(spyErrorLogger)
 
 	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{42, 2})
@@ -60,6 +62,33 @@ func Test__Struct_pointer_should_equal_struct_pointer(t *testing.T) {
 	log.ShouldHaveTheError("Expected 'DummyStruct13' but was 'DummyStruct42'", t)
 }
 
+
+// "Be" matcher
+
+func Test__Object_should_BE_some_expression(t *testing.T) {
+	log := new(spyErrorLogger)
+	value := 42
+	
+	newMatcher(value, log).Should.Be(value > 40)
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(value, log).Should.Be(value > 999)
+	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
+}
+
+func Test__Object_should_NOT_BE_some_expression(t *testing.T) {
+	log := new(spyErrorLogger)
+	value := 42
+	
+	newMatcher(value, log).ShouldNot.Be(value < 40)
+	log.ShouldHaveNoErrors(t)
+	
+	newMatcher(value, log).ShouldNot.Be(value < 999)
+	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
+}
+
+
+// Utilities
 
 type spyErrorLogger struct {
 	failures    int
@@ -91,6 +120,8 @@ func (log *spyErrorLogger) ShouldHaveTheError(message string, t *testing.T) {
 	log.Reset()
 }
 
+
+// Dummies
 
 type DummyStruct struct {
 	value        int

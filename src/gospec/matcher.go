@@ -51,7 +51,13 @@ func newMatcher(actual interface{}, log errorLogger) *Matcher {
 
 func (m *Matcher) Equal(expected interface{}) {
 	if m.fails(areEqual(expected, m.actual)) {
-		m.addError(expected, m.actual)
+		m.addError2(expected, m.actual)
+	}
+}
+
+func (m *Matcher) Be(criteria bool) {
+	if m.fails(criteria) {
+		m.addError1(m.actual)
 	}
 }
 
@@ -66,20 +72,25 @@ func (m *Matcher) fails(ok bool) bool {
 	return m.negation == ok
 }
 
-func (m *Matcher) addError(expected interface{}, actual interface{}) {
-	var message string
+func (m *Matcher) addError2(expected interface{}, actual interface{}) {
 	if m.negation {
-		message = fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual)
+		m.addError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, actual))
 	} else {
-		message = fmt.Sprintf("Expected '%v' but was '%v'", expected, actual)
+		m.addError(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
 	}
+}
+
+func (m *Matcher) addError1(actual interface{}) {
+	m.addError(fmt.Sprintf("Criteria not satisfied by '%v'", actual))
+}
+
+func (m *Matcher) addError(message string) {
 	if m.required {
 		m.log.AddFatalError(message)
 	} else {
 		m.log.AddError(message)
 	}
 }
-
 
 // Helpers
 
