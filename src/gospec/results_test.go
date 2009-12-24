@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -149,12 +150,13 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 
 
 func assertReportIs(results *ResultCollector, expected string, passCount int, failCount int, t *testing.T) {
-	printer := newReportPrinter()
-	results.Visit(printer)
+	buf := new(bytes.Buffer)
+	results.Visit(newPrinter(buf))
+	report := buf.String()
 
 	assertEquals(passCount, results.PassCount(), t)
 	assertEquals(failCount, results.FailCount(), t)
 	assertEquals(passCount+failCount, results.TotalCount(), t)
-	assertEqualsTrim(expected, printer.String(), t)
+	assertEqualsTrim(expected, report, t)
 }
 

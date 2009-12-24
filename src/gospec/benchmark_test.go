@@ -5,7 +5,9 @@
 package gospec
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -52,12 +54,11 @@ func buildReport(results *ResultCollector) {
 	pass := results.PassCount()
 	fail := results.FailCount()
 
-	printer := newReportPrinter()
-	results.Visit(printer)
-	s := printer.String()
+	report := new(bytes.Buffer)
+	results.Visit(newPrinter(report))
 
 	if PRINT_REPORT {
-		fmt.Print(s)
+		report.WriteTo(os.Stdout)
 		fmt.Printf("Total %v, Pass %v, Fail %v\n", total, pass, fail)
 	}
 }

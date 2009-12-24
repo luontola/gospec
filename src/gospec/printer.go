@@ -6,29 +6,30 @@ package gospec
 
 import (
 	"fmt"
+	"io"
 )
 
 
-// ReportPrinter formats the spec results into a human-readable format.
-type ReportPrinter struct {
-	report      string
+// Printer formats the spec results into a human-readable format.
+type Printer struct {
+	out io.Writer
 }
 
-func newReportPrinter() *ReportPrinter {
-	return &ReportPrinter{""}
+func newPrinter(out io.Writer) *Printer {
+	return &Printer{out}
 }
 
-func (this *ReportPrinter) VisitSpec(name string, nestingLevel int, errors []string) {
+func (this *Printer) VisitSpec(name string, nestingLevel int, errors []string) {
 	// TODO: make the print format pluggable. use this simple version only in tests.
-	s := ""
+	indent := indent(nestingLevel)
+	fmt.Fprintf(this.out, "%v- %v", indent, name)
 	if len(errors) > 0 {
-		s += " [FAIL]\n"
+		fmt.Fprint(this.out, " [FAIL]\n")
 	}
 	for _, error := range errors {
-		s += fmt.Sprintf("%v    %v", indent(nestingLevel), error)
+		fmt.Fprintf(this.out, "%v    %v", indent, error)
 	}
-	
-	this.report += fmt.Sprintf("%v- %v%v\n", indent(nestingLevel), name, s)
+	fmt.Fprint(this.out, "\n")
 }
 
 func indent(level int) string {
@@ -37,9 +38,5 @@ func indent(level int) string {
 		s += "  "
 	}
 	return s
-}
-
-func (this *ReportPrinter) String() string {
-	return this.report
 }
 
