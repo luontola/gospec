@@ -3,9 +3,11 @@ include $(GOROOT)/src/Make.$(GOARCH)
 #Run 'make deps' if you add or change new folders.
 DIRS=\
 	gospec\
+	gospec/report\
 
 TEST=\
 	gospec\
+	gospec/report\
 
 all.dirs: $(addsuffix .all, $(DIRS))
 clean.dirs: $(addsuffix .clean, $(DIRS))

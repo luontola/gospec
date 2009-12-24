@@ -7,6 +7,7 @@ package gospec
 import (
 	"fmt"
 	"testing"
+	"gospec/report"
 )
 
 const (
@@ -52,7 +53,7 @@ func buildReport(results *ResultCollector) {
 	pass := results.PassCount()
 	fail := results.FailCount()
 
-	printer := newReportPrinter()
+	printer := report.newReportPrinter()
 	results.Visit(printer)
 	s := printer.String()
 
