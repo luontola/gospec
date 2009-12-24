@@ -142,6 +142,7 @@ func areEqual(a interface{}, b interface{}) bool {
 	if a2, ok := a.(Equality); ok {
 		return a2.Equals(b)
 	}
+	// TODO: pointer equality
 	return a == b
 }
 

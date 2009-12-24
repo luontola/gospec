@@ -20,7 +20,7 @@ type Runner struct {
 func NewRunner() *Runner {
 	r := new(Runner)
 	r.runningTasks = 0
-	r.results = make(chan *taskResult)
+	r.results = make(chan *taskResult) // TODO: Buffer? Measure whether it affects performance.
 	r.executed = new(vector.Vector)
 	r.scheduled = new(vector.Vector)
 	return r
