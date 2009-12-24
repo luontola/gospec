@@ -5,7 +5,7 @@ GOFILES=\
 	context.go\
 	matcher.go\
 	printer.go\
-	reporting.go\
+	results.go\
 	runner.go\
 	specification.go\
 
