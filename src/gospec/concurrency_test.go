@@ -6,7 +6,6 @@ package gospec
 
 import (
 	"math"
-	"runtime"
 	"testing"
 	"time"
 )
@@ -17,12 +16,7 @@ import (
 const (
 	MILLISECOND = 1000000
 	DELAY       = 50 * MILLISECOND
-	THREADS     = 4
 )
-
-func init() {
-	runtime.GOMAXPROCS(THREADS)
-}
 
 func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	r := NewRunner()
