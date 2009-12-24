@@ -12,41 +12,28 @@ import (
 // ReportPrinter formats the spec results into a human-readable format.
 type ReportPrinter struct {
 	report      string
-	indentLevel int
 }
 
 func newReportPrinter() *ReportPrinter {
-	return &ReportPrinter{"", 0}
+	return &ReportPrinter{""}
 }
 
-func (this *ReportPrinter) Visit(results *ResultCollector) {
-	for rootSpec := range results.Roots() {
-		this.visitSpec(rootSpec)
-	}
-}
-
-func (this *ReportPrinter) visitSpec(spec *specResult) {
+func (this *ReportPrinter) VisitSpec(name string, nestingLevel int, errors []string) {
 	// TODO: make the print format pluggable. use this simple version only in tests.
-	errors := ""
-	if spec.IsFailed() {
-		errors += " [FAIL]\n"
+	s := ""
+	if len(errors) > 0 {
+		s += " [FAIL]\n"
 	}
-	for error := range spec.errors.Iter() {
-		errors += fmt.Sprintf("%v    %v", this.indent(), error)
+	for _, error := range errors {
+		s += fmt.Sprintf("%v    %v", indent(nestingLevel), error)
 	}
-
-	this.report += fmt.Sprintf("%v- %v%v\n", this.indent(), spec.name, errors)
-
-	for child := range spec.Children() {
-		this.indentLevel++
-		this.visitSpec(child)
-		this.indentLevel--
-	}
+	
+	this.report += fmt.Sprintf("%v- %v%v\n", indent(nestingLevel), name, s)
 }
 
-func (this *ReportPrinter) indent() string {
+func indent(level int) string {
 	s := ""
-	for i := 0; i < this.indentLevel; i++ {
+	for i := 0; i < level; i++ {
 		s += "  "
 	}
 	return s

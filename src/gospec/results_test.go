@@ -149,12 +149,12 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 
 
 func assertReportIs(results *ResultCollector, expected string, passCount int, failCount int, t *testing.T) {
-	report := newReportPrinter()
-	report.Visit(results)
+	printer := newReportPrinter()
+	results.Visit(printer)
 
 	assertEquals(passCount, results.PassCount(), t)
 	assertEquals(failCount, results.FailCount(), t)
 	assertEquals(passCount+failCount, results.TotalCount(), t)
-	assertEqualsTrim(expected, report.String(), t)
+	assertEqualsTrim(expected, printer.String(), t)
 }
 

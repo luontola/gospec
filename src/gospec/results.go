@@ -24,7 +24,7 @@ func newResultCollector() *ResultCollector {
 
 func (r *ResultCollector) Update(spec *specRun) {
 	root := r.getOrCreateRoot(spec)
-	root.Update(spec)
+	root.update(spec)
 }
 
 func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
@@ -38,11 +38,33 @@ func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 	return root
 }
 
+
+type ResultVisitor interface {
+	VisitSpec(name string, nestingLevel int, errors []string)
+}
+
+func (r *ResultCollector) Visit(visitor ResultVisitor) {
+	r.visitAll(func(spec *specResult) {
+		visitor.VisitSpec(spec.name, len(spec.path), listToStringArray(spec.errors))
+	})
+}
+
+func listToStringArray(list *list.List) []string {
+	arr := make([]string, list.Len())
+	i := 0
+	for e := list.Front(); e != nil; e = e.Next() {
+		arr[i] = e.Value.(string)
+		i++
+	}
+	return arr
+}
+
+
 // TODO: Visit the specs only once and cache the counts? Even count them as they are added?
 
 func (r *ResultCollector) TotalCount() int {
 	count := 0
-	r.visitAllSpecs(func(spec *specResult) {
+	r.visitAll(func(spec *specResult) {
 		count++
 	})
 	return count
@@ -50,8 +72,8 @@ func (r *ResultCollector) TotalCount() int {
 
 func (r *ResultCollector) PassCount() int {
 	count := 0
-	r.visitAllSpecs(func(spec *specResult) {
-		if !spec.IsFailed() {
+	r.visitAll(func(spec *specResult) {
+		if !spec.isFailed() {
 			count++
 		}
 	})
@@ -60,21 +82,21 @@ func (r *ResultCollector) PassCount() int {
 
 func (r *ResultCollector) FailCount() int {
 	count := 0
-	r.visitAllSpecs(func(spec *specResult) {
-		if spec.IsFailed() {
+	r.visitAll(func(spec *specResult) {
+		if spec.isFailed() {
 			count++
 		}
 	})
 	return count
 }
 
-func (r *ResultCollector) visitAllSpecs(visitor func(*specResult)) {
-	for _, root := range r.rootsByName {
-		root.visit(visitor)
+func (r *ResultCollector) visitAll(visitor func(*specResult)) {
+	for root := range r.roots() {
+		root.visitAll(visitor)
 	}
 }
 
-func (r *ResultCollector) Roots() <-chan *specResult {
+func (r *ResultCollector) roots() <-chan *specResult {
 	iter := make(chan *specResult)
 	go func() {
 		for _, name := range r.sortedRootNames() {
@@ -114,7 +136,18 @@ func newSpecResult(spec *specRun) *specResult {
 	}
 }
 
-func (this *specResult) Update(spec *specRun) {
+func (this *specResult) isFailed() bool {
+	return this.errors.Len() > 0
+}
+
+func (this *specResult) visitAll(visitor func(*specResult)) {
+	visitor(this)
+	for child := range this.children.Iter() {
+		child.(*specResult).visitAll(visitor)
+	}
+}
+
+func (this *specResult) update(spec *specRun) {
 	isMe := this.path.isEqual(spec.path)
 	isMyChild := this.path.isOn(spec.path) && !isMe
 	isMyDirectChild := isMyChild && len(this.path)+1 == len(spec.path)
@@ -132,8 +165,8 @@ func (this *specResult) Update(spec *specRun) {
 	}
 
 	if isMyChild {
-		for child := range this.Children() {
-			child.Update(spec)
+		for child := range this.children.Iter() {
+			child.(*specResult).update(spec)
 		}
 		return
 	}
@@ -167,28 +200,6 @@ func (this *specResult) findFirstChildWithGreaterIndex(targetIndex int) *list.El
 		}
 	}
 	return nil
-}
-
-func (this *specResult) IsFailed() bool {
-	return this.errors.Len() > 0
-}
-
-func (this *specResult) visit(visitor func(*specResult)) {
-	visitor(this)
-	for child := range this.children.Iter() {
-		child.(*specResult).visit(visitor)
-	}
-}
-
-func (this *specResult) Children() <-chan *specResult {
-	iter := make(chan *specResult)
-	go func() {
-		for child := range this.children.Iter() {
-			iter <- child.(*specResult)
-		}
-		close(iter)
-	}()
-	return iter
 }
 
 func (this *specResult) String() string {

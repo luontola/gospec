@@ -52,9 +52,9 @@ func buildReport(results *ResultCollector) {
 	pass := results.PassCount()
 	fail := results.FailCount()
 
-	report := newReportPrinter()
-	report.Visit(results)
-	s := report.String()
+	printer := newReportPrinter()
+	results.Visit(printer)
+	s := printer.String()
 
 	if PRINT_REPORT {
 		fmt.Print(s)
