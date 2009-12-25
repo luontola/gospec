@@ -109,6 +109,9 @@ func (this *Printer) printFailing(nestingLevel int, name string, errors []string
 	indent := indent(nestingLevel)
 	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
 	for _, error := range errors {
+		// TODO: print file name and line number
+		// example:
+		// foo.go:23  Expected X but was Y
 		fmt.Fprintf(this.out, "%v    %v\n", indent, error)
 	}
 }
