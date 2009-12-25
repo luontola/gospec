@@ -24,7 +24,9 @@ func Test__When_results_have_many_root_specs__Then_they_are_sorted_alphabeticall
 	assertReportIs(results, `
 - RootSpec1
 - RootSpec2
-	`, 2, 0, t)
+
+2 specs, 0 failures
+	`, t)
 }
 
 func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_declaration_order(t *testing.T) {
@@ -57,14 +59,17 @@ func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_dec
   - one
   - two
   - three
-	`, 4, 0, t)
+
+4 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_zero_specs(t *testing.T) {
 	results := newResultCollector()
 
 	assertReportIs(results, `
-	`, 0, 0, t)
+0 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
@@ -75,7 +80,9 @@ func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
 
 	assertReportIs(results, `
 - RootSpec
-	`, 1, 0, t)
+
+1 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
@@ -89,7 +96,9 @@ func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
 	assertReportIs(results, `
 - RootSpec
   - Child A
-	`, 2, 0, t)
+
+2 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
@@ -106,7 +115,9 @@ func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
 - RootSpec
   - Child A
     - Child AA
-	`, 3, 0, t)
+
+3 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing.T) {
@@ -123,7 +134,9 @@ func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing
     - Child BA
     - Child BB
     - Child BC
-	`, 8, 0, t)
+
+8 specs, 0 failures
+	`, t)
 }
 
 func Test__Collecting_results_of_failing_specs(t *testing.T) {
@@ -145,18 +158,16 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 - Passing
   - Child failing [FAIL]
       moon was not cheese
-	`, 1, 2, t)
+
+3 specs, 2 failures
+	`, t)
 }
 
 
-func assertReportIs(results *ResultCollector, expected string, passCount int, failCount int, t *testing.T) {
+func assertReportIs(results *ResultCollector, expected string, t *testing.T) {
 	buf := new(bytes.Buffer)
 	results.Visit(newPrinter(buf))
 	report := buf.String()
-
-	assertEquals(passCount, results.PassCount(), t)
-	assertEquals(failCount, results.FailCount(), t)
-	assertEquals(passCount+failCount, results.TotalCount(), t)
 	assertEqualsTrim(expected, report, t)
 }
 

@@ -40,13 +40,22 @@ func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 
 
 type ResultVisitor interface {
-	VisitSpec(name string, nestingLevel int, errors []string)
+	VisitSpec(nestingLevel int, name string, errors []string)
+	VisitEnd(passCount int, failCount int)
 }
 
 func (r *ResultCollector) Visit(visitor ResultVisitor) {
+	passCount := 0
+	failCount := 0
 	r.visitAll(func(spec *specResult) {
-		visitor.VisitSpec(spec.name, len(spec.path), listToStringArray(spec.errors))
+		if spec.isFailed() {
+			failCount++
+		} else {
+			passCount++
+		}
+		visitor.VisitSpec(len(spec.path), spec.name, listToStringArray(spec.errors))
 	})
+	visitor.VisitEnd(passCount, failCount)
 }
 
 func listToStringArray(list *list.List) []string {
@@ -59,8 +68,8 @@ func listToStringArray(list *list.List) []string {
 	return arr
 }
 
-
-// TODO: Visit the specs only once and cache the counts? Even count them as they are added?
+// The following Total/Pass/FailCount methods are used only in tests,
+// so there is no need to optimize them to visit the specs only once.
 
 func (r *ResultCollector) TotalCount() int {
 	count := 0

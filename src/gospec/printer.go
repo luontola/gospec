@@ -10,26 +10,112 @@ import (
 )
 
 
+type printMode int
+
+const (
+	ALL printMode = iota
+	ONLY_FAILING
+)
+
+
 // Printer formats the spec results into a human-readable format.
 type Printer struct {
-	out io.Writer
+	out         io.Writer
+	show        printMode
+	showSummary bool
+	notPrinted  []string
 }
 
 func newPrinter(out io.Writer) *Printer {
-	return &Printer{out}
+	return &Printer{
+		out: out,
+		show: ALL,
+		showSummary: true,
+		notPrinted: []string{},
+	}
 }
 
-func (this *Printer) VisitSpec(name string, nestingLevel int, errors []string) {
-	// TODO: make the print format pluggable. use this simple version only in tests.
+func (this *Printer) ShowAll() {
+	this.show = ALL
+}
+
+func (this *Printer) ShowOnlyFailing() {
+	this.show = ONLY_FAILING
+}
+
+func (this *Printer) HideSummary() {
+	this.showSummary = false
+}
+
+func (this *Printer) ShowSummary() {
+	this.showSummary = true
+}
+
+func (this *Printer) VisitSpec(nestingLevel int, name string, errors []string) {
+	isPassing := len(errors) == 0
+	isFailing := !isPassing
+	
+	if isPassing {
+		if this.show == ALL {
+			this.printPassing(nestingLevel, name)
+		} else {
+			this.saveNotPrinted(nestingLevel, name)
+		}
+	}
+	if isFailing {
+		this.printNotPrintedParents(nestingLevel)
+		this.printFailing(nestingLevel, name, errors)
+	}
+}
+
+func (this *Printer) VisitEnd(passCount int, failCount int) {
+	if this.showSummary {
+		this.printSummary(passCount, failCount)
+	}
+}
+
+
+func (this *Printer) saveNotPrinted(nestingLevel int, name string) {
+	if nestingLevel >= len(this.notPrinted) {
+		resizeArray(&this.notPrinted, nestingLevel+1)
+	}
+	this.notPrinted[nestingLevel] = name
+}
+
+func (this *Printer) printNotPrintedParents(nestingLevel int) {
+	for i, name := range this.notPrinted {
+		if i < nestingLevel && name != "" {
+			this.printPassing(i, name)
+		}
+		this.notPrinted[i] = ""
+	}
+}
+
+func resizeArray(arr *[]string, newLength int) {
+	old := *arr
+	*arr = make([]string, newLength)
+	copy(*arr, old)
+}
+
+
+// TODO: make the print format pluggable. use this simple version only in tests.
+
+func (this *Printer) printPassing(nestingLevel int, name string) {
 	indent := indent(nestingLevel)
-	fmt.Fprintf(this.out, "%v- %v", indent, name)
-	if len(errors) > 0 {
-		fmt.Fprint(this.out, " [FAIL]\n")
-	}
+	fmt.Fprintf(this.out, "%v- %v\n", indent, name)
+}
+
+func (this *Printer) printFailing(nestingLevel int, name string, errors []string) {
+	indent := indent(nestingLevel)
+	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
 	for _, error := range errors {
-		fmt.Fprintf(this.out, "%v    %v", indent, error)
+		fmt.Fprintf(this.out, "%v    %v\n", indent, error)
 	}
-	fmt.Fprint(this.out, "\n")
+}
+
+func (this *Printer) printSummary(passCount int, failCount int) {
+	totalCount := passCount + failCount
+	fmt.Fprintf(this.out, "\n%v specs, %v failures\n", totalCount, failCount)
 }
 
 func indent(level int) string {

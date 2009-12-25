@@ -13,12 +13,13 @@ import (
 )
 
 const (
-	SPECS_COUNT  = 10000
-	PRINT_REPORT = false
+	ROOT_SPEC_COUNT = 5000
+	PRINT_REPORT    = false
 )
 
 // 2009-12-25: Compiling results and building reports takes a long time
 // when using GOMAXPROCS=4 under a virtual machine with only one CPU.
+// Also the system clock under the virtual machine is inaccurate.
 // TODO: Run the benchmarks on native hardware, try different values of GOMAXPROCS, use 6prof.
 
 func Benchmark__Running_all_specs(b *testing.B) {
@@ -45,7 +46,7 @@ func Benchmark__Building_a_report(b *testing.B) {
 
 func runSpecs() *Runner {
 	runner := NewRunner()
-	for i := 0; i < SPECS_COUNT; i++ {
+	for i := 0; i < ROOT_SPEC_COUNT; i++ {
 		runner.AddSpec(fmt.Sprintf("DummySpecForBenchmarks%v", i), DummySpecForBenchmarks)
 	}
 	runner.Run()
@@ -53,10 +54,6 @@ func runSpecs() *Runner {
 }
 
 func buildReport(results *ResultCollector) {
-	total := results.TotalCount()
-	pass := results.PassCount()
-	fail := results.FailCount()
-	
 	var report io.Writer
 	if PRINT_REPORT {
 		report = new(bytes.Buffer)
@@ -69,7 +66,6 @@ func buildReport(results *ResultCollector) {
 	if PRINT_REPORT {
 		buf := report.(*bytes.Buffer)
 		buf.WriteTo(os.Stdout)
-		fmt.Printf("Total %v, Pass %v, Fail %v\n", total, pass, fail)
 	}
 }
 
@@ -82,6 +78,8 @@ func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 
 
 func DummySpecForBenchmarks(c *Context) {
+	// 15 spec declarations, executed in 10 runs
+	// (each run is 3 levels deep, so in total 30 spec runs)
 	c.Specify("Child A", func() {
 		c.Specify("Child AA", func() {
 			c.Then(1).Should.Equal(1)
