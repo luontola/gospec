@@ -5,8 +5,6 @@
 package gospec
 
 import (
-	"fmt"
-	"io"
 )
 
 
@@ -20,15 +18,15 @@ const (
 
 // Printer formats the spec results into a human-readable format.
 type Printer struct {
-	out         io.Writer
+	format      PrintFormat
 	show        printMode
 	showSummary bool
 	notPrinted  []string
 }
 
-func newPrinter(out io.Writer) *Printer {
+func NewPrinter(format PrintFormat) *Printer {
 	return &Printer{
-		out: out,
+		format: format,
 		show: ALL,
 		showSummary: true,
 		notPrinted: []string{},
@@ -57,23 +55,22 @@ func (this *Printer) VisitSpec(nestingLevel int, name string, errors []*Error) {
 	
 	if isPassing {
 		if this.show == ALL {
-			this.printPassing(nestingLevel, name)
+			this.format.PrintPassing(nestingLevel, name)
 		} else {
 			this.saveNotPrinted(nestingLevel, name)
 		}
 	}
 	if isFailing {
 		this.printNotPrintedParents(nestingLevel)
-		this.printFailing(nestingLevel, name, errors)
+		this.format.PrintFailing(nestingLevel, name, errors)
 	}
 }
 
 func (this *Printer) VisitEnd(passCount int, failCount int) {
 	if this.showSummary {
-		this.printSummary(passCount, failCount)
+		this.format.PrintSummary(passCount, failCount)
 	}
 }
-
 
 func (this *Printer) saveNotPrinted(nestingLevel int, name string) {
 	if nestingLevel >= len(this.notPrinted) {
@@ -85,7 +82,7 @@ func (this *Printer) saveNotPrinted(nestingLevel int, name string) {
 func (this *Printer) printNotPrintedParents(nestingLevel int) {
 	for i, name := range this.notPrinted {
 		if i < nestingLevel && name != "" {
-			this.printPassing(i, name)
+			this.format.PrintPassing(i, name)
 		}
 		this.notPrinted[i] = ""
 	}
@@ -95,37 +92,5 @@ func resizeArray(arr *[]string, newLength int) {
 	old := *arr
 	*arr = make([]string, newLength)
 	copy(*arr, old)
-}
-
-
-// TODO: make the print format pluggable. use this simple version only in tests.
-
-func (this *Printer) printPassing(nestingLevel int, name string) {
-	indent := indent(nestingLevel)
-	fmt.Fprintf(this.out, "%v- %v\n", indent, name)
-}
-
-func (this *Printer) printFailing(nestingLevel int, name string, errors []*Error) {
-	indent := indent(nestingLevel)
-	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
-	for _, error := range errors {
-		// TODO: print file name and line number
-		// example:
-		// foo.go:23  Expected X but was Y
-		fmt.Fprintf(this.out, "%v    %v\n", indent, error.Message)
-	}
-}
-
-func (this *Printer) printSummary(passCount int, failCount int) {
-	totalCount := passCount + failCount
-	fmt.Fprintf(this.out, "\n%v specs, %v failures\n", totalCount, failCount)
-}
-
-func indent(level int) string {
-	s := ""
-	for i := 0; i < level; i++ {
-		s += "  "
-	}
-	return s
 }
 

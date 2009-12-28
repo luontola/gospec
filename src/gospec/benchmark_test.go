@@ -61,7 +61,7 @@ func buildReport(results *ResultCollector) {
 		report = new(NullWriter)
 	}
 	
-	results.Visit(newPrinter(report))
+	results.Visit(NewPrinter(SimplePrintFormat(report)))
 
 	if PRINT_REPORT {
 		buf := report.(*bytes.Buffer)

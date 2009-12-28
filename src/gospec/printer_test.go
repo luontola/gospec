@@ -18,7 +18,7 @@ var someError = []*Error{newError("some error", currentLocation())}
 func Test__When_printing_a_summary__Then_a_summary_is_printed(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowAll()
 	p.ShowSummary()
 	p.VisitSpec(0, "Passing 1", noErrors)
@@ -39,7 +39,7 @@ func Test__When_printing_a_summary__Then_a_summary_is_printed(t *testing.T) {
 func Test__When_not_printing_a_summary__Then_a_summary_is_not_printed(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowAll()
 	p.HideSummary()
 	p.VisitSpec(0, "Passing 1", noErrors)
@@ -61,7 +61,7 @@ func Test__When_not_printing_a_summary__Then_a_summary_is_not_printed(t *testing
 func Test__When_printing_all_specs__Then_passing_and_failing_are_printed(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowAll()
 	p.VisitSpec(0, "Passing", noErrors)
 	p.VisitSpec(0, "Failing", someError)
@@ -76,7 +76,7 @@ func Test__When_printing_all_specs__Then_passing_and_failing_are_printed(t *test
 func Test__When_printing_only_failing_specs__Then_only_failing_are_printed(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowOnlyFailing()
 	p.VisitSpec(0, "Passing", noErrors)
 	p.VisitSpec(0, "Failing", someError)
@@ -90,7 +90,7 @@ func Test__When_printing_only_failing_specs__Then_only_failing_are_printed(t *te
 func Test__When_printing_only_failing_specs__Then_the_parents_of_failing_specs_are_printed(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowOnlyFailing()
 	p.VisitSpec(0, "Passing parent", noErrors)
 	p.VisitSpec(1, "Failing child", someError)
@@ -105,7 +105,7 @@ func Test__When_printing_only_failing_specs__Then_the_parents_of_failing_specs_a
 func Test__Passing_parent_with_many_failing_children(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowOnlyFailing()
 	p.VisitSpec(0, "Passing parent", noErrors)
 	p.VisitSpec(1, "Failing child A", someError)
@@ -123,7 +123,7 @@ func Test__Passing_parent_with_many_failing_children(t *testing.T) {
 func Test__Failing_parent_with_a_failing_grandchild(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowOnlyFailing()
 	p.VisitSpec(0, "Failing parent", someError)
 	p.VisitSpec(1, "Passing child", noErrors)
@@ -141,7 +141,7 @@ func Test__Failing_parent_with_a_failing_grandchild(t *testing.T) {
 func Test__Failing_parent_and_ghosts_of_unrelated_specs(t *testing.T) {
 	out := new(bytes.Buffer)
 	
-	p := newPrinter(out)
+	p := NewPrinter(SimplePrintFormat(out))
 	p.ShowOnlyFailing()
 	p.VisitSpec(0, "Don't show me 0", noErrors)
 	p.VisitSpec(1, "Don't show me 1", noErrors)

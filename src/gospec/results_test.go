@@ -165,9 +165,9 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 
 
 func assertReportIs(results *ResultCollector, expected string, t *testing.T) {
-	buf := new(bytes.Buffer)
-	results.Visit(newPrinter(buf))
-	report := buf.String()
+	out := new(bytes.Buffer)
+	results.Visit(NewPrinter(SimplePrintFormat(out)))
+	report := out.String()
 	assertEqualsTrim(expected, report, t)
 }
 

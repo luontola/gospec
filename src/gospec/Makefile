@@ -7,6 +7,7 @@ GOFILES=\
 	location.go\
 	matcher.go\
 	printer.go\
+	print_format.go\
 	results.go\
 	runner.go\
 	specification.go\
