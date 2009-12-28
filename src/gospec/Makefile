@@ -3,6 +3,7 @@ include $(GOROOT)/src/Make.$(GOARCH)
 TARG=gospec
 GOFILES=\
 	context.go\
+	error.go\
 	location.go\
 	matcher.go\
 	printer.go\

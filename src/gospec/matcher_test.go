@@ -153,13 +153,13 @@ type spyErrorLogger struct {
 	lastMessage string
 }
 
-func (log *spyErrorLogger) AddError(message string) {
+func (log *spyErrorLogger) AddError(error *Error) {
 	log.failures++
-	log.lastMessage = message
+	log.lastMessage = error.Message
 }
 
-func (log *spyErrorLogger) AddFatalError(message string) {
-	log.AddError(message)
+func (log *spyErrorLogger) AddFatalError(error *Error) {
+	log.AddError(error)
 }
 
 func (log *spyErrorLogger) Reset() {

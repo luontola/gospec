@@ -51,7 +51,7 @@ func (this *Printer) ShowSummary() {
 	this.showSummary = true
 }
 
-func (this *Printer) VisitSpec(nestingLevel int, name string, errors []string) {
+func (this *Printer) VisitSpec(nestingLevel int, name string, errors []*Error) {
 	isPassing := len(errors) == 0
 	isFailing := !isPassing
 	
@@ -105,14 +105,14 @@ func (this *Printer) printPassing(nestingLevel int, name string) {
 	fmt.Fprintf(this.out, "%v- %v\n", indent, name)
 }
 
-func (this *Printer) printFailing(nestingLevel int, name string, errors []string) {
+func (this *Printer) printFailing(nestingLevel int, name string, errors []*Error) {
 	indent := indent(nestingLevel)
 	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
 	for _, error := range errors {
 		// TODO: print file name and line number
 		// example:
 		// foo.go:23  Expected X but was Y
-		fmt.Fprintf(this.out, "%v    %v\n", indent, error)
+		fmt.Fprintf(this.out, "%v    %v\n", indent, error.Message)
 	}
 }
 

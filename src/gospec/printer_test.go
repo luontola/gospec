@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-var noErrors = []string{}
-var someError = []string{"some error"}
+var noErrors = []*Error{}
+var someError = []*Error{newError("some error")}
 
 
 // Showing the summary

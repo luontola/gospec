@@ -39,12 +39,12 @@ func (spec *specRun) execute() {
 	spec.closure()
 }
 
-func (spec *specRun) AddError(message string) {
-	spec.errors.PushBack(message)
+func (spec *specRun) AddError(error *Error) {
+	spec.errors.PushBack(error)
 }
 
-func (spec *specRun) AddFatalError(message string) {
-	spec.AddError(message)
+func (spec *specRun) AddFatalError(error *Error) {
+	spec.AddError(error)
 	spec.hasFatalErrors = true
 }
 

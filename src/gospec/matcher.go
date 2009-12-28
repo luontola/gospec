@@ -156,10 +156,11 @@ func (m *Matcher) fails(ok bool) bool {
 }
 
 func (m *Matcher) addError(message string) {
+	error := newError(message)
 	if m.required {
-		m.log.AddFatalError(message)
+		m.log.AddFatalError(error)
 	} else {
-		m.log.AddError(message)
+		m.log.AddError(error)
 	}
 }
 
@@ -168,10 +169,5 @@ func (m *Matcher) addError(message string) {
 
 type Equality interface {
 	Equals(other interface{}) bool
-}
-
-type errorLogger interface {
-	AddError(message string)
-	AddFatalError(message string)
 }
 

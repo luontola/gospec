@@ -11,6 +11,12 @@ import (
 )
 
 
+type ResultVisitor interface {
+	VisitSpec(nestingLevel int, name string, errors []*Error)
+	VisitEnd(passCount int, failCount int)
+}
+
+
 // Collects test results for all specs in a reporting friendly format.
 type ResultCollector struct {
 	rootsByName map[string]*specResult
@@ -38,12 +44,6 @@ func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 	return root
 }
 
-
-type ResultVisitor interface {
-	VisitSpec(nestingLevel int, name string, errors []string)
-	VisitEnd(passCount int, failCount int)
-}
-
 func (r *ResultCollector) Visit(visitor ResultVisitor) {
 	passCount := 0
 	failCount := 0
@@ -53,19 +53,47 @@ func (r *ResultCollector) Visit(visitor ResultVisitor) {
 		} else {
 			passCount++
 		}
-		visitor.VisitSpec(len(spec.path), spec.name, listToStringArray(spec.errors))
+		visitor.VisitSpec(len(spec.path), spec.name, listToErrorArray(spec.errors))
 	})
 	visitor.VisitEnd(passCount, failCount)
 }
 
-func listToStringArray(list *list.List) []string {
-	arr := make([]string, list.Len())
+func listToErrorArray(list *list.List) []*Error {
+	arr := make([]*Error, list.Len())
 	i := 0
 	for e := list.Front(); e != nil; e = e.Next() {
-		arr[i] = e.Value.(string)
+		arr[i] = e.Value.(*Error)
 		i++
 	}
 	return arr
+}
+
+func (r *ResultCollector) visitAll(visitor func(*specResult)) {
+	for root := range r.roots() {
+		root.visitAll(visitor)
+	}
+}
+
+func (r *ResultCollector) roots() <-chan *specResult {
+	iter := make(chan *specResult)
+	go func() {
+		for _, name := range r.sortedRootNames() {
+			iter <- r.rootsByName[name]
+		}
+		close(iter)
+	}()
+	return iter
+}
+
+func (r *ResultCollector) sortedRootNames() []string {
+	names := make([]string, len(r.rootsByName))
+	i := 0
+	for name, _ := range r.rootsByName {
+		names[i] = name
+		i++
+	}
+	sort.SortStrings(names)
+	return names
 }
 
 // The following Total/Pass/FailCount methods are used only in tests,
@@ -97,34 +125,6 @@ func (r *ResultCollector) FailCount() int {
 		}
 	})
 	return count
-}
-
-func (r *ResultCollector) visitAll(visitor func(*specResult)) {
-	for root := range r.roots() {
-		root.visitAll(visitor)
-	}
-}
-
-func (r *ResultCollector) roots() <-chan *specResult {
-	iter := make(chan *specResult)
-	go func() {
-		for _, name := range r.sortedRootNames() {
-			iter <- r.rootsByName[name]
-		}
-		close(iter)
-	}()
-	return iter
-}
-
-func (r *ResultCollector) sortedRootNames() []string {
-	names := make([]string, len(r.rootsByName))
-	i := 0
-	for name, _ := range r.rootsByName {
-		names[i] = name
-		i++
-	}
-	sort.SortStrings(names)
-	return names
 }
 
 
@@ -162,7 +162,7 @@ func (this *specResult) update(spec *specRun) {
 	isMyDirectChild := isMyChild && len(this.path)+1 == len(spec.path)
 
 	if isMe {
-		// TODO: check error messages and merge if different from previously registered
+		// TODO: check error messages and merge if different from previously registered (a safe copy might be needed)
 		return
 	}
 
