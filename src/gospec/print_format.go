@@ -40,7 +40,7 @@ func (this *defaultPrintFormat) PrintFailing(nestingLevel int, name string, erro
 	// TODO: use colors (red)
 	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
 	for _, error := range errors {
-		fmt.Fprintf(this.out, "[ERROR] %v    %v\n", error.Location, error.Message)
+		fmt.Fprintf(this.out, "[ERROR] %v\n\t%v\n", error.Location, error.Message)
 	}
 }
 

@@ -7,6 +7,7 @@ package gospec
 import (
 	"flag"
 	"os"
+	"testing"
 )
 
 
@@ -16,12 +17,12 @@ var (
 
 // Executes the specs which have been added to the Runner
 // and prints the results to stdout.
-func Main(runner *Runner) {
+func MainGoTest(runner *Runner, t *testing.T) {
 	// Assume that this method will then be executed by gotest and
 	// flag.Parse() has already been called in testing.Main() so 
 	// we don't need to call it here.
 	
-	printer := NewPrinter(SimplePrintFormat(os.Stdout))
+	printer := NewPrinter(DefaultPrintFormat(os.Stdout))
 	if *printAll {
 		printer.ShowAll()
 	} else {
@@ -32,5 +33,10 @@ func Main(runner *Runner) {
 	runner.Run()
 	results := runner.compileResults()
 	results.Visit(printer)
+	
+	// TODO: FailCount() is not optimized - it visits all specs again
+	if results.FailCount() > 0 {
+		t.Fail()
+	}
 }
 

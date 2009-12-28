@@ -123,6 +123,7 @@ func (m *Matcher) Contain(expected interface{}) {
 	}
 }
 
+// TODO: BeNear - equality for floating points
 // TODO: ContainAll - The actual collection must contain all given elements. The order of elements is not significant.
 // TODO: ContainAny - The actual collection must contain at least one element from the given collection.
 // TODO: ContainExactly - The actual collection must contain exactly the same elements as in the given collection. The order of elements is not significant.
