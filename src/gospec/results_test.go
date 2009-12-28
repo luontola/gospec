@@ -143,12 +143,12 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 	results := newResultCollector()
 
 	a1 := newSpecRun("Failing", nil, nil)
-	a1.AddError(newError("X did not equal Y"))
+	a1.AddError(newError("X did not equal Y", currentLocation()))
 	results.Update(a1)
 
 	b1 := newSpecRun("Passing", nil, nil)
 	b2 := newSpecRun("Child failing", nil, b1)
-	b2.AddError(newError("moon was not cheese"))
+	b2.AddError(newError("moon was not cheese", currentLocation()))
 	results.Update(b1)
 	results.Update(b2)
 

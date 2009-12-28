@@ -13,6 +13,7 @@ import (
 
 type Matcher struct {
 	actual    interface{}
+	location  *Location
 	log       errorLogger
 	negation  bool
 	required  bool
@@ -22,7 +23,7 @@ type Matcher struct {
 	MustNot   *Matcher
 }
 
-func newMatcher(actual interface{}, log errorLogger) *Matcher {
+func newMatcher(actual interface{}, location *Location, log errorLogger) *Matcher {
 	posOpt := new(Matcher)
 	posOpt.negation = false
 	posOpt.required = false
@@ -42,6 +43,7 @@ func newMatcher(actual interface{}, log errorLogger) *Matcher {
 	all := [...]*Matcher{posOpt, posReq, negOpt, negReq}
 	for _, m := range all {
 		m.actual    = actual
+		m.location  = location
 		m.log       = log
 		m.Should    = posOpt
 		m.ShouldNot = negOpt
@@ -55,7 +57,6 @@ func newMatcher(actual interface{}, log errorLogger) *Matcher {
 // operator is used. All other objects must implement the Equality interface.
 func (m *Matcher) Equal(expected interface{}) {
 	if m.fails(areEqual(expected, m.actual)) {
-		// TODO: get caller's file name and line number
 		if m.negation {
 			m.addError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, m.actual))
 		} else {
@@ -67,7 +68,6 @@ func (m *Matcher) Equal(expected interface{}) {
 // The actual value must satisfy the given criteria.
 func (m *Matcher) Be(criteria bool) {
 	if m.fails(criteria) {
-		// TODO: get caller's file name and line number
 		m.addError(fmt.Sprintf("Criteria not satisfied by '%v'", m.actual))
 	}
 }
@@ -88,7 +88,6 @@ func (m *Matcher) Contain(expected interface{}) {
 		}
 		// TODO: remove duplication (maybe better done after there are more containment matchers)
 		if m.fails(contains) {
-			// TODO: get caller's file name and line number
 			if m.negation {
 				m.addError(fmt.Sprintf("Did not expect '%v' to be in '%v' but it was", expected, m.actual))
 			} else {
@@ -111,7 +110,6 @@ func (m *Matcher) Contain(expected interface{}) {
 			list.PushBack(other)
 		}
 		if m.fails(contains) {
-			// TODO: get caller's file name and line number
 			actual := listToArray(list)
 			if m.negation {
 				m.addError(fmt.Sprintf("Did not expect '%v' to be in '%v' but it was", expected, actual))
@@ -121,7 +119,6 @@ func (m *Matcher) Contain(expected interface{}) {
 		}
 	
 	default:
-		// TODO: get caller's file name and line number
 		m.addError(fmt.Sprintf("Unknown type '%T', not iterable: %v", m.actual, m.actual))
 	}
 }
@@ -156,7 +153,7 @@ func (m *Matcher) fails(ok bool) bool {
 }
 
 func (m *Matcher) addError(message string) {
-	error := newError(message)
+	error := newError(message, m.location)
 	if m.required {
 		m.log.AddFatalError(error)
 	} else {

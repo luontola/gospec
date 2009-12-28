@@ -62,3 +62,13 @@ func Test__When_a_spec_has_failing_MUSTs__Then_its_children_are_NOT_executed(t *
 	assertEquals(1, results.TotalCount(), t)
 }
 
+func Test__The_location_of_the_failure_is_reported(t *testing.T) {
+	results := runSpec(func(c *Context) {
+		c.Then(1).Must.Equal(2)
+	})
+	for spec := range results.roots() {
+		error := spec.errors.Front().Value.(*Error)
+		assertEquals("asserts_test.go", error.Location.File, t)
+	}
+}
+

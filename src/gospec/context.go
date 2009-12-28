@@ -84,6 +84,6 @@ func (c *Context) postpone(spec *specRun) {
 // Then method starts an assertion. Example:
 //    c.Then(actual).Should.Equal(expected);
 func (c *Context) Then(actual interface{}) *Matcher {
-	return newMatcher(actual, c.currentSpec)
+	return newMatcher(actual, callerLocation(), c.currentSpec)
 }
 

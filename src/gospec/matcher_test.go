@@ -16,50 +16,50 @@ import (
 func Test__String_should_EQUAL_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher("apple", log).Should.Equal("apple")
+	log.Then("apple").Should.Equal("apple")
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher("apple", log).Should.Equal("orange")
+	log.Then("apple").Should.Equal("orange")
 	log.ShouldHaveTheError("Expected 'orange' but was 'apple'", t)
 }
 
 func Test__String_should_NOT_EQUAL_string(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher("apple", log).ShouldNot.Equal("orange")
+	log.Then("apple").ShouldNot.Equal("orange")
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher("apple", log).ShouldNot.Equal("apple")
+	log.Then("apple").ShouldNot.Equal("apple")
 	log.ShouldHaveTheError("Did not expect 'apple' but was 'apple'", t)
 }
 
 func Test__Int_should_EQUAL_int(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher(42, log).Should.Equal(42)
+	log.Then(42).Should.Equal(42)
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(42, log).Should.Equal(999)
+	log.Then(42).Should.Equal(999)
 	log.ShouldHaveTheError("Expected '999' but was '42'", t)
 }
 
 func Test__Struct_should_EQUAL_struct(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{42, 2})
+	log.Then(DummyStruct{42, 1}).Should.Equal(DummyStruct{42, 2})
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(DummyStruct{42, 1}, log).Should.Equal(DummyStruct{999, 2})
+	log.Then(DummyStruct{42, 1}).Should.Equal(DummyStruct{999, 2})
 	log.ShouldHaveTheError("Expected 'DummyStruct999' but was 'DummyStruct42'", t)
 }
 
 func Test__Struct_pointer_should_EQUAL_struct_pointer(t *testing.T) {
 	log := new(spyErrorLogger)
 
-	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{42, 2})
+	log.Then(&DummyStruct{42, 1}).Should.Equal(&DummyStruct{42, 2})
 	log.ShouldHaveNoErrors(t)
 
-	newMatcher(&DummyStruct{42, 1}, log).Should.Equal(&DummyStruct{999, 2})
+	log.Then(&DummyStruct{42, 1}).Should.Equal(&DummyStruct{999, 2})
 	log.ShouldHaveTheError("Expected 'DummyStruct999' but was 'DummyStruct42'", t)
 }
 
@@ -70,10 +70,10 @@ func Test__Object_should_BE_some_expression(t *testing.T) {
 	log := new(spyErrorLogger)
 	value := 42
 	
-	newMatcher(value, log).Should.Be(value > 40)
+	log.Then(value).Should.Be(value > 40)
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(value, log).Should.Be(value > 999)
+	log.Then(value).Should.Be(value > 999)
 	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
 }
 
@@ -81,10 +81,10 @@ func Test__Object_should_NOT_BE_some_expression(t *testing.T) {
 	log := new(spyErrorLogger)
 	value := 42
 	
-	newMatcher(value, log).ShouldNot.Be(value < 40)
+	log.Then(value).ShouldNot.Be(value < 40)
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(value, log).ShouldNot.Be(value < 999)
+	log.Then(value).ShouldNot.Be(value < 999)
 	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
 }
 
@@ -95,12 +95,12 @@ func Test__Array_should_CONTAIN_a_value(t *testing.T) {
 	log := new(spyErrorLogger)
 	values := [...]string{"one", "two", "three"}
 	
-	newMatcher(values, log).Should.Contain("one")
-	newMatcher(values, log).Should.Contain("two")
-	newMatcher(values, log).Should.Contain("three")
+	log.Then(values).Should.Contain("one")
+	log.Then(values).Should.Contain("two")
+	log.Then(values).Should.Contain("three")
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(values, log).Should.Contain("four")
+	log.Then(values).Should.Contain("four")
 	log.ShouldHaveTheError("Expected 'four' to be in '[one two three]' but it was not", t)
 }
 
@@ -108,10 +108,10 @@ func Test__Array_should_NOT_CONTAIN_a_value(t *testing.T) {
 	log := new(spyErrorLogger)
 	values := [...]string{"one", "two", "three"}
 	
-	newMatcher(values, log).ShouldNot.Contain("four")
+	log.Then(values).ShouldNot.Contain("four")
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(values, log).ShouldNot.Contain("one")
+	log.Then(values).ShouldNot.Contain("one")
 	log.ShouldHaveTheError("Did not expect 'one' to be in '[one two three]' but it was", t)
 }
 
@@ -122,12 +122,12 @@ func Test__Iterable_should_CONTAIN_a_value(t *testing.T) {
 	values.PushBack("two")
 	values.PushBack("three")
 	
-	newMatcher(values.Iter(), log).Should.Contain("one")
-	newMatcher(values.Iter(), log).Should.Contain("two")
-	newMatcher(values.Iter(), log).Should.Contain("three")
+	log.Then(values.Iter()).Should.Contain("one")
+	log.Then(values.Iter()).Should.Contain("two")
+	log.Then(values.Iter()).Should.Contain("three")
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(values.Iter(), log).Should.Contain("four")
+	log.Then(values.Iter()).Should.Contain("four")
 	log.ShouldHaveTheError("Expected 'four' to be in '[one two three]' but it was not", t)
 }
 
@@ -138,10 +138,10 @@ func Test__Iterable_should_NOT_CONTAIN_a_value(t *testing.T) {
 	values.PushBack("two")
 	values.PushBack("three")
 	
-	newMatcher(values.Iter(), log).ShouldNot.Contain("four")
+	log.Then(values.Iter()).ShouldNot.Contain("four")
 	log.ShouldHaveNoErrors(t)
 	
-	newMatcher(values.Iter(), log).ShouldNot.Contain("one")
+	log.Then(values.Iter()).ShouldNot.Contain("one")
 	log.ShouldHaveTheError("Did not expect 'one' to be in '[one two three]' but it was", t)
 }
 
@@ -149,13 +149,17 @@ func Test__Iterable_should_NOT_CONTAIN_a_value(t *testing.T) {
 // Utilities
 
 type spyErrorLogger struct {
-	failures    int
-	lastMessage string
+	failures  int
+	lastError *Error
+}
+
+func (log *spyErrorLogger) Then(actual interface{}) *Matcher {
+	return newMatcher(actual, callerLocation(), log)
 }
 
 func (log *spyErrorLogger) AddError(error *Error) {
 	log.failures++
-	log.lastMessage = error.Message
+	log.lastError = error
 }
 
 func (log *spyErrorLogger) AddFatalError(error *Error) {
@@ -164,7 +168,7 @@ func (log *spyErrorLogger) AddFatalError(error *Error) {
 
 func (log *spyErrorLogger) Reset() {
 	log.failures = 0
-	log.lastMessage = ""
+	log.lastError = nil
 }
 
 func (log *spyErrorLogger) ShouldHaveNoErrors(t *testing.T) {
@@ -174,7 +178,7 @@ func (log *spyErrorLogger) ShouldHaveNoErrors(t *testing.T) {
 
 func (log *spyErrorLogger) ShouldHaveTheError(message string, t *testing.T) {
 	assertEquals(1, log.failures, t)
-	assertEquals(message, log.lastMessage, t)
+	assertEquals(message, log.lastError.Message, t)
 	log.Reset()
 }
 

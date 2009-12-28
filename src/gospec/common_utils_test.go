@@ -34,6 +34,13 @@ func assertEqualsTrim(expected string, actual string, t *testing.T) {
 	assertEquals(strings.TrimSpace(expected), strings.TrimSpace(actual), t)
 }
 
+func assertHasPrefix(prefix string, actual string, t *testing.T) {
+	if !strings.HasPrefix(actual, prefix) {
+		t.Error(fmt.Sprintf("Expected prefix '%v' but it was '%v'", prefix, actual))
+	}
+}
+
+
 // GoSpec specific test utilites
 
 func runSpec(spec func(*Context)) *ResultCollector {

@@ -12,8 +12,8 @@ import (
 
 
 type Location struct {
-	file string
-	line int
+	File string
+	Line int
 }
 
 func currentLocation() *Location {
@@ -43,6 +43,6 @@ func (loc *Location) String() string {
 	if loc == nil {
 		return "Unknown File"
 	}
-	return fmt.Sprintf("%v:%v", loc.file, loc.line)
+	return fmt.Sprintf("%v:%v", loc.File, loc.Line)
 }
 

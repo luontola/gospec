@@ -10,7 +10,7 @@ import (
 )
 
 var noErrors = []*Error{}
-var someError = []*Error{newError("some error")}
+var someError = []*Error{newError("some error", currentLocation())}
 
 
 // Showing the summary

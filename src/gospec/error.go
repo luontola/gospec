@@ -9,11 +9,12 @@ import (
 
 
 type Error struct {
-	Message string
+	Message  string
+	Location *Location
 }
 
-func newError(message string) *Error {
-	return &Error{message}
+func newError(message string, location *Location) *Error {
+	return &Error{message, location}
 }
 
 
