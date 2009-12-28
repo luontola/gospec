@@ -5,6 +5,7 @@ GOFILES=\
 	context.go\
 	error.go\
 	location.go\
+	main.go\
 	matcher.go\
 	printer.go\
 	print_format.go\
