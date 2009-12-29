@@ -20,6 +20,11 @@ With this framework you should be able to:
   - Write the names of the specs as strings.  You are not restricted to using
     only those characters that are allowed in method names.
 
+  - Write the names of the specs in any style that fits the situation.  The
+    framework should not restrict you to using specific words as a prefix or
+    suffix to the sentences (such as "describe", "it", "should").  You should be
+    able to choose the best possible words yourself.
+
   - Write specs using a fluent API, so that the code is easily readable.
 
   - Write specs which are isolated [1] from the side-effects of their sibling
