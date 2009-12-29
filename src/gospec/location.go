@@ -6,8 +6,8 @@ package gospec
 
 import (
 	"fmt"
+	filepath "path"
 	"runtime"
-	"strings"
 )
 
 
@@ -32,11 +32,8 @@ func newLocation(n int) *Location {
 }
 
 func filename(path string) string {
-	names := strings.Split(path, "/", 0)
-	if len(names) > 0 {
-		return names[len(names) - 1]
-	}
-	return path
+	_, file := filepath.Split(path)
+	return file
 }
 
 func (loc *Location) String() string {
