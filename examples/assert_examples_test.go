@@ -25,6 +25,9 @@ func AssertExamplesSpec(c *gospec.Context) {
 	})
 	
 	c.Specify("Objects with an \"Equals(interface{}) bool\" method can be compared for equality", func() {
+		// See "point.go" for details of how the Equals method
+		// should be written. Special care is needed if the
+		// objects are used both as values and as pointers.
 		a1 := Point2{1, 2}
 		a2 := Point2{1, 2}
 		c.Then(a1).Should.Equal(a2)
