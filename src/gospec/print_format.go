@@ -42,6 +42,7 @@ func (this *defaultPrintFormat) PrintFailing(nestingLevel int, name string, erro
 	for _, error := range errors {
 		fmt.Fprintf(this.out, "[ERROR] %v\n\t%v\n", error.Location, error.Message)
 	}
+	fmt.Fprint(this.out, "\n")
 }
 
 func (this *defaultPrintFormat) PrintSummary(passCount int, failCount int) {
