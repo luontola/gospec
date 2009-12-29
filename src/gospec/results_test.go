@@ -163,6 +163,85 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 	`, t)
 }
 
+func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_reported(t *testing.T) {
+	i := 0
+	runner := NewRunner()
+	runner.AddSpec("RootSpec", func(c *Context) {
+		if i == 1 {
+			c.Then(10).Should.Equal(20)
+		}
+		i++
+		c.Specify("Child A", func() {})
+		c.Specify("Child B", func() {})
+	})
+	runner.Run()
+	
+	assertReportIs(runner.Results(), `
+- RootSpec [FAIL]
+    Expected '20' but was '10'
+  - Child A
+  - Child B
+
+3 specs, 1 failures
+	`, t)
+}
+
+func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
+	runner := NewRunner()
+	runner.AddSpec("RootSpec", func(c *Context) {
+		i := 0
+		c.Specify("Child A", func() {
+			i = 1
+		})
+		c.Specify("Child B", func() {
+			i = 2
+		})
+		c.Then(10).Should.Equal(20)     // stays same - will be reported once
+		c.Then(10 + i).Should.Equal(20) // changes - will be reported many times
+	})
+	runner.Run()
+	
+	assertReportIs(runner.Results(), `
+- RootSpec [FAIL]
+    Expected '20' but was '10'
+    Expected '20' but was '11'
+    Expected '20' but was '12'
+  - Child A
+  - Child B
+
+3 specs, 1 failures
+	`, t)
+}
+
+func Test__When_non_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
+	runner := NewRunner()
+	runner.AddSpec("RootSpec", func(c *Context) {
+		c.Specify("Failing", func() {
+			i := 0
+			c.Specify("Child A", func() {
+				i = 1
+			})
+			c.Specify("Child B", func() {
+				i = 2
+			})
+			c.Then(10).Should.Equal(20)     // stays same - will be reported once
+			c.Then(10 + i).Should.Equal(20) // changes - will be reported many times
+		})
+	})
+	runner.Run()
+	
+	assertReportIs(runner.Results(), `
+- RootSpec
+  - Failing [FAIL]
+      Expected '20' but was '10'
+      Expected '20' but was '11'
+      Expected '20' but was '12'
+    - Child A
+    - Child B
+
+4 specs, 1 failures
+	`, t)
+}
 
 func assertReportIs(results *ResultCollector, expected string, t *testing.T) {
 	out := new(bytes.Buffer)

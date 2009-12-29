@@ -146,11 +146,15 @@ type specResult struct {
 }
 
 func newSpecResult(spec *specRun) *specResult {
+	errors := list.New()
+	for error := range spec.errors.Iter() {
+		errors.PushBack(error)
+	}
 	return &specResult{
 		spec.name,
 		spec.path,
 		list.New(),
-		spec.errors, // TODO: do a safe copy?
+		errors,
 	}
 }
 
@@ -171,7 +175,7 @@ func (this *specResult) update(spec *specRun) {
 	isMyDirectChild := isMyChild && len(this.path)+1 == len(spec.path)
 
 	if isMe {
-		// TODO: check error messages and merge if different from previously registered (a safe copy might be needed)
+		this.mergeErrors(spec.errors)
 		return
 	}
 
@@ -179,7 +183,7 @@ func (this *specResult) update(spec *specRun) {
 		if !this.isRegisteredChild(spec) {
 			this.registerChild(spec)
 		}
-		return
+		//return
 	}
 
 	if isMyChild {
@@ -188,6 +192,28 @@ func (this *specResult) update(spec *specRun) {
 		}
 		return
 	}
+}
+
+func (this *specResult) mergeErrors(newErrors *list.List) {
+	for v := range newErrors.Iter() {
+		error := v.(*Error)
+		if !this.hasError(error) {
+			this.addError(error)
+		}
+	}
+}
+
+func (this *specResult) hasError(error *Error) bool {
+	for e := this.errors.Front(); e != nil; e = e.Next() {
+		if error.equals(e.Value.(*Error)) {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *specResult) addError(error *Error) {
+	this.errors.PushBack(error)
 }
 
 func (this *specResult) isRegisteredChild(spec *specRun) bool {
@@ -221,6 +247,7 @@ func (this *specResult) findFirstChildWithGreaterIndex(targetIndex int) *list.El
 }
 
 func (this *specResult) String() string {
-	return fmt.Sprintf("%T{%v, %v, %d children}", this, this.name, this.path, this.children.Len())
+	return fmt.Sprintf("%T{%v, %v, %d children, %d errors}",
+		this, this.name, this.path, this.children.Len(), this.errors.Len())
 }
 

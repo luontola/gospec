@@ -36,10 +36,15 @@ func filename(path string) string {
 	return file
 }
 
-func (loc *Location) String() string {
-	if loc == nil {
+func (this *Location) equals(that *Location) bool {
+	return this.File == that.File &&
+	       this.Line == that.Line
+}
+
+func (this *Location) String() string {
+	if this == nil {
 		return "Unknown File"
 	}
-	return fmt.Sprintf("%v:%v", loc.File, loc.Line)
+	return fmt.Sprintf("%v:%v", this.File, this.Line)
 }
 

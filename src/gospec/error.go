@@ -17,6 +17,14 @@ func newError(message string, location *Location) *Error {
 	return &Error{message, location}
 }
 
+func (this *Error) equals(that *Error) bool {
+	return this.Message == that.Message &&
+	       this.Location.equals(that.Location)
+}
+
+func (this *Error) String() string {
+	return this.Location.String() + " " + this.Message
+}
 
 type errorLogger interface {
 	AddError(error *Error)

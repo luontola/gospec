@@ -41,7 +41,7 @@ func ExecutionModelSpec(c *gospec.Context) {
 		// there are three possible values for the variable:
 		c.Then(commonVariable).Should.Be(commonVariable == "x1y" ||
 		                                 commonVariable == "x2y" ||
-		                                 commonVariable == "x3y BUG") // TODO: merging of errors not yet implemented; only first run is logged
+		                                 commonVariable == "x3y")
 	})
 	
 	c.Specify("You can nest", func() {
