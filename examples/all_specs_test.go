@@ -18,6 +18,7 @@ import (
 func TestAllSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 	r.AddSpec("AssertExamplesSpec", AssertExamplesSpec)
+	r.AddSpec("ExecutionModelSpec", ExecutionModelSpec)
 	gospec.MainGoTest(r, t)
 }
 
