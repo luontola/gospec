@@ -6,8 +6,9 @@ package gospec
 
 import (
 	"container/list"
-	"testing"
 	"fmt"
+	"math"
+	"testing"
 )
 
 
@@ -86,6 +87,40 @@ func Test__Object_should_NOT_BE_some_expression(t *testing.T) {
 	
 	log.Then(value).ShouldNot.Be(value < 999)
 	log.ShouldHaveTheError("Criteria not satisfied by '42'", t)
+}
+
+
+// "BeNear" matcher
+
+func Test__Float_should_BE_NEAR_float(t *testing.T) {
+	log := new(spyErrorLogger)
+	value := float64(3.141)
+	pi := float64(math.Pi)
+	
+	log.Then(value).Should.BeNear(pi, 0.001)
+	log.ShouldHaveNoErrors(t)
+	
+	log.Then(value).Should.BeNear(pi, 0.0001)
+	log.ShouldHaveTheError(fmt.Sprintf("Expected '%v' ± 0.0001 but was '3.141'", pi), t)
+}
+
+func Test__Float_should_NOT_BE_NEAR_float(t *testing.T) {
+	log := new(spyErrorLogger)
+	value := float64(3.15)
+	pi := float64(math.Pi)
+	
+	log.Then(value).ShouldNot.BeNear(pi, 0.001)
+	log.ShouldHaveNoErrors(t)
+	
+	log.Then(value).ShouldNot.BeNear(pi, 0.01)
+	log.ShouldHaveTheError(fmt.Sprintf("Did not expect '%v' ± 0.01 but was '3.15'", pi), t)
+}
+
+func Test__Int_should_BE_NEAR_float_IS_NOT_ALLOWED(t *testing.T) {
+	log := new(spyErrorLogger)
+	
+	log.Then(int(3)).Should.BeNear(math.Pi, 0.2)
+	log.ShouldHaveTheError("Expected a float, but was '3' of type 'int'", t)
 }
 
 

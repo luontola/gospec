@@ -7,6 +7,7 @@ package gospec
 import (
 	"container/list"
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -72,6 +73,29 @@ func (m *Matcher) Be(criteria bool) {
 	}
 }
 
+// The actual value must be within delta from the expected value.
+func (m *Matcher) BeNear(expected float64, delta float64) {
+	var actual float64
+	switch v := m.actual.(type) {
+	case float:
+		actual = float64(v)
+	case float32:
+		actual = float64(v)
+	case float64:
+		actual = float64(v)
+	default:
+		m.addError(fmt.Sprintf("Expected a float, but was '%v' of type '%T'", m.actual, m.actual))
+		return
+	}
+	if m.fails(math.Fabs(expected - actual) < delta) {
+		if m.negation {
+			m.addError(fmt.Sprintf("Did not expect '%v' ± %v but was '%v'", expected, delta, actual))
+		} else {
+			m.addError(fmt.Sprintf("Expected '%v' ± %v but was '%v'", expected, delta, actual))
+		}
+	}
+}
+
 // The actual collection (array, slice, iterator/channel) must contain the expected value.
 func (m *Matcher) Contain(expected interface{}) {
 	switch v := reflect.NewValue(m.actual).(type) {
@@ -123,7 +147,6 @@ func (m *Matcher) Contain(expected interface{}) {
 	}
 }
 
-// TODO: BeNear - equality for floating points
 // TODO: ContainAll - The actual collection must contain all given elements. The order of elements is not significant.
 // TODO: ContainAny - The actual collection must contain at least one element from the given collection.
 // TODO: ContainExactly - The actual collection must contain exactly the same elements as in the given collection. The order of elements is not significant.

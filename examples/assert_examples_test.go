@@ -18,11 +18,10 @@ func AssertExamplesSpec(c *gospec.Context) {
 		c.Then("string").Should.Equal("string")
 		
 		// Comparing floats for equality is not recommended, because
-		// the results are not what you might expect. So don't write
-		// like this:
+		// floats are rarely exactly equal. So don't write like this:
 		c.Then(3.141).Should.Equal(3.141)
-		// But instead write:
-		// TODO: c.Then(3.141).Should.BeNear(3.141, 0.001)
+		// But instead compare using a delta and write like this:
+		c.Then(3.141).Should.BeNear(3.1415926535, 0.001)
 	})
 	
 	c.Specify("Objects with an \"Equals(interface{}) bool\" method can be compared for equality", func() {
