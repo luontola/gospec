@@ -146,15 +146,12 @@ type specResult struct {
 }
 
 func newSpecResult(spec *specRun) *specResult {
-	errors := list.New()
-	for error := range spec.errors.Iter() {
-		errors.PushBack(error)
-	}
+	// 'children' and 'errors' will be populated by update()
 	return &specResult{
 		spec.name,
 		spec.path,
 		list.New(),
-		errors,
+		list.New(),
 	}
 }
 
@@ -173,24 +170,18 @@ func (this *specResult) update(spec *specRun) {
 	isMe := this.path.isEqual(spec.path)
 	isMyChild := this.path.isOn(spec.path) && !isMe
 	isMyDirectChild := isMyChild && len(this.path)+1 == len(spec.path)
-
+	
 	if isMe {
 		this.mergeErrors(spec.errors)
-		return
 	}
-
 	if isMyDirectChild {
 		if !this.isRegisteredChild(spec) {
 			this.registerChild(spec)
 		}
-		//return
 	}
-
 	if isMyChild {
-		for child := range this.children.Iter() {
-			child.(*specResult).update(spec)
-		}
-		return
+		child := this.findChildOnPath(spec.path)
+		child.update(spec)
 	}
 }
 
@@ -241,6 +232,16 @@ func (this *specResult) findFirstChildWithGreaterIndex(targetIndex int) *list.El
 		child := e.Value.(*specResult)
 		if child.path.lastIndex() > targetIndex {
 			return e
+		}
+	}
+	return nil
+}
+
+func (this *specResult) findChildOnPath(targetPath path) *specResult {
+	for e := this.children.Front(); e != nil; e = e.Next() {
+		child := e.Value.(*specResult)
+		if child.path.isOn(targetPath) {
+			return child
 		}
 	}
 	return nil

@@ -54,7 +54,7 @@ func ExecutionModelSpec(c *gospec.Context) {
 		})
 	})
 	
-	c.Specify("The distinction between 'Should' and 'Must':", func() {
+	c.Specify("The distinction between 'Should' and 'Must'", func() {
 		// When we have non-trivial test setup code, then it is often useful to
 		// make assertions about the state of the system under test, before the
 		// body of the test is executed. Otherwise it could happen that the test
