@@ -31,13 +31,13 @@ func Benchmark__Compiling_results(b *testing.B) {
 	runner := runSpecs()
 	b.StartTimer()
 
-	runner.compileResults()
+	runner.Results()
 }
 
 func Benchmark__Building_a_report(b *testing.B) {
 	b.StopTimer()
 	runner := runSpecs()
-	results := runner.compileResults()
+	results := runner.Results()
 	b.StartTimer()
 
 	buildReport(results)

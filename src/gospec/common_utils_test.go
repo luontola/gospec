@@ -47,7 +47,7 @@ func runSpec(spec func(*Context)) *ResultCollector {
 	r := NewRunner()
 	r.AddSpec("RootSpec", spec)
 	r.Run()
-	return r.compileResults()
+	return r.Results()
 }
 
 func runSpecWithContext(closure func(*Context), context *Context) *taskResult {

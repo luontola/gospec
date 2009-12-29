@@ -11,20 +11,18 @@ import (
 )
 
 
-type ResultVisitor interface {
-	VisitSpec(nestingLevel int, name string, errors []*Error)
-	VisitEnd(passCount int, failCount int)
-}
-
-
 // Collects test results for all specs in a reporting friendly format.
 type ResultCollector struct {
 	rootsByName map[string]*specResult
+	passCount int
+	failCount int
 }
 
 func newResultCollector() *ResultCollector {
 	return &ResultCollector{
 		make(map[string]*specResult),
+		-1,
+		-1,
 	}
 }
 
@@ -44,18 +42,60 @@ func (r *ResultCollector) getOrCreateRoot(spec *specRun) *specResult {
 	return root
 }
 
-func (r *ResultCollector) Visit(visitor ResultVisitor) {
-	passCount := 0
-	failCount := 0
+// Number of specs
+
+func (r *ResultCollector) TotalCount() int {
+	return r.PassCount() + r.FailCount()
+}
+
+func (r *ResultCollector) PassCount() int {
+	if r.passCount < 0 {
+		r.calculateSpecCount()
+	}
+	return r.passCount
+}
+
+func (r *ResultCollector) FailCount() int {
+	if r.failCount < 0 {
+		r.calculateSpecCount()
+	}
+	return r.failCount
+}
+
+func (r *ResultCollector) calculateSpecCount() {
+	r.resetSpecCount()
 	r.visitAll(func(spec *specResult) {
-		if spec.isFailed() {
-			failCount++
-		} else {
-			passCount++
-		}
+		r.incrementSpecCount(spec)
+	})
+}
+
+func (r *ResultCollector) resetSpecCount() {
+	r.failCount = 0
+	r.passCount = 0
+}
+
+func (r *ResultCollector) incrementSpecCount(spec *specResult) {
+	if spec.isFailed() {
+		r.failCount++
+	} else {
+		r.passCount++
+	}
+}
+
+// Visiting the results
+
+type ResultVisitor interface {
+	VisitSpec(nestingLevel int, name string, errors []*Error)
+	VisitEnd(passCount int, failCount int)
+}
+
+func (r *ResultCollector) Visit(visitor ResultVisitor) {
+	r.resetSpecCount()
+	r.visitAll(func(spec *specResult) {
+		r.incrementSpecCount(spec)
 		visitor.VisitSpec(len(spec.path), spec.name, listToErrorArray(spec.errors))
 	})
-	visitor.VisitEnd(passCount, failCount)
+	visitor.VisitEnd(r.passCount, r.failCount)
 }
 
 func listToErrorArray(list *list.List) []*Error {
@@ -69,12 +109,12 @@ func listToErrorArray(list *list.List) []*Error {
 }
 
 func (r *ResultCollector) visitAll(visitor func(*specResult)) {
-	for root := range r.roots() {
+	for root := range r.sortedRoots() {
 		root.visitAll(visitor)
 	}
 }
 
-func (r *ResultCollector) roots() <-chan *specResult {
+func (r *ResultCollector) sortedRoots() <-chan *specResult {
 	iter := make(chan *specResult)
 	go func() {
 		for _, name := range r.sortedRootNames() {
@@ -94,37 +134,6 @@ func (r *ResultCollector) sortedRootNames() []string {
 	}
 	sort.SortStrings(names)
 	return names
-}
-
-// The following Total/Pass/FailCount methods are used only in tests,
-// so there is no need to optimize them to visit the specs only once.
-
-func (r *ResultCollector) TotalCount() int {
-	count := 0
-	r.visitAll(func(spec *specResult) {
-		count++
-	})
-	return count
-}
-
-func (r *ResultCollector) PassCount() int {
-	count := 0
-	r.visitAll(func(spec *specResult) {
-		if !spec.isFailed() {
-			count++
-		}
-	})
-	return count
-}
-
-func (r *ResultCollector) FailCount() int {
-	count := 0
-	r.visitAll(func(spec *specResult) {
-		if spec.isFailed() {
-			count++
-		}
-	})
-	return count
 }
 
 

@@ -99,7 +99,7 @@ func (r *Runner) saveResult(result *taskResult) {
 	}
 }
 
-func (r *Runner) compileResults() *ResultCollector {
+func (r *Runner) Results() *ResultCollector {
 	// TODO: Should this be done concurrently with executing the specs?
 	// The result collector could run in its own goroutine, and the
 	// Runner.saveResult() method would send executed specs to it as they

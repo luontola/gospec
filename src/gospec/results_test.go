@@ -125,7 +125,7 @@ func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing
 	runner.AddSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren)
 	runner.Run()
 
-	assertReportIs(runner.compileResults(), `
+	assertReportIs(runner.Results(), `
 - DummySpecWithMultipleNestedChildren
   - Child A
     - Child AA

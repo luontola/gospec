@@ -66,7 +66,7 @@ func Test__The_location_of_the_failure_is_reported(t *testing.T) {
 	results := runSpec(func(c *Context) {
 		c.Then(1).Must.Equal(2)
 	})
-	for spec := range results.roots() {
+	for spec := range results.sortedRoots() {
 		error := spec.errors.Front().Value.(*Error)
 		assertEquals("asserts_test.go", error.Location.File, t)
 	}
