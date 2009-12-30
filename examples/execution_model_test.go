@@ -59,8 +59,8 @@ func ExecutionModelSpec(c *gospec.Context) {
 		// make assertions about the state of the system under test, before the
 		// body of the test is executed. Otherwise it could happen that the test
 		// passes even though the code is broken, or then we get lots of
-		// unhelpful error messages from body of the test, even though the bug
-		// was in the test setup.
+		// unhelpful error messages from the body of the test, even though the
+		// bug was in the test setup.
 		//
 		// For this use case, GoSpec provides a 'Must' in addition to 'Should'.
 		// When making assertions about the test setup (i.e. behaviour which is
@@ -87,6 +87,9 @@ func ExecutionModelSpec(c *gospec.Context) {
 			
 			c.Specify("Then it is all uppercase", func() {
 				c.Then(result).Should.Equal("ABC")
+			})
+			c.Specify("Its length is not changed", func() {
+				c.Then(len(result)).Should.Equal(3)
 			})
 		})
 	})
