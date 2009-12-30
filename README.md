@@ -31,7 +31,7 @@ When new versions of GoSpec are released, you can update it by pulling the lates
 
 ### Running Specs
 
-You can use the [gotest command](http://golang.org/cmd/gotest/) to run GoSpec's specs. The integration with gotest requires a couple of lines of boilerplate. Basically you will need to create a gotest test method, where you list all your specs and call GoSpec. See [all_specs_test.go](http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/all_specs_test.go) in the [examples](http://github.com/orfjackal/gospec/tree/gospec-1.0.0/examples/) directory for an example.
+You can use the [gotest command](http://golang.org/cmd/gotest/) to run GoSpec's specs. The integration with gotest requires a couple of lines of boilerplate. Basically you will need to create a gotest test method, where you list all your specs and call GoSpec. See [all_specs_test.go] in the [examples] directory for an example.
 
     func TestAllSpecs(t *testing.T) {
         r := gospec.NewRunner()
@@ -52,13 +52,21 @@ Because of using gotest, all your specs must be in files whose names end with `_
 
 Each group of specs is a method which takes `*gospec.Context` as a parameter. You can call the methods on `Context` to make assertions and to declare nested specs.
 
-For examples on how to write specs, see the files in the [examples](http://github.com/orfjackal/gospec/tree/gospec-1.0.0/examples/) directory.
+For examples on how to write specs, see the files in the [examples] directory.
 
-- [stack_test.go](http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack_test.go) is an example of how you might write a spec for a [stack class](http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack.go).
+- [stack_test.go] is an example of how you might write a spec for the class in [stack.go].
 
-- [assert_examples_test.go](http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/assert_examples_test.go) explains all the available assertions.
+- [assert_examples_test.go] explains all the available assertions.
 
-- [execution_model_test.go](http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/execution_model_test.go) explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
+- [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
+
+
+[examples]:                http://github.com/orfjackal/gospec/tree/gospec-1.0.0/examples/
+[all_specs_test.go]:       http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/all_specs_test.go
+[stack.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack.go
+[stack_test.go]:           http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack_test.go
+[assert_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/assert_examples_test.go
+[execution_model_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/execution_model_test.go
 
 
 Version History
