@@ -56,21 +56,29 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 - [stack_test.go] is an example of how you might write a spec for the class in [stack.go].
 
+- [fib_test.go] is an example of how you might write a spec for the class in [fib.go].
+
 - [assert_examples_test.go] explains all the available assertions.
 
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-[examples]:                http://github.com/orfjackal/gospec/tree/gospec-1.0.0/examples/
-[all_specs_test.go]:       http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/all_specs_test.go
-[stack.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack.go
-[stack_test.go]:           http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/stack_test.go
-[assert_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/assert_examples_test.go
-[execution_model_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.0.0/examples/execution_model_test.go
+[examples]:                http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
+[all_specs_test.go]:       http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
+[stack.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
+[stack_test.go]:           http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
+[fib.go]:                  http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
+[fib_test.go]:             http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
+[assert_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/assert_examples_test.go
+[execution_model_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
 
 
 Version History
 ---------------
+
+**1.x.x (2010-xx-xx)**
+
+- Added Fibonacci numbers example
 
 **1.0.0 (2009-12-30)**
 
