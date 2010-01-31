@@ -79,6 +79,7 @@ Version History
 **1.x.x (2010-xx-xx)**
 
 - Added Fibonacci numbers example
+- Added instructions about the style of naming and organizing specs
 
 **1.0.0 (2009-12-30)**
 

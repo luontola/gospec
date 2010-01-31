@@ -8,6 +8,18 @@ import (
 	"gospec"
 )
 
+
+// The specs should read like a specification. The spec names in this example
+// are straight from Wikipedia (http://en.wikipedia.org/wiki/Fibonacci_number)
+// where the first paragraph defines the Fibonacci numbers as:
+//
+//     "By definition, the first two Fibonacci numbers are 0 and 1, and
+//      each remaining number is the sum of the previous two."
+//
+// When the tests read like a specification, it is easier to find out what the
+// system does by just reading the test names, and it's also easier to know
+// whether the test is still needed when it fails.
+
 func FibSpec(c *gospec.Context) {
 	fib := NewFib().Sequence(10)
 	
