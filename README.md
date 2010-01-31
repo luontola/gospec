@@ -98,6 +98,6 @@ With this framework you should be able to:
 License
 -------
 
-Copyright © 2009 Esko Luontola <<http://www.orfjackal.net>>  
+Copyright © 2009-2010 Esko Luontola <<http://www.orfjackal.net>>  
 This software is released under the Apache License 2.0.  
 The license text is at <http://www.apache.org/licenses/LICENSE-2.0>
