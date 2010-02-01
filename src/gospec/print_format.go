@@ -38,9 +38,9 @@ func (this *defaultPrintFormat) PrintPassing(nestingLevel int, name string) {
 func (this *defaultPrintFormat) PrintFailing(nestingLevel int, name string, errors []*Error) {
 	indent := indent(nestingLevel)
 	// TODO: use colors (red)
-	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
+	fmt.Fprintf(this.out, "%v- %v [FAIL]\n\n", indent, name)
 	for _, error := range errors {
-		fmt.Fprintf(this.out, "[ERROR] %v\n\t%v\n", error.Location, error.Message)
+		fmt.Fprintf(this.out, "*** %v\n    at %v\n\n", error.Message, error.Location)
 	}
 	fmt.Fprint(this.out, "\n")
 }

@@ -80,6 +80,7 @@ Version History
 
 - Added Fibonacci numbers example
 - Added instructions about the style of naming and organizing specs
+- Small changes to the print format of error messages
 
 **1.0.0 (2009-12-30)**
 
