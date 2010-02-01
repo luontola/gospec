@@ -78,6 +78,10 @@ func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 
 
 func DummySpecForBenchmarks(c *Context) {
+	// Some work, to create a more realistic workload and
+	// to put the framework's overhead into proportion.
+//	for i := 0; i < 1000000; i++ {}
+	
 	// 15 spec declarations, executed in 10 runs
 	// (each run is 3 levels deep, so in total 30 spec runs)
 	c.Specify("Child A", func() {
