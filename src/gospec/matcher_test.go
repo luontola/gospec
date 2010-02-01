@@ -213,7 +213,11 @@ func (log *spyErrorLogger) ShouldHaveNoErrors(t *testing.T) {
 
 func (log *spyErrorLogger) ShouldHaveTheError(message string, t *testing.T) {
 	assertEquals(1, log.failures, t)
-	assertEquals(message, log.lastError.Message, t)
+	lastMessage := ""
+	if log.lastError != nil {
+		lastMessage = log.lastError.Message
+	}
+	assertEquals(message, lastMessage, t)
 	log.Reset()
 }
 
