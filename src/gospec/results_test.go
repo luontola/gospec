@@ -14,10 +14,10 @@ func Test__When_results_have_many_root_specs__Then_they_are_sorted_alphabeticall
 	results := newResultCollector()
 
 	// register in reverse order
-	a1 := newSpecRun("RootSpec2", nil, nil)
+	a1 := newSpecRun("RootSpec2", nil, nil, nil)
 	results.Update(a1)
 
-	b2 := newSpecRun("RootSpec1", nil, nil)
+	b2 := newSpecRun("RootSpec1", nil, nil, nil)
 	results.Update(b2)
 
 	// expect roots to be in alphabetical order
@@ -38,10 +38,10 @@ func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_dec
 	// incremented and the children's paths will be wrong.
 
 	// use names which would not sort alphabetically
-	root := newSpecRun("RootSpec", nil, nil)
-	child1 := newSpecRun("one", nil, root)
-	child2 := newSpecRun("two", nil, root)
-	child3 := newSpecRun("three", nil, root)
+	root := newSpecRun("RootSpec", nil, nil, nil)
+	child1 := newSpecRun("one", nil, root, nil)
+	child2 := newSpecRun("two", nil, root, nil)
+	child3 := newSpecRun("three", nil, root, nil)
 
 	// register in random order
 	results.Update(root)
@@ -75,7 +75,7 @@ func Test__Collecting_results_of_zero_specs(t *testing.T) {
 func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
 	results := newResultCollector()
 
-	a1 := newSpecRun("RootSpec", nil, nil)
+	a1 := newSpecRun("RootSpec", nil, nil, nil)
 	results.Update(a1)
 
 	assertReportIs(results, `
@@ -88,8 +88,8 @@ func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
 func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
 	results := newResultCollector()
 
-	a1 := newSpecRun("RootSpec", nil, nil)
-	a2 := newSpecRun("Child A", nil, a1)
+	a1 := newSpecRun("RootSpec", nil, nil, nil)
+	a2 := newSpecRun("Child A", nil, a1, nil)
 	results.Update(a1)
 	results.Update(a2)
 
@@ -104,9 +104,9 @@ func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
 func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
 	results := newResultCollector()
 
-	a1 := newSpecRun("RootSpec", nil, nil)
-	a2 := newSpecRun("Child A", nil, a1)
-	a3 := newSpecRun("Child AA", nil, a2)
+	a1 := newSpecRun("RootSpec", nil, nil, nil)
+	a2 := newSpecRun("Child A", nil, a1, nil)
+	a3 := newSpecRun("Child AA", nil, a2, nil)
 	results.Update(a1)
 	results.Update(a2)
 	results.Update(a3)
@@ -142,12 +142,12 @@ func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing
 func Test__Collecting_results_of_failing_specs(t *testing.T) {
 	results := newResultCollector()
 
-	a1 := newSpecRun("Failing", nil, nil)
+	a1 := newSpecRun("Failing", nil, nil, nil)
 	a1.AddError(newError("X did not equal Y", currentLocation()))
 	results.Update(a1)
 
-	b1 := newSpecRun("Passing", nil, nil)
-	b2 := newSpecRun("Child failing", nil, b1)
+	b1 := newSpecRun("Passing", nil, nil, nil)
+	b2 := newSpecRun("Child failing", nil, b1, nil)
 	b2.AddError(newError("moon was not cheese", currentLocation()))
 	results.Update(b1)
 	results.Update(b2)

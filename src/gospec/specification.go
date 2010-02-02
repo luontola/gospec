@@ -17,23 +17,24 @@ type specRun struct {
 	parent           *specRun
 	numberOfChildren int
 	path             path
+	targetPath       path
 	errors           *list.List
 	hasFatalErrors   bool
 }
 
-func newSpecRun(name string, closure func(), parent *specRun) *specRun {
+func newSpecRun(name string, closure func(), parent *specRun, targetPath path) *specRun {
 	path := rootPath()
 	if parent != nil {
 		currentIndex := parent.numberOfChildren
 		path = parent.path.append(currentIndex)
 		parent.numberOfChildren++
 	}
-	return &specRun{name, closure, parent, 0, path, list.New(), false}
+	return &specRun{name, closure, parent, 0, path, targetPath, list.New(), false}
 }
 
-func (spec *specRun) isOnTargetPath(targetPath path) bool { return spec.path.isOn(targetPath) }
-func (spec *specRun) isUnseen(targetPath path) bool       { return spec.path.isBeyond(targetPath) }
-func (spec *specRun) isFirstChild() bool                  { return spec.path.lastIndex() == 0 }
+func (spec *specRun) isOnTargetPath() bool { return spec.path.isOn(spec.targetPath) }
+func (spec *specRun) isUnseen() bool       { return spec.path.isBeyond(spec.targetPath) }
+func (spec *specRun) isFirstChild() bool   { return spec.path.lastIndex() == 0 }
 
 func (spec *specRun) execute() {
 	spec.closure()

@@ -52,7 +52,7 @@ func (c *taskContext) Specify(name string, closure func()) {
 }
 
 func (c *taskContext) enterSpec(name string, closure func()) {
-	spec := newSpecRun(name, closure, c.currentSpec)
+	spec := newSpecRun(name, closure, c.currentSpec, c.targetPath)
 	c.currentSpec = spec
 }
 
@@ -74,13 +74,11 @@ func (c *taskContext) shouldExecute(spec *specRun) bool {
 	if spec.parent != nil && spec.parent.hasFatalErrors {
 		return false
 	}
-	p := c.targetPath
-	return spec.isOnTargetPath(p) || (spec.isUnseen(p) && spec.isFirstChild())
+	return spec.isOnTargetPath() || (spec.isUnseen() && spec.isFirstChild())
 }
 
 func (c *taskContext) shouldPostpone(spec *specRun) bool {
-	p := c.targetPath
-	return spec.isUnseen(p) && !spec.isFirstChild()
+	return spec.isUnseen() && !spec.isFirstChild()
 }
 
 func (c *taskContext) execute(spec *specRun) {
