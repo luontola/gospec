@@ -62,13 +62,27 @@ func Test__When_a_spec_has_failing_MUSTs__Then_its_children_are_NOT_executed(t *
 	assertEquals(1, results.TotalCount(), t)
 }
 
-func Test__The_location_of_the_failure_is_reported(t *testing.T) {
+
+// Location
+
+func Test__The_location_of_a_failed_THEN_is_reported(t *testing.T) {
 	results := runSpec(func(c Context) {
-		c.Then(1).Must.Equal(2)
+		c.Then(1).Should.Equal(2)
 	})
+	assertErrorIsInFile("asserts_test.go", results, t)
+}
+
+func Test__The_location_of_a_failed_EXPECT_is_reported(t *testing.T) {
+	results := runSpec(func(c Context) {
+		c.Expect(1, Equals, 2)
+	})
+	assertErrorIsInFile("asserts_test.go", results, t)
+}
+
+func assertErrorIsInFile(file string, results *ResultCollector, t *testing.T) {
 	for spec := range results.sortedRoots() {
 		error := spec.errors.Front().Value.(*Error)
-		assertEquals("asserts_test.go", error.Location.File, t)
+		assertEquals(file, error.Location.File, t)
 	}
 }
 

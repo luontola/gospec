@@ -13,6 +13,24 @@ import (
 )
 
 
+type matcherAdapter struct {
+	location *Location
+	log      errorLogger
+}
+
+func newMatcherAdapter(location *Location, log errorLogger) *matcherAdapter {
+	return &matcherAdapter{location, log}
+}
+
+func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected interface{}) {
+	ok, pos, _ := matcher(actual, expected)
+	if !ok {
+		e := newError(pos.String(), this.location)
+		this.log.AddError(e)
+	}
+}
+
+
 type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error)
 
 func Not(matcher Matcher) Matcher {

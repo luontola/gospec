@@ -12,16 +12,22 @@ import (
 // Context controls the execution of the current spec. Child specs can be
 // created with the Specify method.
 type Context interface {
-
-	// Creates a child spec for the currently executing spec. Specs can be nested
-	// unlimitedly. The name should describe what is the behaviour being specified
-	// by this spec, and the closure should contain the same specification written
-	// as code.
+	
+	// Creates a child spec for the currently executing spec. Specs can be
+	// nested unlimitedly. The name should describe what is the behaviour being
+	// specified by this spec, and the closure should express the same
+	// specification as code.
 	Specify(name string, closure func())
 	
-	// Then method starts an assertion. Example:
-	//    c.Then(actual).Should.Equal(expected);
+	// Makes an assertion. For example:
+	//    c.Then(theAnswer).Should.Equal(42);
+	//    c.Then(theAnswer).ShouldNot.Equal(666);
 	Then(actual interface{}) *MatcherBuilder
+	
+	// Makes an assertion. For example:
+	//    c.Expect(theAnswer, Equals, 42)
+	//    c.Expect(theAnswer, Not(Equals), 666)
+	Expect(actual interface{}, matcher Matcher, expected interface{})
 }
 
 
@@ -92,5 +98,10 @@ func (c *taskContext) postpone(spec *specRun) {
 
 func (c *taskContext) Then(actual interface{}) *MatcherBuilder {
 	return newMatcherBuilder(actual, callerLocation(), c.currentSpec)
+}
+
+func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected interface{}) {
+	m := newMatcherAdapter(callerLocation(), c.currentSpec)
+	m.Expect(actual, matcher, expected)
 }
 
