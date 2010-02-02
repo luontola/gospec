@@ -37,8 +37,18 @@ func (this *matcherAdapter) addError(message string) {
 }
 
 
+// Matchers are used in expectations to compare the actual and expected values.
+// 
+// Return values:
+//   ok:  Should be true when `actual` and `expected` match, otherwise false.
+//   pos: Message for a failed expectation.
+//   neg: Message for a failed expectation when the matcher is combined with Not.
+//   err: Message for an unrecoverable error, for example if the arguments had a wrong type.
 type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error)
 
+
+// Negates the meaning of a Matcher. Matches when the original matcher does not
+// match, and the other way around.
 func Not(matcher Matcher) Matcher {
 	return func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 		ok, pos, neg, err = matcher(actual, expected)
@@ -184,6 +194,10 @@ func listToArray(list *list.List) []interface{} {
 
 // Helpers
 
+// Constructs an error message the same way as fmt.Sprintf(), but the string is
+// created lazily when it is used, if it is used at all. This avoids unnecessary
+// string parsing in matchers, because most of the time there are no failures
+// and thus the error messages are not used.
 func Errorf(format string, args ...) os.Error {
 	return lazyStringer(func() interface{} {
 		return fmt.Sprintf(format, args)
