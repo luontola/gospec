@@ -249,29 +249,3 @@ func (log *spyErrorLogger) ShouldHaveTheError(message string, t *testing.T) {
 	log.Reset()
 }
 
-
-// Dummies
-
-type DummyStruct struct {
-	value        int
-	ignoredValue int
-}
-
-func (this DummyStruct) Equals(other interface{}) bool {
-	switch that := other.(type) {
-	case DummyStruct:
-		return this.equals(&that)
-	case *DummyStruct:
-		return this.equals(that)
-	}
-	return false
-}
-
-func (this *DummyStruct) equals(that *DummyStruct) bool {
-	return this.value == that.value
-}
-
-func (this DummyStruct) String() string {
-	return fmt.Sprintf("DummyStruct%v", this.value)
-}
-

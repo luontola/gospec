@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"container/list"
+	"fmt"
 	"math"
 	"testing"
 	"os"
@@ -82,6 +83,29 @@ func Test__Equals_matcher_on_structs(t *testing.T) {
 func Test__Equals_matcher_on_struct_pointers(t *testing.T) {
 	assertExpectation(t, &DummyStruct{42, 1}, Equals, &DummyStruct{42, 2}).Passes()
 	assertExpectation(t, &DummyStruct{42, 1}, Equals, &DummyStruct{999, 2}).Fails()
+}
+
+type DummyStruct struct {
+	value        int
+	ignoredValue int
+}
+
+func (this DummyStruct) Equals(other interface{}) bool {
+	switch that := other.(type) {
+	case DummyStruct:
+		return this.equals(&that)
+	case *DummyStruct:
+		return this.equals(that)
+	}
+	return false
+}
+
+func (this *DummyStruct) equals(that *DummyStruct) bool {
+	return this.value == that.value
+}
+
+func (this DummyStruct) String() string {
+	return fmt.Sprintf("DummyStruct%v", this.value)
 }
 
 
