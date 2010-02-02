@@ -78,8 +78,8 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
-- NOTE: In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters.
-
+- *UPGRADE NOTES:* In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters.
+- New expectation syntax. The old syntax can still be used, but it might be deprecated later, depending on experience with the new syntax.
 - Added Fibonacci numbers example
 - Added instructions about the style of naming and organizing specs
 - Small changes to the print format of error messages
