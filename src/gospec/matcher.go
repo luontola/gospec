@@ -54,16 +54,29 @@ func newMatcher(actual interface{}, location *Location, log errorLogger) *Matche
 	return posOpt
 }
 
+func (m *Matcher) compareUsing(matcher NewMatcher, expected interface{}) {
+	if m.negation {
+		matcher = Not(matcher)
+	}
+	if ok, error, _ := matcher(m.actual, expected); !ok {
+		m.addError(error.String())
+	}
+}
+
+func (m *Matcher) addError(message string) {
+	error := newError(message, m.location)
+	if m.required {
+		m.log.AddFatalError(error)
+	} else {
+		m.log.AddError(error)
+	}
+}
+
+
 // The actual value must equal the expected value. For primitives the equality
 // operator is used. All other objects must implement the Equality interface.
 func (m *Matcher) Equal(expected interface{}) {
-	if m.fails(areEqual(expected, m.actual)) {
-		if m.negation {
-			m.addError(fmt.Sprintf("Did not expect '%v' but was '%v'", expected, m.actual))
-		} else {
-			m.addError(fmt.Sprintf("Expected '%v' but was '%v'", expected, m.actual))
-		}
-	}
+	m.compareUsing(Equals, expected)
 }
 
 // The actual value must satisfy the given criteria.
@@ -164,31 +177,7 @@ func listToArray(list *list.List) []interface{} {
 	return arr
 }
 
-func areEqual(a interface{}, b interface{}) bool {
-	if a2, ok := a.(Equality); ok {
-		return a2.Equals(b)
-	}
-	// TODO: pointer equality
-	return a == b
-}
-
-func (m *Matcher) fails(ok bool) bool {
+func (m *Matcher) fails(ok bool) bool { // TODO: remove
 	return m.negation == ok
-}
-
-func (m *Matcher) addError(message string) {
-	error := newError(message, m.location)
-	if m.required {
-		m.log.AddFatalError(error)
-	} else {
-		m.log.AddError(error)
-	}
-}
-
-
-// Helpers
-
-type Equality interface {
-	Equals(other interface{}) bool
 }
 

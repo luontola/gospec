@@ -21,6 +21,7 @@ func Not(matcher NewMatcher) NewMatcher {
 	}
 }
 
+
 func Equals(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
 	ok = areEqual(actual, expected)
 	// TODO: change the messages to following?
@@ -31,6 +32,20 @@ func Equals(actual interface{}, expected interface{}) (ok bool, pos os.Error, ne
 	return
 }
 
+func areEqual(a interface{}, b interface{}) bool {
+	if a2, ok := a.(Equality); ok {
+		return a2.Equals(b)
+	}
+	// TODO: pointer equality
+	return a == b
+}
+
+type Equality interface {
+	Equals(other interface{}) bool
+}
+
+
+// Helpers
 
 func Errorf(format string, args ...) os.Error {
 	return lazyString(func() string {
