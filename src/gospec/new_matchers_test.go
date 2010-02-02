@@ -18,7 +18,7 @@ func Test__Expect_string_EQUALS_string(t *testing.T) {
 
 	log.Expect("apple", Equals, "apple")
 	log.ShouldHaveNoErrors(t)
-	
+
 	log.Expect("apple", Equals, "orange")
 	log.ShouldHaveTheError("Expected 'orange' but was 'apple'", t)
 }

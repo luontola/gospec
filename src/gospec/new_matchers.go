@@ -32,16 +32,15 @@ func Equals(actual interface{}, expected interface{}) (ok bool, pos os.Error, ne
 }
 
 
-type message struct {
-	s string
-}
-
 func Errorf(format string, args ...) os.Error {
-	// TODO: figure out a way to do Sprintf in String(), to avoid unnecessary string manipulation on every assert
-	return &message{fmt.Sprintf(format, args)}
+	return lazyString(func() string {
+		return fmt.Sprintf(format, args)
+	})
 }
 
-func (this *message) String() string {
-	return this.s
+type lazyString func() string
+
+func (this lazyString) String() string {
+	return this()
 }
 
