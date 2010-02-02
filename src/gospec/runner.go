@@ -32,7 +32,7 @@ func NewRunner() *Runner {
 // Adds a spec for later execution. The name of the spec method must be provided,
 // because the program does not know how to find it out at runtime. Example:
 //     r.AddSpec("SomeSpec", SomeSpec);
-func (r *Runner) AddSpec(name string, closure func(*Context)) {
+func (r *Runner) AddSpec(name string, closure func(Context)) {
 	task := newScheduledTask(name, closure, newInitialContext())
 	r.scheduled.Push(task)
 }
@@ -82,7 +82,7 @@ func (r *Runner) hasRunningTasks() bool             { return r.runningTasks > 0 
 func (r *Runner) hasScheduledTasks() bool           { return r.scheduled.Len() > 0 }
 func (r *Runner) nextScheduledTask() *scheduledTask { return r.scheduled.Pop().(*scheduledTask) }
 
-func (r *Runner) execute(name string, closure specRoot, c *Context) *taskResult {
+func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskResult {
 	c.Specify(name, func() { closure(c) })
 	return &taskResult{
 		name,
@@ -121,12 +121,12 @@ func (r *Runner) Results() *ResultCollector {
 type scheduledTask struct {
 	name    string
 	closure specRoot
-	context *Context
+	context *taskContext
 }
 
-type specRoot func(*Context)
+type specRoot func(Context)
 
-func newScheduledTask(name string, closure specRoot, context *Context) *scheduledTask {
+func newScheduledTask(name string, closure specRoot, context *taskContext) *scheduledTask {
 	return &scheduledTask{name, closure, context}
 }
 

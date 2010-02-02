@@ -10,7 +10,7 @@ import (
 )
 
 
-func AssertExamplesSpec(c *gospec.Context) {
+func AssertExamplesSpec(c gospec.Context) {
 	
 	c.Specify("Primitives can be compared for equality", func() {
 		c.Then(1).Should.Equal(1)

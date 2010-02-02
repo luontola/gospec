@@ -77,7 +77,7 @@ func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 }
 
 
-func DummySpecForBenchmarks(c *Context) {
+func DummySpecForBenchmarks(c Context) {
 	// Some work, to create a more realistic workload and
 	// to put the framework's overhead into proportion.
 //	for i := 0; i < 1000000; i++ {}

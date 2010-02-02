@@ -43,14 +43,14 @@ func assertHasPrefix(prefix string, actual string, t *testing.T) {
 
 // GoSpec specific test utilites
 
-func runSpec(spec func(*Context)) *ResultCollector {
+func runSpec(spec func(Context)) *ResultCollector {
 	r := NewRunner()
 	r.AddSpec("RootSpec", spec)
 	r.Run()
 	return r.Results()
 }
 
-func runSpecWithContext(closure func(*Context), context *Context) *taskResult {
+func runSpecWithContext(closure func(Context), context *taskContext) *taskResult {
 	resetTestSpy()
 	r := NewRunner()
 	return r.execute("RootSpec", closure, context)
@@ -72,18 +72,18 @@ func countSpecNames(specs iterable.Iterable) map[string]int {
 
 // Test dummies for all test cases
 
-func DummySpecWithNoChildren(c *Context) {
+func DummySpecWithNoChildren(c Context) {
 	testSpy += "root"
 }
 
-func DummySpecWithOneChild(c *Context) {
+func DummySpecWithOneChild(c Context) {
 	testSpy += "root"
 	c.Specify("Child A", func() {
 		testSpy += ",a"
 	})
 }
 
-func DummySpecWithTwoChildren(c *Context) {
+func DummySpecWithTwoChildren(c Context) {
 	testSpy += "root"
 	c.Specify("Child A", func() {
 		testSpy += ",a"
@@ -93,7 +93,7 @@ func DummySpecWithTwoChildren(c *Context) {
 	})
 }
 
-func DummySpecWithNestedChildren(c *Context) {
+func DummySpecWithNestedChildren(c Context) {
 	testSpy += "root"
 	c.Specify("Child A", func() {
 		testSpy += ",a"
@@ -103,7 +103,7 @@ func DummySpecWithNestedChildren(c *Context) {
 	})
 }
 
-func DummySpecWithMultipleNestedChildren(c *Context) {
+func DummySpecWithMultipleNestedChildren(c Context) {
 	testSpy += "root"
 	c.Specify("Child A", func() {
 		testSpy += ",a"

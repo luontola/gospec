@@ -10,7 +10,7 @@ import (
 
 
 func Test__When_a_spec_contains_passing_asserts__Then_the_spec_passes(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Should.Equal(1)
 	})
 	assertEquals(1, results.PassCount(), t)
@@ -18,7 +18,7 @@ func Test__When_a_spec_contains_passing_asserts__Then_the_spec_passes(t *testing
 }
 
 func Test__When_a_spec_contains_failing_asserts__Then_the_spec_fails(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Should.Equal(2)
 	})
 	assertEquals(0, results.PassCount(), t)
@@ -27,7 +27,7 @@ func Test__When_a_spec_contains_failing_asserts__Then_the_spec_fails(t *testing.
 
 
 func Test__When_a_spec_has_passing_SHOULDs__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Should.Equal(1)
 		c.Specify("Child", func() {
 		})
@@ -36,7 +36,7 @@ func Test__When_a_spec_has_passing_SHOULDs__Then_its_children_are_executed(t *te
 }
 
 func Test__When_a_spec_has_failing_SHOULDs__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Should.Equal(2)
 		c.Specify("Child", func() {
 		})
@@ -45,7 +45,7 @@ func Test__When_a_spec_has_failing_SHOULDs__Then_its_children_are_executed(t *te
 }
 
 func Test__When_a_spec_has_passing_MUSTs__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Must.Equal(1)
 		c.Specify("Child", func() {
 		})
@@ -54,7 +54,7 @@ func Test__When_a_spec_has_passing_MUSTs__Then_its_children_are_executed(t *test
 }
 
 func Test__When_a_spec_has_failing_MUSTs__Then_its_children_are_NOT_executed(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Must.Equal(2)
 		c.Specify("Child", func() {
 		})
@@ -63,7 +63,7 @@ func Test__When_a_spec_has_failing_MUSTs__Then_its_children_are_NOT_executed(t *
 }
 
 func Test__The_location_of_the_failure_is_reported(t *testing.T) {
-	results := runSpec(func(c *Context) {
+	results := runSpec(func(c Context) {
 		c.Then(1).Must.Equal(2)
 	})
 	for spec := range results.sortedRoots() {

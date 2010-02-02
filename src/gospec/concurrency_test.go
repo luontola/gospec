@@ -46,7 +46,7 @@ func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	assertEquals(1, runCounts["Child D"], t)
 }
 
-func VerySlowDummySpec(c *Context) {
+func VerySlowDummySpec(c Context) {
 	c.Specify("A very slow test setup", func() {
 		time.Sleep(DELAY)
 		c.Specify("Child A", func() {

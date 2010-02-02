@@ -42,7 +42,7 @@ import (
 // For a more thorough example of my style, see
 // http://github.com/orfjackal/tdd-tetris-tutorial
 
-func StackSpec(c *gospec.Context) {
+func StackSpec(c gospec.Context) {
 	stack := NewStack()
 	
 	c.Specify("An empty stack", func() { // Given

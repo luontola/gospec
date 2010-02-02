@@ -50,7 +50,7 @@ GoSpec adds one additional parameter to gotest. Use the `-print-all` parameter t
 
 Because of using gotest, all your specs must be in files whose names end with `_test.go` and they must be added to your test suite as explained above.
 
-Each group of specs is a method which takes `*gospec.Context` as a parameter. You can call the methods on `Context` to make assertions and to declare nested specs.
+Each group of specs is a method which takes `gospec.Context` as a parameter. You can call the methods on `Context` to make assertions and to declare nested specs.
 
 For examples on how to write specs, see the files in the [examples] directory.
 
@@ -77,6 +77,8 @@ Version History
 ---------------
 
 **1.x.x (2010-xx-xx)**
+
+- NOTE: In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters.
 
 - Added Fibonacci numbers example
 - Added instructions about the style of naming and organizing specs

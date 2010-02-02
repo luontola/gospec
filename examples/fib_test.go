@@ -20,7 +20,7 @@ import (
 // system does by just reading the test names, and it's also easier to know
 // whether the test is still needed when it fails.
 
-func FibSpec(c *gospec.Context) {
+func FibSpec(c gospec.Context) {
 	fib := NewFib().Sequence(10)
 	
 	c.Specify("The first two Fibonacci numbers are 0 and 1", func() {

@@ -166,7 +166,7 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
 func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_reported(t *testing.T) {
 	i := 0
 	runner := NewRunner()
-	runner.AddSpec("RootSpec", func(c *Context) {
+	runner.AddSpec("RootSpec", func(c Context) {
 		if i == 1 {
 			c.Then(10).Should.Equal(20)
 		}
@@ -188,7 +188,7 @@ func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_
 
 func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
 	runner := NewRunner()
-	runner.AddSpec("RootSpec", func(c *Context) {
+	runner.AddSpec("RootSpec", func(c Context) {
 		i := 0
 		c.Specify("Child A", func() {
 			i = 1
@@ -215,7 +215,7 @@ func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *test
 
 func Test__When_non_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
 	runner := NewRunner()
-	runner.AddSpec("RootSpec", func(c *Context) {
+	runner.AddSpec("RootSpec", func(c Context) {
 		c.Specify("Failing", func() {
 			i := 0
 			c.Specify("Child A", func() {

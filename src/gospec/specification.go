@@ -31,9 +31,9 @@ func newSpecRun(name string, closure func(), parent *specRun) *specRun {
 	return &specRun{name, closure, parent, 0, path, list.New(), false}
 }
 
-func (spec *specRun) isOnTargetPath(c *Context) bool { return spec.path.isOn(c.targetPath) }
-func (spec *specRun) isUnseen(c *Context) bool       { return spec.path.isBeyond(c.targetPath) }
-func (spec *specRun) isFirstChild() bool             { return spec.path.lastIndex() == 0 }
+func (spec *specRun) isOnTargetPath(targetPath path) bool { return spec.path.isOn(targetPath) }
+func (spec *specRun) isUnseen(targetPath path) bool       { return spec.path.isBeyond(targetPath) }
+func (spec *specRun) isFirstChild() bool                  { return spec.path.lastIndex() == 0 }
 
 func (spec *specRun) execute() {
 	spec.closure()

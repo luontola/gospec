@@ -10,7 +10,7 @@ import (
 )
 
 
-func ExecutionModelSpec(c *gospec.Context) {
+func ExecutionModelSpec(c gospec.Context) {
 	
 	// "Before block", for example common variables for use in all specs.
 	commonVariable := ""

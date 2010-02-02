@@ -11,19 +11,33 @@ import (
 
 // Context controls the execution of the current spec. Child specs can be
 // created with the Specify method.
-type Context struct {
+type Context interface {
+
+	// Creates a child spec for the currently executing spec. Specs can be nested
+	// unlimitedly. The name should describe what is the behaviour being specified
+	// by this spec, and the closure should contain the same specification written
+	// as code.
+	Specify(name string, closure func())
+	
+	// Then method starts an assertion. Example:
+	//    c.Then(actual).Should.Equal(expected);
+	Then(actual interface{}) *MatcherBuilder
+}
+
+
+type taskContext struct {
 	targetPath     path
 	currentSpec    *specRun
 	executedSpecs  *list.List
 	postponedSpecs *list.List
 }
 
-func newInitialContext() *Context {
+func newInitialContext() *taskContext {
 	return newExplicitContext(rootPath())
 }
 
-func newExplicitContext(targetPath path) *Context {
-	c := new(Context)
+func newExplicitContext(targetPath path) *taskContext {
+	c := new(taskContext)
 	c.targetPath = targetPath
 	c.currentSpec = nil
 	c.executedSpecs = list.New()
@@ -31,22 +45,18 @@ func newExplicitContext(targetPath path) *Context {
 	return c
 }
 
-// Creates a child spec for the currently executing spec. Specs can be nested
-// unlimitedly. The name should describe what is the behaviour being specified
-// by this spec, and the closure should contain the same specification written
-// as code.
-func (c *Context) Specify(name string, closure func()) {
+func (c *taskContext) Specify(name string, closure func()) {
 	c.enterSpec(name, closure)
 	c.processCurrentSpec()
 	c.exitSpec()
 }
 
-func (c *Context) enterSpec(name string, closure func()) {
+func (c *taskContext) enterSpec(name string, closure func()) {
 	spec := newSpecRun(name, closure, c.currentSpec)
 	c.currentSpec = spec
 }
 
-func (c *Context) processCurrentSpec() {
+func (c *taskContext) processCurrentSpec() {
 	spec := c.currentSpec
 	switch {
 	case c.shouldExecute(spec):
@@ -56,34 +66,33 @@ func (c *Context) processCurrentSpec() {
 	}
 }
 
-func (c *Context) exitSpec() {
+func (c *taskContext) exitSpec() {
 	c.currentSpec = c.currentSpec.parent
 }
 
-func (c *Context) shouldExecute(spec *specRun) bool {
+func (c *taskContext) shouldExecute(spec *specRun) bool {
 	if spec.parent != nil && spec.parent.hasFatalErrors {
 		return false
 	}
-	return spec.isOnTargetPath(c) || (spec.isUnseen(c) && spec.isFirstChild())
+	p := c.targetPath
+	return spec.isOnTargetPath(p) || (spec.isUnseen(p) && spec.isFirstChild())
 }
 
-func (c *Context) shouldPostpone(spec *specRun) bool {
-	return spec.isUnseen(c) && !spec.isFirstChild()
+func (c *taskContext) shouldPostpone(spec *specRun) bool {
+	p := c.targetPath
+	return spec.isUnseen(p) && !spec.isFirstChild()
 }
 
-func (c *Context) execute(spec *specRun) {
+func (c *taskContext) execute(spec *specRun) {
 	c.executedSpecs.PushBack(spec)
 	spec.execute()
 }
 
-func (c *Context) postpone(spec *specRun) {
+func (c *taskContext) postpone(spec *specRun) {
 	c.postponedSpecs.PushBack(spec)
 }
 
-
-// Then method starts an assertion. Example:
-//    c.Then(actual).Should.Equal(expected);
-func (c *Context) Then(actual interface{}) *MatcherBuilder {
+func (c *taskContext) Then(actual interface{}) *MatcherBuilder {
 	return newMatcherBuilder(actual, callerLocation(), c.currentSpec)
 }
 
