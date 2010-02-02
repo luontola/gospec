@@ -8,36 +8,36 @@ import (
 )
 
 
-type Matcher struct {
+type MatcherBuilder struct {
 	actual    interface{}
 	location  *Location
 	log       errorLogger
 	negation  bool
 	required  bool
-	Should    *Matcher
-	ShouldNot *Matcher
-	Must      *Matcher
-	MustNot   *Matcher
+	Should    *MatcherBuilder
+	ShouldNot *MatcherBuilder
+	Must      *MatcherBuilder
+	MustNot   *MatcherBuilder
 }
 
-func newMatcher(actual interface{}, location *Location, log errorLogger) *Matcher {
-	posOpt := new(Matcher)
+func newMatcherBuilder(actual interface{}, location *Location, log errorLogger) *MatcherBuilder {
+	posOpt := new(MatcherBuilder)
 	posOpt.negation = false
 	posOpt.required = false
 	
-	posReq := new(Matcher)
+	posReq := new(MatcherBuilder)
 	posReq.negation = false
 	posReq.required = true
 	
-	negOpt := new(Matcher)
+	negOpt := new(MatcherBuilder)
 	negOpt.negation = true
 	negOpt.required = false
 	
-	negReq := new(Matcher)
+	negReq := new(MatcherBuilder)
 	negReq.negation = true
 	negReq.required = true
 	
-	all := [...]*Matcher{posOpt, posReq, negOpt, negReq}
+	all := [...]*MatcherBuilder{posOpt, posReq, negOpt, negReq}
 	for _, m := range all {
 		m.actual    = actual
 		m.location  = location
@@ -50,7 +50,7 @@ func newMatcher(actual interface{}, location *Location, log errorLogger) *Matche
 	return posOpt
 }
 
-func (m *Matcher) compareUsing(matcher NewMatcher, expected interface{}) {
+func (m *MatcherBuilder) compareUsing(matcher NewMatcher, expected interface{}) {
 	if m.negation {
 		matcher = Not(matcher)
 	}
@@ -59,7 +59,7 @@ func (m *Matcher) compareUsing(matcher NewMatcher, expected interface{}) {
 	}
 }
 
-func (m *Matcher) addError(message string) {
+func (m *MatcherBuilder) addError(message string) {
 	error := newError(message, m.location)
 	if m.required {
 		m.log.AddFatalError(error)
@@ -73,22 +73,22 @@ func (m *Matcher) addError(message string) {
 
 // The actual value must equal the expected value. For primitives the equality
 // operator is used. All other objects must implement the Equality interface.
-func (m *Matcher) Equal(expected interface{}) {
+func (m *MatcherBuilder) Equal(expected interface{}) {
 	m.compareUsing(Equals, expected)
 }
 
 // The actual value must satisfy the given criteria.
-func (m *Matcher) Be(criteria bool) {
+func (m *MatcherBuilder) Be(criteria bool) {
 	m.compareUsing(Satisfies, criteria)
 }
 
 // The actual value must be within delta from the expected value.
-func (m *Matcher) BeNear(expected float64, delta float64) {
+func (m *MatcherBuilder) BeNear(expected float64, delta float64) {
 	m.compareUsing(IsWithin(delta), expected)
 }
 
 // The actual collection (array, slice, iterator/channel) must contain the expected value.
-func (m *Matcher) Contain(expected interface{}) {
+func (m *MatcherBuilder) Contain(expected interface{}) {
 	m.compareUsing(Contains, expected)
 }
 

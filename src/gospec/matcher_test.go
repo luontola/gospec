@@ -188,8 +188,8 @@ type spyErrorLogger struct {
 	lastError *Error
 }
 
-func (log *spyErrorLogger) Then(actual interface{}) *Matcher {
-	return newMatcher(actual, callerLocation(), log)
+func (log *spyErrorLogger) Then(actual interface{}) *MatcherBuilder {
+	return newMatcherBuilder(actual, callerLocation(), log)
 }
 
 func (log *spyErrorLogger) AddError(error *Error) {
