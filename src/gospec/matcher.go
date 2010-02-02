@@ -54,8 +54,11 @@ func (m *MatcherBuilder) compareUsing(matcher Matcher, expected interface{}) {
 	if m.negation {
 		matcher = Not(matcher)
 	}
-	if ok, error, _ := matcher(m.actual, expected); !ok {
-		m.addError(error.String())
+	ok, pos, _, err := matcher(m.actual, expected)
+	if err != nil {
+		m.addError(err.String())
+	} else if !ok {
+		m.addError(pos.String())
 	}
 }
 

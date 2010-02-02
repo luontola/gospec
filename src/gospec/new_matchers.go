@@ -23,19 +23,25 @@ func newMatcherAdapter(location *Location, log errorLogger) *matcherAdapter {
 }
 
 func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected interface{}) {
-	ok, pos, _ := matcher(actual, expected)
-	if !ok {
-		e := newError(pos.String(), this.location)
-		this.log.AddError(e)
+	ok, pos, _, err := matcher(actual, expected)
+	if err != nil {
+		this.addError(err.String())
+	} else if !ok {
+		this.addError(pos.String())
 	}
 }
 
+func (this *matcherAdapter) addError(message string) {
+	e := newError(message, this.location)
+	this.log.AddError(e)
+}
 
-type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error)
+
+type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error)
 
 func Not(matcher Matcher) Matcher {
-	return func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
-		ok, pos, neg = matcher(actual, expected)
+	return func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+		ok, pos, neg, err = matcher(actual, expected)
 		ok = !ok
 		pos, neg = neg, pos
 		return
@@ -45,7 +51,7 @@ func Not(matcher Matcher) Matcher {
 
 // The actual value must equal the expected value. For primitives the equality
 // operator is used. All other objects must implement the Equality interface.
-func Equals(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
+func Equals(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 	ok = areEqual(actual, expected)
 	// TODO: change the messages to following?
 	// '%v' should equal '%v', but it did not
@@ -71,7 +77,7 @@ type Equality interface {
 
 
 // The actual value must satisfy the given criteria.
-func Satisfies(actual interface{}, criteria interface{}) (ok bool, pos os.Error, neg os.Error) {
+func Satisfies(actual interface{}, criteria interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 	ok = criteria.(bool) == true
 	pos = Errorf("Criteria not satisfied by '%v'", actual)
 	neg = pos
@@ -81,15 +87,14 @@ func Satisfies(actual interface{}, criteria interface{}) (ok bool, pos os.Error,
 
 // The actual value must be within delta from the expected value.
 func IsWithin(delta float64) Matcher {
-	return func(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error) {
-		// TODO: need to use three-value booleans/enums for "ok" (true, false, error) or then just panic
-		actual, err := toFloat64(actual_);
+	return func(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+		actual, err := toFloat64(actual_)
 		if err != nil {
-			return false, err, err
+			return
 		}
-		expected, err := toFloat64(expected_);
+		expected, err := toFloat64(expected_)
 		if err != nil {
-			return false, err, err
+			return
 		}
 		
 		ok = math.Fabs(expected - actual) < delta
@@ -102,20 +107,20 @@ func IsWithin(delta float64) Matcher {
 func toFloat64(actual interface{}) (result float64, err os.Error) {
 	switch v := actual.(type) {
 	case float:
-		return float64(v), nil
+		result = float64(v)
 	case float32:
-		return float64(v), nil
+		result = float64(v)
 	case float64:
-		return float64(v), nil
+		result = float64(v)
 	default:
-		return math.NaN(), Errorf("Expected a float, but was '%v' of type '%T'", actual, actual)
+		err = Errorf("Expected a float, but was '%v' of type '%T'", actual, actual)
 	}
 	return
 }
 
 
 // The actual collection (array, slice, iterator/channel) must contain the expected value.
-func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
+func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 	switch v := reflect.NewValue(actual_).(type) {
 	
 	case reflect.ArrayOrSliceValue:
@@ -146,16 +151,15 @@ func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error,
 			}
 			list.PushBack(other)
 		}
-		actualAsList := listToArray(list) // TODO: do lazily?
-		
+		actual := lazyStringer(func() interface{} {
+			return listToArray(list)
+		})
 		ok = contains
-		pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actualAsList)
-		neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actualAsList)
+		pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
+		neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
 	
 	default:
-		ok = false
-		pos = Errorf("Unknown type '%T', not iterable: %v", actual_, actual_)
-		neg = pos
+		err = Errorf("Unknown type '%T', not iterable: %v", actual_, actual_)
 	}
 	return
 }
@@ -181,14 +185,14 @@ func listToArray(list *list.List) []interface{} {
 // Helpers
 
 func Errorf(format string, args ...) os.Error {
-	return lazyString(func() string {
+	return lazyStringer(func() interface{} {
 		return fmt.Sprintf(format, args)
 	})
 }
 
-type lazyString func() string
+type lazyStringer func() interface{}
 
-func (this lazyString) String() string {
-	return this()
+func (this lazyStringer) String() string {
+	return fmt.Sprint(this())
 }
 

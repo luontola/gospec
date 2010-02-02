@@ -5,6 +5,8 @@
 package gospec
 
 import (
+	"container/list"
+	"math"
 	"testing"
 	"os"
 )
@@ -37,10 +39,164 @@ func Test__Negative_expectation_failures_are_reported_with_the_negative_message(
 	log.ShouldHaveTheError("Negative failure: 1, 1", t)
 }
 
-func dummyMatcher(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
+func Test__Errors_in_expectations_are_reported_with_the_error_message(t *testing.T) {
+	log := new(spyErrorLogger)
+	m := newMatcherAdapter(nil, log)
+	
+	m.Expect(666, dummyMatcher, 1)
+	log.ShouldHaveTheError("Error: 666", t)
+}
+
+func dummyMatcher(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	if actual.(int) == 666 {
+		err = Errorf("Error: %v", actual)
+		return
+	}
 	ok = actual == expected
 	pos = Errorf("Positive failure: %v, %v", actual, expected)
 	neg = Errorf("Negative failure: %v, %v", actual, expected)
 	return
+}
+
+
+// "Equals"
+
+func Test__Equals_matcher_on_strings(t *testing.T) {
+	assertExpectation(t, "apple", Equals, "apple").Passes()
+	assertExpectation(t, "apple", Equals, "orange").Fails().
+		WithMessage(
+			"Expected 'orange' but was 'apple'",
+			"Did not expect 'orange' but was 'apple'")
+}
+
+func Test__Equals_matcher_on_ints(t *testing.T) {
+	assertExpectation(t, 42, Equals, 42).Passes()
+	assertExpectation(t, 42, Equals, 999).Fails()
+}
+
+func Test__Equals_matcher_on_structs(t *testing.T) {
+	assertExpectation(t, DummyStruct{42, 1}, Equals, DummyStruct{42, 2}).Passes()
+	assertExpectation(t, DummyStruct{42, 1}, Equals, DummyStruct{999, 2}).Fails()
+}
+
+func Test__Equals_matcher_on_struct_pointers(t *testing.T) {
+	assertExpectation(t, &DummyStruct{42, 1}, Equals, &DummyStruct{42, 2}).Passes()
+	assertExpectation(t, &DummyStruct{42, 1}, Equals, &DummyStruct{999, 2}).Fails()
+}
+
+
+// "Satisfy"
+
+func Test__Satisfy_matcher(t *testing.T) {
+	value := 42
+	assertExpectation(t, value, Satisfies, value < 100).Passes()
+	assertExpectation(t, value, Satisfies, value > 100).Fails().
+		WithMessage(
+			"Criteria not satisfied by '42'",
+			"Criteria not satisfied by '42'")
+}
+
+
+// "IsWithin"
+
+func Test__IsWithin_matcher(t *testing.T) {
+	value := float64(3.141)
+	pi := float64(math.Pi)
+	assertExpectation(t, value, IsWithin(0.001), pi).Passes()
+	assertExpectation(t, value, IsWithin(0.0001), pi).Fails().
+		WithMessage(
+			"Expected '3.141592653589793' ± 0.0001 but was '3.141'",
+			"Did not expect '3.141592653589793' ± 0.0001 but was '3.141'")
+}
+
+func Test__IsWithin_matcher_cannot_compare_ints(t *testing.T) {
+	value := int(3)
+	pi := float64(math.Pi)
+	assertExpectation(t, value, IsWithin(0.001), pi).GivesError("Expected a float, but was '3' of type 'int'")
+	assertExpectation(t, pi, IsWithin(0.001), value).GivesError("Expected a float, but was '3' of type 'int'")
+}
+
+
+// "Contains"
+
+func Test__Contains_matcher_on_arrays(t *testing.T) {
+	values := [...]string{"one", "two", "three"}
+	assertExpectation(t, values, Contains, "one").Passes()
+	assertExpectation(t, values, Contains, "two").Passes()
+	assertExpectation(t, values, Contains, "three").Passes()
+	assertExpectation(t, values, Contains, "four").Fails().
+		WithMessage(
+			"Expected 'four' to be in '[one two three]' but it was not",
+			"Did not expect 'four' to be in '[one two three]' but it was")
+}
+
+func Test__Contains_matcher_on_iterators(t *testing.T) {
+	values := list.New()
+	values.PushBack("one")
+	values.PushBack("two")
+	values.PushBack("three")
+	assertExpectation(t, values.Iter(), Contains, "one").Passes()
+	assertExpectation(t, values.Iter(), Contains, "two").Passes()
+	assertExpectation(t, values.Iter(), Contains, "three").Passes()
+	assertExpectation(t, values.Iter(), Contains, "four").Fails().
+		WithMessage(
+			"Expected 'four' to be in '[one two three]' but it was not",
+			"Did not expect 'four' to be in '[one two three]' but it was")
+}
+
+func Test__Contains_matcher_cannot_iterate_noniterables(t *testing.T) {
+	assertExpectation(t, "one two three", Contains, "one").
+		GivesError("Unknown type 'string', not iterable: one two three")
+}
+
+
+// Test utilities
+
+func assertExpectation(t *testing.T, actual interface{}, matcher Matcher, expected interface{}) *matchAssert {
+	ok, pos, neg, err := matcher(actual, expected)
+	return &matchAssert{ok, pos, neg, err, t}
+}
+
+type matchAssert struct {
+	ok  bool
+	pos os.Error
+	neg os.Error
+	err os.Error
+	t *testing.T
+}
+
+func (this *matchAssert) Passes() *matchAssert {
+	if this.err != nil {
+		this.t.Error("expected to pass, but had an error")
+	}
+	if !this.ok {
+		this.t.Error("expected to pass, but failed")
+	}
+	return this
+}
+
+func (this *matchAssert) Fails() *matchAssert {
+	if this.err != nil {
+		this.t.Error("expected to fail, but had an error")
+	}
+	if this.ok {
+		this.t.Error("expected to fail, but passed")
+	}
+	return this
+}
+
+func (this *matchAssert) WithMessage(expectedPos string, expectedNeg string) *matchAssert {
+	assertEquals(expectedPos, this.pos.String(), this.t)
+	assertEquals(expectedNeg, this.neg.String(), this.t)
+	return this
+}
+
+func (this *matchAssert) GivesError(expectedErr string) *matchAssert {
+	if this.err == nil {
+		this.t.Error("expected have an error, but did not")
+	} else {
+		assertEquals(expectedErr, this.err.String(), this.t)
+	}
+	return this
 }
 

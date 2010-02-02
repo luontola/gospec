@@ -12,6 +12,34 @@ import (
 )
 
 
+func Test__Positive_assertation_failures_are_reported_with_the_positive_message(t *testing.T) {
+	log := new(spyErrorLogger)
+	
+	log.Then(1).Should.Equal(1)
+	log.ShouldHaveNoErrors(t)
+	
+	log.Then(1).Should.Equal(2)
+	log.ShouldHaveTheError("Expected '2' but was '1'", t)
+}
+
+func Test__Negative_assertation_failures_are_reported_with_the_negative_message(t *testing.T) {
+	log := new(spyErrorLogger)
+	
+	log.Then(1).ShouldNot.Equal(2)
+	log.ShouldHaveNoErrors(t)
+	
+	log.Then(1).ShouldNot.Equal(1)
+	log.ShouldHaveTheError("Did not expect '1' but was '1'", t)
+}
+
+func Test__Errors_in_asserts_are_reported_with_the_error_message(t *testing.T) {
+	log := new(spyErrorLogger)
+	
+	log.Then(1).Should.BeNear(1.0, 0.001)
+	log.ShouldHaveTheError("Expected a float, but was '1' of type 'int'", t)
+}
+
+
 // "Equal" matcher
 
 func Test__String_should_EQUAL_string(t *testing.T) {
