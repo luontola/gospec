@@ -36,7 +36,7 @@ func Test__Expect_should_NOT_EQUALS_string(t *testing.T) {
 
 // New matchers
 
-func (log *spyErrorLogger) Expect(actual interface{}, matcher NewMatcher, expected interface{}) {
+func (log *spyErrorLogger) Expect(actual interface{}, matcher Matcher, expected interface{}) {
 	ok, pos, _ := matcher(actual, expected)
 	if !ok {
 		log.AddError(newError(pos.String(), callerLocation()))

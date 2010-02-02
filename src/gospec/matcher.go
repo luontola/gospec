@@ -50,7 +50,7 @@ func newMatcherBuilder(actual interface{}, location *Location, log errorLogger) 
 	return posOpt
 }
 
-func (m *MatcherBuilder) compareUsing(matcher NewMatcher, expected interface{}) {
+func (m *MatcherBuilder) compareUsing(matcher Matcher, expected interface{}) {
 	if m.negation {
 		matcher = Not(matcher)
 	}

@@ -13,9 +13,9 @@ import (
 )
 
 
-type NewMatcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error)
+type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error)
 
-func Not(matcher NewMatcher) NewMatcher {
+func Not(matcher Matcher) Matcher {
 	return func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error) {
 		ok, pos, neg = matcher(actual, expected)
 		ok = !ok
@@ -62,7 +62,7 @@ func Satisfies(actual interface{}, criteria interface{}) (ok bool, pos os.Error,
 
 
 // The actual value must be within delta from the expected value.
-func IsWithin(delta float64) NewMatcher {
+func IsWithin(delta float64) Matcher {
 	return func(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error) {
 		// TODO: need to use three-value booleans/enums for "ok" (true, false, error) or then just panic
 		actual, err := toFloat64(actual_);
