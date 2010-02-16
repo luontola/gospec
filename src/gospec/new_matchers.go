@@ -94,7 +94,31 @@ type Equality interface {
 }
 
 
-// TODO: IsSame - pointer equality
+// The actual value must be a pointer to the same object as the expected value.
+func IsSame(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	ptr1, err := pointerOf(actual);
+	if err != nil{
+		return
+	}
+	ptr2, err := pointerOf(expected)
+	if err != nil{
+		return
+	}
+	ok = ptr1 == ptr2
+	pos = Errorf("Expected '%v' but was '%v'", expected, actual)
+	neg = Errorf("Did not expect '%v' but was '%v'", expected, actual)
+	return
+}
+
+func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
+	switch v := reflect.NewValue(value).(type) {
+	case *reflect.PtrValue:
+		ptr = v.Get()
+	default:
+		err = Errorf("Expected a pointer, but was '%v' of type '%T'", value, value)
+	}
+	return
+}
 
 
 // The actual value must be <nil>, or a typed nil pointer inside an interface value.

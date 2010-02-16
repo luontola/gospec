@@ -109,6 +109,22 @@ func (this DummyStruct) String() string {
 }
 
 
+// "IsSame"
+
+func Test__IsSame_matcher(t *testing.T) {
+	a1 := new(os.File)
+	a2 := a1
+	b := new(os.File)
+	assertExpectation(t, a1, IsSame, a2).Passes()
+	assertExpectation(t, a1, IsSame, b).Fails().
+		WithMessage(
+			fmt.Sprintf("Expected '%v' but was '%v'", b, a1),
+			fmt.Sprintf("Did not expect '%v' but was '%v'", b, a1))
+	assertExpectation(t, 1, IsSame, b).GivesError("Expected a pointer, but was '1' of type 'int'")
+	assertExpectation(t, b, IsSame, 1).GivesError("Expected a pointer, but was '1' of type 'int'")
+}
+
+
 // "IsNil"
 
 func Test__IsNil_matcher(t *testing.T) {
