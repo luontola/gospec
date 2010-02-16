@@ -198,7 +198,7 @@ func listToArray(list *list.List) []interface{} {
 // created lazily when it is used, if it is used at all. This avoids unnecessary
 // string parsing in matchers, because most of the time there are no failures
 // and thus the error messages are not used.
-func Errorf(format string, args ...) os.Error {
+func Errorf(format string, args ...interface{}) os.Error {
 	return lazyStringer(func() interface{} {
 		return fmt.Sprintf(format, args)
 	})
