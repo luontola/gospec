@@ -194,8 +194,8 @@ func Test__IsWithin_matcher_cannot_compare_ints(t *testing.T) {
 
 // "Contains"
 
-func Test__Contains_matcher_on_arrays(t *testing.T) {
-	values := [...]string{"one", "two", "three"}
+func Test__Contains_matcher(t *testing.T) {
+	values := []string{"one", "two", "three"}
 	assertExpectation(t, values, Contains, "one").Passes()
 	assertExpectation(t, values, Contains, "two").Passes()
 	assertExpectation(t, values, Contains, "three").Passes()
@@ -205,23 +205,49 @@ func Test__Contains_matcher_on_arrays(t *testing.T) {
 			"Did not expect 'four' to be in '[one two three]' but it was")
 }
 
-func Test__Contains_matcher_on_iterators(t *testing.T) {
+func Test__Convert_array_to_array(t *testing.T) {
+	values := [...]string{"one", "two", "three"}
+	
+	result, _ := toArray(values)
+	
+	assertEquals(3, len(result), t)
+	assertEquals("one", result[0], t)
+	assertEquals("two", result[1], t)
+	assertEquals("three", result[2], t)
+}
+
+func Test__Convert_channel_to_array(t *testing.T) {
 	values := list.New()
 	values.PushBack("one")
 	values.PushBack("two")
 	values.PushBack("three")
-	assertExpectation(t, values.Iter(), Contains, "one").Passes()
-	assertExpectation(t, values.Iter(), Contains, "two").Passes()
-	assertExpectation(t, values.Iter(), Contains, "three").Passes()
-	assertExpectation(t, values.Iter(), Contains, "four").Fails().
-		WithMessage(
-			"Expected 'four' to be in '[one two three]' but it was not",
-			"Did not expect 'four' to be in '[one two three]' but it was")
+	
+	result, _ := toArray(values.Iter())
+	
+	assertEquals(3, len(result), t)
+	assertEquals("one", result[0], t)
+	assertEquals("two", result[1], t)
+	assertEquals("three", result[2], t)
 }
 
-func Test__Contains_matcher_cannot_iterate_noniterables(t *testing.T) {
-	assertExpectation(t, "one two three", Contains, "one").
-		GivesError("Unknown type 'string', not iterable: one two three")
+func Test__Convert_iterable_to_array(t *testing.T) {
+	values := list.New()
+	values.PushBack("one")
+	values.PushBack("two")
+	values.PushBack("three")
+	
+	result, _ := toArray(values)
+	
+	assertEquals(3, len(result), t)
+	assertEquals("one", result[0], t)
+	assertEquals("two", result[1], t)
+	assertEquals("three", result[2], t)
+}
+
+func Test__Convert_unsupported_value_to_array(t *testing.T) {
+	_, err := toArray("foo")
+	
+	assertEquals("Unknown type 'string', not iterable: foo", err.String(), t)
 }
 
 
@@ -242,7 +268,7 @@ type matchAssert struct {
 
 func (this *matchAssert) Passes() *matchAssert {
 	if this.err != nil {
-		this.t.Error("expected to pass, but had an error")
+		this.t.Error("expected to pass, but had an error: " + this.err.String())
 	}
 	if !this.ok {
 		this.t.Error("expected to pass, but failed")
@@ -252,7 +278,7 @@ func (this *matchAssert) Passes() *matchAssert {
 
 func (this *matchAssert) Fails() *matchAssert {
 	if this.err != nil {
-		this.t.Error("expected to fail, but had an error")
+		this.t.Error("expected to fail, but had an error: " + this.err.String())
 	}
 	if this.ok {
 		this.t.Error("expected to fail, but passed")

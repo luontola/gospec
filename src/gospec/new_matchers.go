@@ -6,7 +6,8 @@ package gospec
 
 import (
 	"fmt"
-	"container/list"
+	"container/vector"
+	"exp/iterable"
 	"math"
 	"os"
 	"reflect"
@@ -199,58 +200,56 @@ func toFloat64(actual interface{}) (result float64, err os.Error) {
 
 // The actual collection (array, slice, iterator/channel) must contain the expected value.
 func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
-	switch v := reflect.NewValue(actual_).(type) {
-	
-	case reflect.ArrayOrSliceValue:
-		arr := v
-		contains := false
-		for i := 0; i < arr.Len(); i++ {
-			other :=  arr.Elem(i).Interface()
-			if areEqual(expected, other) {
-				contains = true
-				break
-			}
-		}
-		ok = contains
-		pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual_)
-		neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual_)
-	
-	case *reflect.ChanValue:
-		ch := v
-		contains := false
-		list := list.New()
-		for {
-			other := ch.Recv().Interface()
-			if ch.Closed() {
-				break
-			}
-			if areEqual(expected, other) {
-				contains = true
-			}
-			list.PushBack(other)
-		}
-		actual := lazyStringer(func() interface{} {
-			return listToArray(list)
-		})
-		ok = contains
-		pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
-		neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
-	
-	default:
-		err = Errorf("Unknown type '%T', not iterable: %v", actual_, actual_)
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
 	}
+	
+	contains := false
+	for i := 0; i < len(actual); i++ {
+		if areEqual(actual[i], expected) {
+			contains = true
+			break
+		}
+	}
+	
+	ok = contains
+	pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
+	neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
 	return
 }
 
-func listToArray(list *list.List) []interface{} {
-	arr := make([]interface{}, list.Len())
-	i := 0
-	for e := list.Front(); e != nil; e = e.Next() {
-		arr[i] = e.Value
-		i++
+func toArray(values interface{}) ([]interface{}, os.Error) {
+	if it, ok := values.(iterable.Iterable); ok {
+		return toArray(it.Iter())
 	}
-	return arr
+	
+	result := new(vector.Vector)
+	switch v := reflect.NewValue(values).(type) {
+	
+	case reflect.ArrayOrSliceValue:
+		arr := v
+		for i := 0; i < arr.Len(); i++ {
+			obj :=  arr.Elem(i).Interface()
+			result.Push(obj)
+		}
+		
+	case *reflect.ChanValue:
+		ch := v
+		for {
+			obj := ch.Recv().Interface()
+			if ch.Closed() {
+				break
+			}
+			result.Push(obj)
+		}
+		
+	default:
+		return nil, Errorf("Unknown type '%T', not iterable: %v", values, values)
+	}
+	return *result, nil
 }
+
 
 
 // TODO: ContainAll - The actual collection must contain all given elements. The order of elements is not significant.
