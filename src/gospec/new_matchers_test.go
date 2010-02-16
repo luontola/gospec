@@ -256,8 +256,9 @@ func Test__Convert_unsupported_value_to_array(t *testing.T) {
 func Test__ContainsAll_matcher(t *testing.T) {
 	values := []string{"one", "two", "three"}
 	
+	assertExpectation(t, values, ContainsAll, Values()).Passes()
 	assertExpectation(t, values, ContainsAll, Values("one")).Passes()
-	assertExpectation(t, values, ContainsAll, Values("two", "three")).Passes()
+	assertExpectation(t, values, ContainsAll, Values("three", "two")).Passes()
 	assertExpectation(t, values, ContainsAll, Values("one", "two", "three")).Passes()
 	
 	assertExpectation(t, values, ContainsAll, Values("four")).Fails()
@@ -267,6 +268,51 @@ func Test__ContainsAll_matcher(t *testing.T) {
 			"Did not expect all of '[one four]' to be in '[one two three]' but they were")
 }
 
+
+// "ContainsAny"
+
+func Test__ContainsAny_matcher(t *testing.T) {
+	values := []string{"one", "two", "three"}
+	
+	assertExpectation(t, values, ContainsAny, Values("one")).Passes()
+	assertExpectation(t, values, ContainsAny, Values("three", "two")).Passes()
+	assertExpectation(t, values, ContainsAny, Values("four", "one", "five")).Passes()
+	
+	assertExpectation(t, values, ContainsAny, Values()).Fails()
+	assertExpectation(t, values, ContainsAny, Values("four")).Fails()
+	assertExpectation(t, values, ContainsAny, Values("four", "five")).Fails().
+		WithMessage(
+			"Expected any of '[four five]' to be in '[one two three]' but they were not",
+			"Did not expect any of '[four five]' to be in '[one two three]' but they were")
+}
+
+
+// "ContainsExactly"
+
+func Test__ContainsExactly_matcher(t *testing.T) {
+	values := []string{"one", "two", "three"}
+	
+	assertExpectation(t, values, ContainsExactly, Values("one", "two", "three")).Passes()
+	assertExpectation(t, values, ContainsExactly, Values("three", "one", "two")).Passes()
+	
+	assertExpectation(t, values, ContainsExactly, Values()).Fails()
+	assertExpectation(t, values, ContainsExactly, Values("four")).Fails()
+	assertExpectation(t, values, ContainsExactly, Values("one", "two")).Fails()
+	assertExpectation(t, values, ContainsExactly, Values("one", "two", "three", "four")).Fails().
+		WithMessage(
+			"Expected exactly '[one two three four]' to be in '[one two three]' but they were not",
+			"Did not expect exactly '[one two three four]' to be in '[one two three]' but they were")
+	
+	// duplicate values are allowed
+	values = []string{"a", "a", "b"}
+	
+	assertExpectation(t, values, ContainsExactly, Values("a", "a", "b")).Passes()
+	assertExpectation(t, values, ContainsExactly, Values("a", "b", "a")).Passes()
+	
+	assertExpectation(t, values, ContainsExactly, Values("a", "b", "b")).Fails()
+	assertExpectation(t, values, ContainsExactly, Values("a", "a", "a", "b")).Fails()
+	assertExpectation(t, values, ContainsExactly, Values("a", "a", "b", "b")).Fails()
+}
 
 
 

@@ -82,7 +82,7 @@ Version History
 
 - Upgraded to Go release.2010-02-04
 - New expectation syntax. The old syntax can still be used, but it might be deprecated later, depending on experience with the new syntax.
-- New matchers: IsSame, IsNil, IsTrue, IsFalse, ContainsAll
+- New matchers: IsSame, IsNil, IsTrue, IsFalse, ContainsAll, ContainsAny, ContainsExactly
 - Added Fibonacci numbers example
 - Added instructions about the style of naming and organizing specs
 - Small changes to the print format of error messages

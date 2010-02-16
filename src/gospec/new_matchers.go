@@ -234,15 +234,6 @@ func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error,
 	return
 }
 
-func arrayContains(haystack []interface{}, needle interface{}) bool {
-	for i := 0; i < len(haystack); i++ {
-		if areEqual(haystack[i], needle) {
-			return true
-		}
-	}
-	return false
-}
-
 func toArray(values interface{}) ([]interface{}, os.Error) {
 	if it, ok := values.(iterable.Iterable); ok {
 		return toArray(it.Iter())
@@ -274,8 +265,23 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 	return *result, nil
 }
 
+func arrayContains(haystack []interface{}, needle interface{}) bool {
+	_, found := findIndex(haystack, needle)
+	return found
+}
 
-// The actual collection must contain all expected elements.
+func findIndex(haystack []interface{}, needle interface{}) (idx int, found bool) {
+	for i := 0; i < len(haystack); i++ {
+		if areEqual(haystack[i], needle) {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+
+// The actual collection must contain all expected elements,
+// but it may contain also other non-expected elements.
 // The order of elements is not significant.
 func ContainsAll(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 	actual, err := toArray(actual_)
@@ -302,8 +308,63 @@ func ContainsAll(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Er
 }
 
 
-// TODO: ContainsAny - The actual collection must contain at least one element from the given collection.
-// TODO: ContainsExactly - The actual collection must contain exactly the same elements as in the given collection. The order of elements is not significant.
+// The actual collection must contain at least one of the expected elements.
+func ContainsAny(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
+	}
+	expected, err := toArray(expected_)
+	if err != nil {
+		return
+	}
+	
+	containsAny := false
+	for i := 0; i < len(expected); i++ {
+		if arrayContains(actual, expected[i]) {
+			containsAny = true
+			break
+		}
+	}
+	
+	ok = containsAny
+	pos = Errorf("Expected any of '%v' to be in '%v' but they were not", expected, actual)
+	neg = Errorf("Did not expect any of '%v' to be in '%v' but they were", expected, actual)
+	return
+}
+
+
+// The actual collection must contain all expected elements and nothing else.
+// The order of elements is not significant.
+func ContainsExactly(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
+	}
+	expected, err := toArray(expected_)
+	if err != nil {
+		return
+	}
+	
+	containsAll := true
+	remaining := new(vector.Vector)
+	remaining.AppendVector((*vector.Vector)(&actual))
+	for i := 0; i < len(expected); i++ {
+		if idx, found := findIndex(*remaining, expected[i]); found {
+			remaining.Delete(idx)
+		} else {
+			containsAll = false
+			break
+		}
+	}
+	
+	ok = containsAll && remaining.Len() == 0
+	pos = Errorf("Expected exactly '%v' to be in '%v' but they were not", expected, actual)
+	neg = Errorf("Did not expect exactly '%v' to be in '%v' but they were", expected, actual)
+	return
+}
+
+
 // TODO: ContainsInOrder - The actual collection must contain exactly the same elements as in the given collection, and they must be in the same order.
 // TODO: ContainsInPartialOrder - The actual collection can hold other objects, but the objects which are common in both collections must be in the same order. The actual collection can also repeat some elements. For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3]. See Wikipedia <http://en.wikipedia.org/wiki/Partial_order> for further information.
 
