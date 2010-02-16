@@ -59,6 +59,29 @@ func (matcher Matcher) Match(actual interface{}, optionalExpected ...interface{}
 }
 
 
+// Constructs an error message the same way as fmt.Sprintf(), but the string is
+// created lazily when it is used, if it is used at all. This avoids unnecessary
+// string parsing in matchers, because most of the time there are no failures
+// and thus the error messages are not used.
+func Errorf(format string, args ...interface{}) os.Error {
+	return lazyStringer(func() interface{} {
+		return fmt.Sprintf(format, args)
+	})
+}
+
+type lazyStringer func() interface{}
+
+func (this lazyStringer) String() string {
+	return fmt.Sprint(this())
+}
+
+
+// Easy array creation, to give multiple expected values to a matcher.
+func Values(values ...interface{}) []interface{} {
+	return values
+}
+
+
 // Negates the meaning of a Matcher. Matches when the original matcher does not
 // match, and the other way around.
 func Not(matcher Matcher) Matcher {
@@ -198,25 +221,26 @@ func toFloat64(actual interface{}) (result float64, err os.Error) {
 }
 
 
-// The actual collection (array, slice, iterator/channel) must contain the expected value.
+// The actual collection must contain the expected value.
 func Contains(actual_ interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
 	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
 	
-	contains := false
-	for i := 0; i < len(actual); i++ {
-		if areEqual(actual[i], expected) {
-			contains = true
-			break
-		}
-	}
-	
-	ok = contains
+	ok = arrayContains(actual, expected)
 	pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
 	neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
 	return
+}
+
+func arrayContains(haystack []interface{}, needle interface{}) bool {
+	for i := 0; i < len(haystack); i++ {
+		if areEqual(haystack[i], needle) {
+			return true
+		}
+	}
+	return false
 }
 
 func toArray(values interface{}) ([]interface{}, os.Error) {
@@ -251,29 +275,35 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 }
 
 
-
-// TODO: ContainAll - The actual collection must contain all given elements. The order of elements is not significant.
-// TODO: ContainAny - The actual collection must contain at least one element from the given collection.
-// TODO: ContainExactly - The actual collection must contain exactly the same elements as in the given collection. The order of elements is not significant.
-// TODO: ContainInOrder - The actual collection must contain exactly the same elements as in the given collection, and they must be in the same order.
-// TODO: ContainInPartialOrder - The actual collection can hold other objects, but the objects which are common in both collections must be in the same order. The actual collection can also repeat some elements. For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3]. See Wikipedia <http://en.wikipedia.org/wiki/Partial_order> for further information.
-
-
-// Helpers
-
-// Constructs an error message the same way as fmt.Sprintf(), but the string is
-// created lazily when it is used, if it is used at all. This avoids unnecessary
-// string parsing in matchers, because most of the time there are no failures
-// and thus the error messages are not used.
-func Errorf(format string, args ...interface{}) os.Error {
-	return lazyStringer(func() interface{} {
-		return fmt.Sprintf(format, args)
-	})
+// The actual collection must contain all expected elements.
+// The order of elements is not significant.
+func ContainsAll(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
+	}
+	expected, err := toArray(expected_)
+	if err != nil {
+		return
+	}
+	
+	containsAll := true
+	for i := 0; i < len(expected); i++ {
+		if !arrayContains(actual, expected[i]) {
+			containsAll = false
+			break
+		}
+	}
+	
+	ok = containsAll
+	pos = Errorf("Expected all of '%v' to be in '%v' but they were not", expected, actual)
+	neg = Errorf("Did not expect all of '%v' to be in '%v' but they were", expected, actual)
+	return
 }
 
-type lazyStringer func() interface{}
 
-func (this lazyStringer) String() string {
-	return fmt.Sprint(this())
-}
+// TODO: ContainsAny - The actual collection must contain at least one element from the given collection.
+// TODO: ContainsExactly - The actual collection must contain exactly the same elements as in the given collection. The order of elements is not significant.
+// TODO: ContainsInOrder - The actual collection must contain exactly the same elements as in the given collection, and they must be in the same order.
+// TODO: ContainsInPartialOrder - The actual collection can hold other objects, but the objects which are common in both collections must be in the same order. The actual collection can also repeat some elements. For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3]. See Wikipedia <http://en.wikipedia.org/wiki/Partial_order> for further information.
 

@@ -251,6 +251,25 @@ func Test__Convert_unsupported_value_to_array(t *testing.T) {
 }
 
 
+// "ContainsAll"
+
+func Test__ContainsAll_matcher(t *testing.T) {
+	values := []string{"one", "two", "three"}
+	
+	assertExpectation(t, values, ContainsAll, Values("one")).Passes()
+	assertExpectation(t, values, ContainsAll, Values("two", "three")).Passes()
+	assertExpectation(t, values, ContainsAll, Values("one", "two", "three")).Passes()
+	
+	assertExpectation(t, values, ContainsAll, Values("four")).Fails()
+	assertExpectation(t, values, ContainsAll, Values("one", "four")).Fails().
+		WithMessage(
+			"Expected all of '[one four]' to be in '[one two three]' but they were not",
+			"Did not expect all of '[one four]' to be in '[one two three]' but they were")
+}
+
+
+
+
 // Test utilities
 
 func assertExpectation(t *testing.T, actual interface{}, matcher Matcher, expected ...interface{}) *matchAssert {
