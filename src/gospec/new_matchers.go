@@ -365,6 +365,62 @@ func ContainsExactly(actual_ interface{}, expected_ interface{}) (ok bool, pos o
 }
 
 
-// TODO: ContainsInOrder - The actual collection must contain exactly the same elements as in the given collection, and they must be in the same order.
-// TODO: ContainsInPartialOrder - The actual collection can hold other objects, but the objects which are common in both collections must be in the same order. The actual collection can also repeat some elements. For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3]. See Wikipedia <http://en.wikipedia.org/wiki/Partial_order> for further information.
+// The actual collection must contain all expected elements, in the same order, and nothing else.
+func ContainsInOrder(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
+	}
+	expected, err := toArray(expected_)
+	if err != nil {
+		return
+	}
+	
+	containsInOrder := len(actual) == len(expected)
+	for i := 0; i < len(actual) && i < len(expected); i++ {
+		if !areEqual(actual[i], expected[i]) {
+			containsInOrder = false
+		}
+	}
+	
+	ok = containsInOrder
+	pos = Errorf("Expected in order '%v' to be in '%v' but they were not", expected, actual)
+	neg = Errorf("Did not expect in order '%v' to be in '%v' but they were", expected, actual)
+	return
+}
+
+
+// The actual collection must contain all expected objects, in the same order,
+// but it may contain also other non-expected objects.
+// For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3].
+// See http://en.wikipedia.org/wiki/Partial_order for further information.
+func ContainsInPartialOrder(actual_ interface{}, expected_ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	actual, err := toArray(actual_)
+	if err != nil {
+		return
+	}
+	expected, err := toArray(expected_)
+	if err != nil {
+		return
+	}
+	
+	containsInPartialOrder := true
+	for ie, ia := 0, 0; ie < len(expected); {
+		if ia >= len(actual) {
+			containsInPartialOrder = false
+			break
+		}
+		if areEqual(actual[ia], expected[ie]) {
+			ie++
+			ia++
+		} else {
+			ia++
+		}
+	}
+	
+	ok = containsInPartialOrder
+	pos = Errorf("Expected in partial order '%v' to be in '%v' but they were not", expected, actual)
+	neg = Errorf("Did not expect in partial order '%v' to be in '%v' but they were", expected, actual)
+	return
+}
 

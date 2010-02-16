@@ -196,9 +196,11 @@ func Test__IsWithin_matcher_cannot_compare_ints(t *testing.T) {
 
 func Test__Contains_matcher(t *testing.T) {
 	values := []string{"one", "two", "three"}
+	
 	assertExpectation(t, values, Contains, "one").Passes()
 	assertExpectation(t, values, Contains, "two").Passes()
 	assertExpectation(t, values, Contains, "three").Passes()
+	
 	assertExpectation(t, values, Contains, "four").Fails().
 		WithMessage(
 			"Expected 'four' to be in '[one two three]' but it was not",
@@ -277,6 +279,7 @@ func Test__ContainsAny_matcher(t *testing.T) {
 	assertExpectation(t, values, ContainsAny, Values("one")).Passes()
 	assertExpectation(t, values, ContainsAny, Values("three", "two")).Passes()
 	assertExpectation(t, values, ContainsAny, Values("four", "one", "five")).Passes()
+	assertExpectation(t, values, ContainsAny, Values("one", "two", "three")).Passes()
 	
 	assertExpectation(t, values, ContainsAny, Values()).Fails()
 	assertExpectation(t, values, ContainsAny, Values("four")).Fails()
@@ -314,6 +317,44 @@ func Test__ContainsExactly_matcher(t *testing.T) {
 	assertExpectation(t, values, ContainsExactly, Values("a", "a", "b", "b")).Fails()
 }
 
+
+// "ContainsInOrder"
+
+func Test__ContainsInOrder_matcher(t *testing.T) {
+	values := []string{"one", "two", "three"}
+	
+	assertExpectation(t, values, ContainsInOrder, Values("one", "two", "three")).Passes()
+	
+	assertExpectation(t, values, ContainsInOrder, Values()).Fails()
+	assertExpectation(t, values, ContainsInOrder, Values("one", "two")).Fails()
+	assertExpectation(t, values, ContainsInOrder, Values("one", "two", "four")).Fails()
+	assertExpectation(t, values, ContainsInOrder, Values("one", "two", "three", "four")).Fails()
+	assertExpectation(t, values, ContainsInOrder, Values("three", "one", "two")).Fails().
+		WithMessage(
+			"Expected in order '[three one two]' to be in '[one two three]' but they were not",
+			"Did not expect in order '[three one two]' to be in '[one two three]' but they were")
+}
+
+
+// "ContainsInPartialOrder"
+
+func Test__ContainsInPartialOrder_matcher(t *testing.T) {
+	values := []string{"1", "2", "2", "3", "4"}
+	
+	assertExpectation(t, values, ContainsInPartialOrder, Values()).Passes()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1")).Passes()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1", "2", "2")).Passes()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1", "2", "3")).Passes()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1", "2", "2", "3", "4")).Passes()
+	
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1", "1")).Fails()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("2", "1")).Fails()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("2", "2", "2")).Fails()
+	assertExpectation(t, values, ContainsInPartialOrder, Values("1", "4", "3")).Fails().
+		WithMessage(
+			"Expected in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were not",
+			"Did not expect in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were")
+}
 
 
 // Test utilities
