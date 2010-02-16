@@ -109,6 +109,41 @@ func (this DummyStruct) String() string {
 }
 
 
+// "IsNil"
+
+func Test__IsNil_matcher(t *testing.T) {
+	assertExpectation(t, nil, IsNil).Passes() // interface value nil
+	assertExpectation(t, (*int)(nil), IsNil).Passes() // typed pointer nil inside an interface value
+	assertExpectation(t, new(int), IsNil).Fails()
+	assertExpectation(t, 1, IsNil).Fails().
+		WithMessage(
+			"Expected <nil> but was '1'",
+			"Did not expect <nil> but was '1'")
+}
+
+
+// "IsTrue"
+
+func Test__IsTrue_matcher(t *testing.T) {
+	assertExpectation(t, true, IsTrue).Passes()
+	assertExpectation(t, false, IsTrue).Fails().
+		WithMessage(
+			"Expected 'true' but was 'false'",
+			"Did not expect 'true' but was 'false'")
+}
+
+
+// "IsFalse"
+
+func Test__IsFalse_matcher(t *testing.T) {
+	assertExpectation(t, false, IsFalse).Passes()
+	assertExpectation(t, true, IsFalse).Fails().
+		WithMessage(
+			"Expected 'false' but was 'true'",
+			"Did not expect 'false' but was 'true'")
+}
+
+
 // "Satisfy"
 
 func Test__Satisfy_matcher(t *testing.T) {
@@ -176,8 +211,8 @@ func Test__Contains_matcher_cannot_iterate_noniterables(t *testing.T) {
 
 // Test utilities
 
-func assertExpectation(t *testing.T, actual interface{}, matcher Matcher, expected interface{}) *matchAssert {
-	ok, pos, neg, err := matcher(actual, expected)
+func assertExpectation(t *testing.T, actual interface{}, matcher Matcher, expected ...interface{}) *matchAssert {
+	ok, pos, neg, err := matcher.Match(actual, expected)
 	return &matchAssert{ok, pos, neg, err, t}
 }
 

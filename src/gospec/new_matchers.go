@@ -22,8 +22,8 @@ func newMatcherAdapter(location *Location, log errorLogger) *matcherAdapter {
 	return &matcherAdapter{location, log}
 }
 
-func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected interface{}) {
-	ok, pos, _, err := matcher(actual, expected)
+func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
+	ok, pos, _, err := matcher.Match(actual, expected)
 	if err != nil {
 		this.addError(err.String())
 	} else if !ok {
@@ -45,6 +45,17 @@ func (this *matcherAdapter) addError(message string) {
 //   neg: Message for a failed expectation when the matcher is combined with Not.
 //   err: Message for an unrecoverable error, for example if the arguments had a wrong type.
 type Matcher func(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error)
+
+// Calls the matcher with the actual value and an optional expected value.
+// If no expected value is given, then <nil> will be used.
+func (matcher Matcher) Match(actual interface{}, optionalExpected ...interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	var expected interface{}
+	if len(optionalExpected) > 0 {
+		expected = optionalExpected[0]
+	}
+	ok, pos, neg, err = matcher(actual, expected)
+	return
+}
 
 
 // Negates the meaning of a Matcher. Matches when the original matcher does not
@@ -84,6 +95,39 @@ type Equality interface {
 
 
 // TODO: IsSame - pointer equality
+
+
+// The actual value must be <nil>, or a typed nil pointer inside an interface value.
+// See http://groups.google.com/group/golang-nuts/browse_thread/thread/d900674d491ef8d
+// for discussion on how in Go typed nil values can turn into non-nil interface values.
+func IsNil(actual interface{}, _ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	ok = actual == nil || isNilPointerInsideInterfaceValue(actual)
+	pos = Errorf("Expected <nil> but was '%v'", actual)
+	neg = Errorf("Did not expect <nil> but was '%v'", actual)
+	return
+}
+
+func isNilPointerInsideInterfaceValue(value interface{}) bool {
+	switch v := reflect.NewValue(value).(type) {
+	case *reflect.PtrValue:
+		return v.IsNil()
+	}
+	return false
+}
+
+
+// The actual value must be <true>.
+func IsTrue(actual interface{}, _ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	ok, pos, neg, err = Equals(actual, true)
+	return
+}
+
+
+// The actual value must be <false>.
+func IsFalse(actual interface{}, _ interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+	ok, pos, neg, err = Equals(actual, false)
+	return
+}
 
 
 // The actual value must satisfy the given criteria.
