@@ -27,7 +27,8 @@ type Context interface {
 	// Makes an assertion. For example:
 	//    c.Expect(theAnswer, Equals, 42)
 	//    c.Expect(theAnswer, Not(Equals), 666)
-	Expect(actual interface{}, matcher Matcher, expected interface{})
+	//    c.Expect(thereIsASpoon, IsFalse)
+	Expect(actual interface{}, matcher Matcher, expected ...interface{})
 }
 
 
@@ -100,7 +101,7 @@ func (c *taskContext) Then(actual interface{}) *MatcherBuilder {
 	return newMatcherBuilder(actual, callerLocation(), c.currentSpec)
 }
 
-func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected interface{}) {
+func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
 	m := newMatcherAdapter(callerLocation(), c.currentSpec)
 	m.Expect(actual, matcher, expected)
 }
