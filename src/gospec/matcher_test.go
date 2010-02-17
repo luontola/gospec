@@ -12,6 +12,8 @@ import (
 )
 
 
+// TODO: remove when the c.Then() syntax is removed
+
 func Test__Positive_assertation_failures_are_reported_with_the_positive_message(t *testing.T) {
 	log := new(spyErrorLogger)
 	

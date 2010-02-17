@@ -9,6 +9,8 @@ import (
 )
 
 
+// TODO: remove when the c.Then() syntax is removed
+
 func Test__When_a_spec_contains_passing_asserts__Then_the_spec_passes(t *testing.T) {
 	results := runSpec(func(c Context) {
 		c.Then(1).Should.Equal(1)

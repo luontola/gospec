@@ -8,6 +8,8 @@ import (
 )
 
 
+// TODO: remove when the c.Then() syntax is removed
+
 type MatcherBuilder struct {
 	actual    interface{}
 	location  *Location
