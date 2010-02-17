@@ -24,11 +24,15 @@ type Context interface {
 	//    c.Then(theAnswer).ShouldNot.Equal(666);
 	Then(actual interface{}) *MatcherBuilder
 	
-	// Makes an assertion. For example:
+	// Makes an expectation. For example:
 	//    c.Expect(theAnswer, Equals, 42)
 	//    c.Expect(theAnswer, Not(Equals), 666)
 	//    c.Expect(thereIsASpoon, IsFalse)
 	Expect(actual interface{}, matcher Matcher, expected ...interface{})
+	
+	// Makes an assumption. Otherwise the same as an expectation,
+	// but on failure will not continue executing the child specs.
+	Assume(actual interface{}, matcher Matcher, expected ...interface{})
 }
 
 
@@ -104,5 +108,18 @@ func (c *taskContext) Then(actual interface{}) *MatcherBuilder {
 func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
 	m := newMatcherAdapter(callerLocation(), c.currentSpec)
 	m.Expect(actual, matcher, expected)
+}
+
+func (c *taskContext) Assume(actual interface{}, matcher Matcher, expected ...interface{}) {
+	m := newMatcherAdapter(callerLocation(), fatalErrorLogger{c.currentSpec})
+	m.Expect(actual, matcher, expected)
+}
+
+type fatalErrorLogger struct {
+	errorLogger
+}
+
+func (this fatalErrorLogger) AddError(error *Error) {
+	this.AddFatalError(error)
 }
 
