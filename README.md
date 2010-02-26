@@ -4,7 +4,7 @@ GoSpec
 
 GoSpec is a [BDD](http://dannorth.net/introducing-bdd)-style testing framework for the [Go programming language](http://golang.org/). It allows writing self-documenting tests/specs, and executes them concurrently and safely isolated.
 
-Source code is available at GoSpec's [project page](http://github.com/orfjackal/gospec) in GitHub.
+Source code is available at <http://github.com/orfjackal/gospec>
 
 For discussion, use the [golang-nuts mailing list](http://groups.google.com/group/golang-nuts), at least until GoSpec has so many users that it requires its own mailing list. You may also contact GoSpec's developer, [Esko Luontola](http://github.com/orfjackal), by email.
 
@@ -17,7 +17,7 @@ First you must have Go installed on your machine, as instructed in [Installing G
 
 ### Install and Update
 
-Checkout GoSpec's source code from its Git repository and install it.
+Checkout GoSpec's source code from its Git repository and install it. The `release` branch is checked out by default.
 
     git clone git://github.com/orfjackal/gospec.git
     cd gospec/src
@@ -58,19 +58,22 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 - [fib_test.go] is an example of how you might write a spec for the class in [fib.go].
 
-- [assert_examples_test.go] explains all the available assertions.
+- [expectation_examples_test.go] explains the syntax for writing expectations (new syntax).
+
+- [assert_examples_test.go] explains the syntax for writing assertions (old syntax).
 
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-[examples]:                http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
-[all_specs_test.go]:       http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
-[stack.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
-[stack_test.go]:           http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
-[fib.go]:                  http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
-[fib_test.go]:             http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
-[assert_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/assert_examples_test.go
-[execution_model_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
+[examples]:                     http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
+[all_specs_test.go]:            http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
+[stack.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
+[stack_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
+[fib.go]:                       http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
+[fib_test.go]:                  http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
+[expectation_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_examples_test.go
+[assert_examples_test.go]:      http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/assert_examples_test.go
+[execution_model_test.go]:      http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
 
 
 Version History
