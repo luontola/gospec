@@ -95,19 +95,21 @@ Version History
 Project Goals
 -------------
 
-With this framework you should be able to:
+The following are *a must*, because they enable using [specification-style](http://blog.orfjackal.net/2010/02/three-styles-of-naming-tests.html) the way I prefer:
 
-- Write tests/specs in BDD style. This means that you can use descriptive names and organize the specs into a nested hierarcy. Although usually two levels of nesting is enough for most situations, GoSpec supports unlimitedly nested specs, which all are based on the same abstraction (even the top-level method).
+- **Unlimited Nesting** - The specs can be organized into a nested hierarchy. This makes it possible to apply [One Assertion Per Test](http://www.artima.com/weblogs/viewpost.jsp?thread=35578) which [isolates the reason for a failure](http://agileinaflash.blogspot.com/2009/02/first.html), because the specs are very fine-grained. Many unit testing tools allow only 2 levels of nesting (e.g. JUnit), but for specification-style at least 3 levels are needed (e.g. JDave), and once you have 3 levels you might as well implement unlimited levels with the same abstraction.
 
-- Write specs using a fluent API, so that the code is easily readable. It should be obvious that what an assert does, and which is the *expected* and which the *actual* value.
+- **Isolated Execution** - The specs must be [isolated from the side-effects](http://agileinaflash.blogspot.com/2009/02/first.html) of their sibling specs. Each spec will see only the side-effects of its parent specs. In effect, the parent specs work similar to the "before" (and "after") test code in many test frameworks, and *by default* none of the specs can see its siblings (there will be a way to override the default). Without this isolation, it would be harder to write reliable side-effect free specs, which in turn would force the specs to be organized differently than what was desired.
 
-- Write the names of the specs as strings. You are not restricted to using only those characters that are allowed in method names. All Unicode characters are allowed.
+- **No Forced Words** - [Getting the words right](http://behaviour-driven.org/GettingTheWordsRight) was the starting point for BDD, so it is absurd that almost all of the BDD frameworks force the programmer to use fixed words (describe, it, should, given, when, then etc.) which incline the programmer to write spec names as sentences which begin or end with those words. You should be able to choose yourself the best possible words that fit a situation. GoSpec uses the syntax `c.Specify("name", ...)` for all levels in the specs, which leads the word `Specify` into becoming *background noise*, so that you ignore it and it does not force you to start your sentences with any particular word (using a meaningless word such as "Spec" would also be a good choice, as long as it is easy to pronounce when communicating with others).
 
-- Write the names of the specs in any style that fits the situation. The framework should not restrict you to using specific words as a prefix or suffix to the sentences (such as *describe*, *it*, *should*). You should be able to choose the best possible words yourself. GoSpec uses the syntax `c.Specify("name", ...)` for all levels in the specs, which leads the word `Specify` into becoming noise, so that it does not force you to start your sentences with any particular word.
+The following are *nice-to-haves*, which make it more pleasant to use the framework:
 
-- Write specs which are [isolated](http://agileinaflash.blogspot.com/2009/02/first.html) from the side-effects of their sibling specs. Each spec will see only the side-effects of its parent specs. In effect, the parent specs work similar to the "before" (and "after") test code in many test frameworks, and *by default* none of the specs can see its siblings (there will be a way to override the default). This will make it easier to write tests which are executed safely in isolation.
+- **Plain Text Names** - You can use any Unicode characters in the spec names, because they are declared as strings. Using only those characters that are allowed in method names would be too limiting and hard to read.
 
-- Execute the specs concurrently on multiple CPU cores. Running the specs [quickly](http://agileinaflash.blogspot.com/2009/02/first.html) (i.e. less than 10-20 seconds) is a must for using TDD, so being able to take advantage of all processing power is important, and multiple CPU cores is the only way to go fast in the foreseen future.
+- **Fluent API** - The syntax for writing specs should be easily readable. It should be obvious that what an assert does, and which is the *expected* and which the *actual* value. Also writing the specs should be easy, requiring as little syntax as possible, but readability has always higher priority than writability.
+
+- **Parallel Execution** - Running the specs [quickly](http://agileinaflash.blogspot.com/2009/02/first.html) (i.e. less than 10-20 seconds) is a must for using TDD, so being able to take advantage of all processing power is important, and multiple CPU cores is the only way to go fast in the foreseen future. GoSpec executes the specs using as much concurrency as possible (one goroutine for each leaf spec), so that it would be possible to utilize all available CPU cores (just remember to set GOMAXPROCS).
 
 
 License
