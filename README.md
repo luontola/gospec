@@ -50,7 +50,7 @@ GoSpec adds one additional parameter to gotest. Use the `-print-all` parameter t
 
 Because of using gotest, all your specs must be in files whose names end with `_test.go` and they must be added to your test suite as explained above.
 
-Each group of specs is a method which takes `gospec.Context` as a parameter. You can call the methods on `Context` to make assertions and to declare nested specs.
+Each group of specs is a method which takes `gospec.Context` as a parameter. You can call the methods on `Context` to declare expectations and nested specs.
 
 For examples on how to write specs, see the files in the [examples] directory.
 
@@ -104,7 +104,7 @@ The following are *a must*, because they enable using [specification-style](http
 
 - **Isolated Execution** - The specs must be [isolated from the side-effects](http://agileinaflash.blogspot.com/2009/02/first.html) of their sibling specs. Each spec will see only the side-effects of its parent specs. In effect, the parent specs work similar to the "before" (and "after") test code in many test frameworks, and *by default* none of the specs can see its siblings (there will be a way to override the default). Without this isolation, it would be harder to write reliable side-effect free specs, which in turn would force the specs to be organized differently than what was desired.
 
-- **No Forced Words** - [Getting the words right](http://behaviour-driven.org/GettingTheWordsRight) was the starting point for BDD, so it is absurd that almost all of the BDD frameworks force the programmer to use fixed words (describe, it, should, given, when, then etc.) which incline the programmer to write spec names as sentences which begin or end with those words. You should be able to choose yourself the best possible words that fit a situation. GoSpec uses the syntax `c.Specify("name", ...)` for all levels in the specs, which leads the word `Specify` into becoming *background noise*, so that you ignore it and it does not force you to start your sentences with any particular word (using a meaningless word such as "Spec" would also be a good choice, as long as it is easy to pronounce when communicating with others).
+- **No Forced Words** - [Getting the words right](http://behaviour-driven.org/GettingTheWordsRight) was the starting point for BDD, so it is absurd that almost all of the BDD frameworks force the programmer to use fixed words (describe, it, should, given, when, then etc.) which incline the programmer to write spec names as sentences which begin or end with those words. You should be able to choose yourself the best possible words that fit a situation. GoSpec uses the syntax `c.Specify("name", ...)` for all levels in the specs, which leads to the word `Specify` becoming *background noise*, so that you ignore it and it does not force you to start your sentences with any particular word (using a meaningless word such as "Spec" would also be a good choice, as long as it is easy to pronounce when communicating with others).
 
 The following are *nice-to-haves*, which make it more pleasant to use the framework:
 
