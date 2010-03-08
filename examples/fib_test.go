@@ -6,6 +6,7 @@ package examples
 
 import (
 	"gospec"
+	. "gospec"
 )
 
 
@@ -17,19 +18,23 @@ import (
 //      each remaining number is the sum of the previous two."
 //
 // When the tests read like a specification, it is easier to find out what the
-// system does by just reading the test names, and it's also easier to know
+// system does by just reading the test names, and it is also easier to know
 // whether the test is still needed when it fails.
+//
+// To learn more, see this article and tutorial:
+// http://blog.orfjackal.net/2010/02/three-styles-of-naming-tests.html
+// http://github.com/orfjackal/tdd-tetris-tutorial
 
 func FibSpec(c gospec.Context) {
 	fib := NewFib().Sequence(10)
 	
 	c.Specify("The first two Fibonacci numbers are 0 and 1", func() {
-		c.Then(fib[0]).Should.Equal(0)
-		c.Then(fib[1]).Should.Equal(1)
+		c.Expect(fib[0], Equals, 0)
+		c.Expect(fib[1], Equals, 1)
 	})
 	c.Specify("Each remaining number is the sum of the previous two", func() {
 		for i := 2; i < len(fib); i++ {
-			c.Then(fib[i]).Should.Equal(fib[i-1] + fib[i-2])
+			c.Expect(fib[i], Equals, fib[i-1] + fib[i-2])
 		}
 	})
 }

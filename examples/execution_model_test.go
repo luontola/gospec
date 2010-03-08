@@ -6,6 +6,7 @@ package examples
 
 import (
 	"gospec"
+	. "gospec"
 	"strings"
 )
 
@@ -39,9 +40,9 @@ func ExecutionModelSpec(c gospec.Context) {
 		
 		// Depending on which of the previous siblings was executed this time,
 		// there are three possible values for the variable:
-		c.Then(commonVariable).Should.Be(commonVariable == "x1y" ||
-		                                 commonVariable == "x2y" ||
-		                                 commonVariable == "x3y")
+		c.Expect(commonVariable, Satisfies, commonVariable == "x1y" ||
+		                                    commonVariable == "x2y" ||
+		                                    commonVariable == "x3y")
 	})
 	
 	c.Specify("You can nest", func() {
@@ -54,42 +55,46 @@ func ExecutionModelSpec(c gospec.Context) {
 		})
 	})
 	
-	c.Specify("The distinction between 'Should' and 'Must'", func() {
+	c.Specify("The distinction between 'Expect' and 'Assume'", func() {
 		// When we have non-trivial test setup code, then it is often useful to
-		// make assertions about the state of the system under test, before the
-		// body of the test is executed. Otherwise it could happen that the test
-		// passes even though the code is broken, or then we get lots of
-		// unhelpful error messages from the body of the test, even though the
-		// bug was in the test setup.
+		// explicitly state our assumptions about the state of the system under
+		// test, before the body of the test is executed.
 		//
-		// For this use case, GoSpec provides a 'Must' in addition to 'Should'.
-		// When making assertions about the test setup (i.e. behaviour which is
-		// not the focus of the current test) it's better to use 'Must':
+		// Otherwise it could happen that the test passes even though the code
+		// is broken, or then we get lots of unhelpful error messages from the
+		// body of the test, even though the bug was in the test setup.
 		//
-		// - When a 'Should' fails, then the child specs are executed normally.
+		// For this use case, GoSpec provides 'Assume' in addition to 'Expect'.
+		// Use 'Assume' when the test assumes the correct functionin of some
+		// behaviour which is not the focus of the current test:
 		//
-		// - When a 'Must' fails, then the child specs are NOT executed. This
+		// - When an 'Expect' fails, then the child specs are executed normally.
+		//
+		// - When an 'Assume' fails, then the child specs are NOT executed. This
 		//   helps to prevent lots of false alarms from the child specs, when
 		//   the real problem was in the test setup.
 		
-		// Some complex test setup code
-		input := "abc"
+		// Some very complex test setup code
+		input := ""
+		for ch := 'a'; ch <= 'c'; ch++ {
+			input += string(ch)
+		}
 		
 		// Uncomment this line to add a bug into the test setup:
 		//input += " bug"
 		
 		// Uncomment one of the following asserts to see their difference:
-		//c.Then(input).Should.Equal("abc")
-		//c.Then(input).Must.Equal("abc")
+		//c.Expect(input, Equals, "abc")
+		//c.Assume(input, Equals, "abc")
 		
 		c.Specify("When a string is made all uppercase", func() {
 			result := strings.ToUpper(input)
 			
-			c.Specify("Then it is all uppercase", func() {
-				c.Then(result).Should.Equal("ABC")
+			c.Specify("it is all uppercase", func() {
+				c.Expect(result, Equals, "ABC")
 			})
-			c.Specify("Its length is not changed", func() {
-				c.Then(len(result)).Should.Equal(3)
+			c.Specify("its length is not changed", func() {
+				c.Expect(len(result), Equals, 3)
 			})
 		})
 	})

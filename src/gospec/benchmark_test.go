@@ -86,40 +86,40 @@ func DummySpecForBenchmarks(c Context) {
 	// (each run is 3 levels deep, so in total 30 spec runs)
 	c.Specify("Child A", func() {
 		c.Specify("Child AA", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child AB", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 	})
 	c.Specify("Child B", func() {
 		c.Specify("Child BA", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child BB", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child BC", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 	})
 	c.Specify("Child C", func() {
 		c.Specify("Child CA", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child CB", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 	})
 	c.Specify("Child D", func() {
 		c.Specify("Child DA", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child DB", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 		c.Specify("Child DC", func() {
-			c.Then(1).Should.Equal(1)
+			c.Expect(1, Equals, 1)
 		})
 	})
 }
