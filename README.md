@@ -68,20 +68,20 @@ For examples on how to write specs, see the files in the [examples] directory.
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.1.0/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.1.0/examples/execution_model_test.go
 
 
 Version History
 ---------------
 
-**1.x.x (2010-xx-xx)**
+**1.1.0 (2010-03-08)**
 
 *UPGRADE NOTES:* In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters. Add `import . "gospec"` to the imports and change every assertion of the old `c.Then(x).Should.Equal(y)` syntax to use the new `c.Expect(x, Equals, y)` syntax.
 
