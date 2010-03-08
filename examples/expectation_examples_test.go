@@ -6,12 +6,13 @@ package examples
 
 import (
 	"container/list"
+	"gospec"
 	. "gospec"
 	"os"
 )
 
 
-func ExpectationExamplesSpec(c Context) {
+func ExpectationExamplesSpec(c gospec.Context) {
 	
 	c.Specify("Objects can be compared for equality", func() {
 		c.Expect(1, Equals, 1)
