@@ -15,10 +15,11 @@ import (
 // get its own command line tool similar to gotest, but for now this
 // is the way to go. This shouldn't require too much typing, because
 // there will be typically only one top-level spec per class/feature.
+
 func TestAllSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 	r.AddSpec("ExecutionModelSpec", ExecutionModelSpec)
-	r.AddSpec("ExpectationExamplesSpec", ExpectationExamplesSpec)
+	r.AddSpec("ExpectationSyntaxSpec", ExpectationSyntaxSpec)
 	r.AddSpec("FibSpec", FibSpec)
 	r.AddSpec("StackSpec", StackSpec)
 	gospec.MainGoTest(r, t)

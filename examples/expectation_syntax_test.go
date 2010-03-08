@@ -12,7 +12,7 @@ import (
 )
 
 
-func ExpectationExamplesSpec(c gospec.Context) {
+func ExpectationSyntaxSpec(c gospec.Context) {
 	
 	c.Specify("Objects can be compared for equality", func() {
 		c.Expect(1, Equals, 1)
@@ -90,8 +90,8 @@ func ExpectationExamplesSpec(c gospec.Context) {
 	})
 }
 
-func HasSameLengthAs(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
-	ok = len(actual.(string)) == len(expected.(string))
+func HasSameLengthAs(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
+	match = len(actual.(string)) == len(expected.(string))
 	pos = Errorf("'%v' should have same length as '%v'", actual, expected)
 	neg = Errorf("'%v' should NOT have same length as '%v'", actual, expected)
 	return
