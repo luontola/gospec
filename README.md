@@ -50,27 +50,32 @@ GoSpec adds one additional parameter to gotest. Use the `-print-all` parameter t
 
 Because of using gotest, all your specs must be in files whose names end with `_test.go` and they must be added to your test suite as explained above.
 
+The following imports are needed. The first imports the `gospec.Context` interface and the second is needed for using expectation matchers (`Equals`, `IsTrue`, `IsNil`, `Not()`, `Contains` etc.) without having to prefix them with the package name. (In a future GoSpec version the matchers will be moved to their own package.)
+
+    import "gospec"
+    import . "gospec"
+
 Each group of specs is a method which takes `gospec.Context` as a parameter. You can call the methods on `Context` to declare expectations and nested specs.
 
 For examples on how to write specs, see the files in the [examples] directory.
 
-- [stack_test.go] is an example of how you might write a spec for the class in [stack.go].
-
 - [fib_test.go] is an example of how you might write a spec for the class in [fib.go].
 
-- [expectation_examples_test.go] explains the syntax for writing expectations.
+- [stack_test.go] is an example of how you might write a spec for the class in [stack.go].
+
+- [expectation_syntax_test.go] explains the syntax for writing expectations.
 
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-[examples]:                     http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
-[all_specs_test.go]:            http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
-[stack.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
-[stack_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
-[fib.go]:                       http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
-[fib_test.go]:                  http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
-[expectation_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_examples_test.go
-[execution_model_test.go]:      http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
 
 
 Version History
@@ -78,14 +83,14 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
-*UPGRADE NOTES:* In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters.
+*UPGRADE NOTES:* In all your specs, replace `*gospec.Context` with `gospec.Context` in the spec's parameters. Add `import . "gospec"` to the imports and change every assertion of the old `c.Then(x).Should.Equal(y)` syntax to use the new `c.Expect(x, Equals, y)` syntax.
 
-- Upgraded to Go release.2010-02-04
-- New expectation syntax. The old syntax can still be used, but it might be deprecated later, depending on experience with the new syntax.
+- New expectation syntax. The old `c.Then()` syntax is deprecated and will be removed later.
 - New matchers: IsSame, IsNil, IsTrue, IsFalse, ContainsAll, ContainsAny, ContainsExactly, ContainsInOrder, ContainsInPartialOrder
 - Added Fibonacci numbers example
 - Added instructions about the style of naming and organizing specs
-- Small changes to the print format of error messages
+- Minor changes to the print format of error messages
+- Upgraded to Go release.2010-02-04
 
 **1.0.0 (2009-12-30)**
 
