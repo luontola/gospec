@@ -56,10 +56,10 @@ func (m *MatcherBuilder) compareUsing(matcher Matcher, expected interface{}) {
 	if m.negation {
 		matcher = Not(matcher)
 	}
-	ok, pos, _, err := matcher(m.actual, expected)
+	match, pos, _, err := matcher(m.actual, expected)
 	if err != nil {
 		m.addError(err.String())
-	} else if !ok {
+	} else if !match {
 		m.addError(pos.String())
 	}
 }

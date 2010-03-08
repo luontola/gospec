@@ -48,12 +48,12 @@ func Test__Errors_in_expectations_are_reported_with_the_error_message(t *testing
 	log.ShouldHaveTheError("Error: 666", t)
 }
 
-func dummyMatcher(actual interface{}, expected interface{}) (ok bool, pos os.Error, neg os.Error, err os.Error) {
+func dummyMatcher(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
 	if actual.(int) == 666 {
 		err = Errorf("Error: %v", actual)
 		return
 	}
-	ok = actual == expected
+	match = actual == expected
 	pos = Errorf("Positive failure: %v, %v", actual, expected)
 	neg = Errorf("Negative failure: %v, %v", actual, expected)
 	return
@@ -360,12 +360,12 @@ func Test__ContainsInPartialOrder_matcher(t *testing.T) {
 // Test utilities
 
 func assertExpectation(t *testing.T, actual interface{}, matcher Matcher, expected ...interface{}) *matchAssert {
-	ok, pos, neg, err := matcher.Match(actual, expected)
-	return &matchAssert{ok, pos, neg, err, t}
+	match, pos, neg, err := matcher.Match(actual, expected)
+	return &matchAssert{match, pos, neg, err, t}
 }
 
 type matchAssert struct {
-	ok  bool
+	match bool
 	pos os.Error
 	neg os.Error
 	err os.Error
@@ -376,7 +376,7 @@ func (this *matchAssert) Passes() *matchAssert {
 	if this.err != nil {
 		this.t.Error("expected to pass, but had an error: " + this.err.String())
 	}
-	if !this.ok {
+	if !this.match {
 		this.t.Error("expected to pass, but failed")
 	}
 	return this
@@ -386,7 +386,7 @@ func (this *matchAssert) Fails() *matchAssert {
 	if this.err != nil {
 		this.t.Error("expected to fail, but had an error: " + this.err.String())
 	}
-	if this.ok {
+	if this.match {
 		this.t.Error("expected to fail, but passed")
 	}
 	return this
