@@ -58,9 +58,7 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 - [fib_test.go] is an example of how you might write a spec for the class in [fib.go].
 
-- [expectation_examples_test.go] explains the syntax for writing expectations (new syntax).
-
-- [assert_examples_test.go] explains the syntax for writing assertions (old syntax).
+- [expectation_examples_test.go] explains the syntax for writing expectations.
 
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
@@ -72,7 +70,6 @@ For examples on how to write specs, see the files in the [examples] directory.
 [fib.go]:                       http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
 [fib_test.go]:                  http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
 [expectation_examples_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_examples_test.go
-[assert_examples_test.go]:      http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/assert_examples_test.go
 [execution_model_test.go]:      http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
 
 

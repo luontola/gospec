@@ -17,7 +17,6 @@ import (
 // there will be typically only one top-level spec per class/feature.
 func TestAllSpecs(t *testing.T) {
 	r := gospec.NewRunner()
-	r.AddSpec("AssertExamplesSpec", AssertExamplesSpec)
 	r.AddSpec("ExecutionModelSpec", ExecutionModelSpec)
 	r.AddSpec("ExpectationExamplesSpec", ExpectationExamplesSpec)
 	r.AddSpec("FibSpec", FibSpec)
