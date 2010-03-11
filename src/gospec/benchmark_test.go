@@ -13,34 +13,37 @@ import (
 )
 
 const (
-	ROOT_SPEC_COUNT = 5000
+	ROOT_SPEC_COUNT = 1000
 	PRINT_REPORT    = false
 )
 
-// 2009-12-25: Compiling results and building reports takes a long time
-// when using GOMAXPROCS=4 under a virtual machine with only one CPU.
-// Also the system clock under the virtual machine is inaccurate.
 // TODO: Run the benchmarks on native hardware, try different values of GOMAXPROCS, use 6prof.
 
-func Benchmark__Running_all_specs(b *testing.B) {
-	runSpecs()
+func BenchmarkRun(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		runSpecs()
+	}
 }
 
-func Benchmark__Compiling_results(b *testing.B) {
+func BenchmarkResults(b *testing.B) {
 	b.StopTimer()
 	runner := runSpecs()
 	b.StartTimer()
-
-	runner.Results()
+	
+	for i := 0; i < b.N; i++ {
+		runner.Results()
+	}
 }
 
-func Benchmark__Building_a_report(b *testing.B) {
+func BenchmarkReport(b *testing.B) {
 	b.StopTimer()
 	runner := runSpecs()
 	results := runner.Results()
 	b.StartTimer()
-
-	buildReport(results)
+	
+	for i := 0; i < b.N; i++ {
+		buildReport(results)
+	}
 }
 
 
