@@ -65,15 +65,18 @@ For examples on how to write specs, see the files in the [examples] directory.
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-[hello-world-template]:       http://github.com/orfjackal/gospec/tree/gospec-1.x.x/hello-world-template/
-[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.x.x/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.x.x/examples/execution_model_test.go
+<!--
+	Replace /master/ with /gospec-1.x.x/ before making a release.
+-->
+[hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
+[examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/master/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/master/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/master/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/master/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/master/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/master/examples/execution_model_test.go
 
 
 Version History
