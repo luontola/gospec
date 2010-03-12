@@ -31,7 +31,7 @@ func ExecutionModelSpec(c gospec.Context) {
 		c.Specify("Also I modify it, but none of my siblings will know it", func() {
 			commonVariable += "2"
 		})
-		c.Specify("Even I modify it, but none of my siblings will know it", func() {
+		c.Specify("Also I modify it, but none of my siblings will know it", func() {
 			commonVariable += "3"
 		})
 		

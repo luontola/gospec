@@ -31,12 +31,12 @@ When new versions of GoSpec are released, you can update it by pulling the lates
 
 ### Sample Project
 
-Make a copy of the [hello-world-template] directory to get started. You can run its tests with the command `make test`. All production files must be listed in the Makefile, all test files must end with `_test.go` and all specs must be listed in `all_specs_test.go`.
+Make a copy of the [hello-world-template] directory to get started. You can run its tests with the command `make test`. All production files must be listed in `Makefile`, all test files must end with `_test.go` and all specs must be listed in `all_specs_test.go`.
 
 
 ### Running Specs
 
-You can use the [gotest command](http://golang.org/cmd/gotest/) to run GoSpec's specs. The integration with gotest requires a couple of lines of boilerplate: you'll need to write a gotest test method, where you list all your specs and call GoSpec. See [all_specs_test.go] in the [examples] directory for an example.
+You can use the [gotest command](http://golang.org/cmd/gotest/) to run GoSpec's specs. The integration with gotest requires a couple of lines of boilerplate: you'll need to write a gotest test method, where you list all your specs and call GoSpec. See [all_specs_test.go] in the [examples] directory for an example. Also all your specs must be in files whose names end with `_test.go`.
 
 See [gotest's documentation](http://golang.org/doc/code.html#Testing) for instructions on how to use gotest.
 
@@ -45,14 +45,12 @@ GoSpec adds one additional parameter to gotest. Use the `-print-all` parameter t
 
 ### Writing Specs
 
-Because of using gotest, all your specs must be in files whose names end with `_test.go` and they must be added to your test suite as explained above.
-
-The following imports are needed. The first imports the `gospec.Context` interface and the second is needed for using expectation matchers (`Equals`, `IsTrue`, `IsNil`, `Not()`, `Contains` etc.) without having to prefix them with the package name. (In a future GoSpec version the matchers will be moved to their own package.)
+The following imports are needed. The first imports the `gospec.Context` interface and the second is needed for using GoSpec's expectation matchers (`Equals`, `IsTrue`, `IsNil`, `Not()`, `Contains` etc.) without having to prefix them with the package name. (In a future GoSpec version the matchers will be moved to their own package.)
 
     import "gospec"
     import . "gospec"
 
-Each group of specs is a method which takes `gospec.Context` as a parameter. You can call the methods on `Context` to declare expectations and nested specs.
+The specs are written as functions which take `gospec.Context` as a parameter. You can call the methods of `Context` to declare expectations and nested specs.
 
 For examples on how to write specs, see the files in the [examples] directory.
 
@@ -65,9 +63,7 @@ For examples on how to write specs, see the files in the [examples] directory.
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
 
-<!--
-	Replace /master/ with /gospec-1.x.x/ before making a release.
--->
+[]:    Replace /master/ with /gospec-1.x.x/ before making a release.
 [hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
 [examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
 [all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
