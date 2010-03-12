@@ -17,7 +17,7 @@ First you must have Go installed on your machine, as instructed in [Installing G
 
 ### Install and Update
 
-Checkout GoSpec's source code from its Git repository and install it. The `release` branch is checked out by default. The `make install` copy will copy the compiled GoSpec library into your `$GOROOT/pkg` directory, so that it can be used from other projects.
+Checkout GoSpec's source code from its Git repository and install it. The `release` branch is checked out by default. The `make install` command will copy the compiled GoSpec library into your `$GOROOT/pkg` directory, so that it can be used from other projects.
 
     git clone git://github.com/orfjackal/gospec.git
     cd gospec/src
