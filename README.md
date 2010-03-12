@@ -28,6 +28,8 @@ When new versions of GoSpec are released, you can update it by pulling the lates
     git pull
     make install
 
+See "Version History" for any additional upgrade notes.
+
 
 ### Sample Project
 
