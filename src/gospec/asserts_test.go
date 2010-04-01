@@ -73,4 +73,3 @@ func Test__The_location_of_a_failed_THEN_is_reported(t *testing.T) {
 	})
 	assertErrorIsInFile("asserts_test.go", results, t)
 }
-

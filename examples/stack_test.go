@@ -21,9 +21,9 @@ import (
 
 func StackSpec(c gospec.Context) {
 	stack := NewStack()
-	
+
 	c.Specify("An empty stack", func() {
-		
+
 		c.Specify("is empty", func() {
 			c.Expect(stack.Empty(), IsTrue)
 		})
@@ -32,11 +32,11 @@ func StackSpec(c gospec.Context) {
 			c.Expect(stack.Empty(), IsFalse)
 		})
 	})
-	
+
 	c.Specify("When objects have been pushed onto a stack", func() {
 		stack.Push("one")
 		stack.Push("two")
-		
+
 		c.Specify("the object pushed last is popped first", func() {
 			x := stack.Pop()
 			c.Expect(x, Equals, "two")
@@ -53,4 +53,3 @@ func StackSpec(c gospec.Context) {
 		})
 	})
 }
-

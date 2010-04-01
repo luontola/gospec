@@ -70,4 +70,3 @@ func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__The
 	assertEquals("root,b,bb", runs.At(3), t)
 	assertEquals("root,b,bc", runs.At(4), t)
 }
-

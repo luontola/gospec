@@ -27,7 +27,7 @@ func (this Point2) Equals(other interface{}) bool {
 
 func (this *Point2) equals(that *Point2) bool {
 	return this.X == that.X &&
-	       this.Y == that.Y
+		this.Y == that.Y
 }
 
 
@@ -42,9 +42,8 @@ func (this *Point3) Equals(other interface{}) bool {
 	switch that := other.(type) {
 	case *Point3:
 		return this.X == that.X &&
-		       this.Y == that.Y &&
-		       this.Z == that.Z
+			this.Y == that.Y &&
+			this.Z == that.Z
 	}
 	return false
 }
-

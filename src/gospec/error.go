@@ -4,8 +4,7 @@
 
 package gospec
 
-import (
-)
+import ()
 
 
 type Error struct {
@@ -19,7 +18,7 @@ func newError(message string, location *Location) *Error {
 
 func (this *Error) equals(that *Error) bool {
 	return this.Message == that.Message &&
-	       this.Location.equals(that.Location)
+		this.Location.equals(that.Location)
 }
 
 func (this *Error) String() string {
@@ -30,4 +29,3 @@ type errorLogger interface {
 	AddError(error *Error)
 	AddFatalError(error *Error)
 }
-

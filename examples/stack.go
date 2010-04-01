@@ -28,4 +28,3 @@ func (this *Stack) Pop() interface{} {
 func (this *Stack) Empty() bool {
 	return this.stack.Len() == 0
 }
-

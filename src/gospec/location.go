@@ -38,7 +38,7 @@ func filename(path string) string {
 
 func (this *Location) equals(that *Location) bool {
 	return this.File == that.File &&
-	       this.Line == that.Line
+		this.Line == that.Line
 }
 
 func (this *Location) String() string {
@@ -47,4 +47,3 @@ func (this *Location) String() string {
 	}
 	return fmt.Sprintf("%v:%v", this.File, this.Line)
 }
-

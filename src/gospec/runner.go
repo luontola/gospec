@@ -138,4 +138,3 @@ type taskResult struct {
 	executedSpecs  []*specRun
 	postponedSpecs []*specRun
 }
-

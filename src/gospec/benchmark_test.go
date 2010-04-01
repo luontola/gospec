@@ -29,7 +29,7 @@ func BenchmarkResults(b *testing.B) {
 	b.StopTimer()
 	runner := runSpecs()
 	b.StartTimer()
-	
+
 	for i := 0; i < b.N; i++ {
 		runner.Results()
 	}
@@ -40,7 +40,7 @@ func BenchmarkReport(b *testing.B) {
 	runner := runSpecs()
 	results := runner.Results()
 	b.StartTimer()
-	
+
 	for i := 0; i < b.N; i++ {
 		buildReport(results)
 	}
@@ -63,7 +63,7 @@ func buildReport(results *ResultCollector) {
 	} else {
 		report = new(NullWriter)
 	}
-	
+
 	results.Visit(NewPrinter(SimplePrintFormat(report)))
 
 	if PRINT_REPORT {
@@ -73,7 +73,7 @@ func buildReport(results *ResultCollector) {
 }
 
 
-type NullWriter struct {}
+type NullWriter struct{}
 
 func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 	return len(p), nil
@@ -83,8 +83,8 @@ func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 func DummySpecForBenchmarks(c Context) {
 	// Some work, to create a more realistic workload and
 	// to put the framework's overhead into proportion.
-//	for i := 0; i < 1000000; i++ {}
-	
+	//for i := 0; i < 1000000; i++ {}
+
 	// 15 spec declarations, executed in 10 runs
 	// (each run is 3 levels deep, so in total 30 spec runs)
 	c.Specify("Child A", func() {
@@ -126,4 +126,3 @@ func DummySpecForBenchmarks(c Context) {
 		})
 	})
 }
-

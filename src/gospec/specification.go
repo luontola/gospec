@@ -119,4 +119,3 @@ func (path path) lastIndex() int {
 func (path path) isRoot() bool {
 	return len(path) == 0
 }
-

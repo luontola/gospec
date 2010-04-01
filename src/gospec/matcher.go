@@ -4,8 +4,7 @@
 
 package gospec
 
-import (
-)
+import ()
 
 
 // TODO: remove when the c.Then() syntax is removed
@@ -26,28 +25,28 @@ func newMatcherBuilder(actual interface{}, location *Location, log errorLogger) 
 	posOpt := new(MatcherBuilder)
 	posOpt.negation = false
 	posOpt.required = false
-	
+
 	posReq := new(MatcherBuilder)
 	posReq.negation = false
 	posReq.required = true
-	
+
 	negOpt := new(MatcherBuilder)
 	negOpt.negation = true
 	negOpt.required = false
-	
+
 	negReq := new(MatcherBuilder)
 	negReq.negation = true
 	negReq.required = true
-	
+
 	all := [...]*MatcherBuilder{posOpt, posReq, negOpt, negReq}
 	for _, m := range all {
-		m.actual    = actual
-		m.location  = location
-		m.log       = log
-		m.Should    = posOpt
+		m.actual = actual
+		m.location = location
+		m.log = log
+		m.Should = posOpt
 		m.ShouldNot = negOpt
-		m.Must      = posReq
-		m.MustNot   = negReq
+		m.Must = posReq
+		m.MustNot = negReq
 	}
 	return posOpt
 }
@@ -96,4 +95,3 @@ func (m *MatcherBuilder) BeNear(expected float64, delta float64) {
 func (m *MatcherBuilder) Contain(expected interface{}) {
 	m.compareUsing(Contains, expected)
 }
-

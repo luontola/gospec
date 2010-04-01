@@ -26,4 +26,3 @@ func (this *Fib) Sequence(length int) []int {
 	}
 	return seq
 }
-

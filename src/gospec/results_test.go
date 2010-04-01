@@ -26,7 +26,8 @@ func Test__When_results_have_many_root_specs__Then_they_are_sorted_alphabeticall
 - RootSpec2
 
 2 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_declaration_order(t *testing.T) {
@@ -61,7 +62,8 @@ func Test__When_results_have_many_child_specs__Then_they_are_sorted_by_their_dec
   - three
 
 4 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_zero_specs(t *testing.T) {
@@ -69,7 +71,8 @@ func Test__Collecting_results_of_zero_specs(t *testing.T) {
 
 	assertReportIs(results, `
 0 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
@@ -82,7 +85,8 @@ func Test__Collecting_results_of_a_spec_with_no_children(t *testing.T) {
 - RootSpec
 
 1 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
@@ -98,7 +102,8 @@ func Test__Collecting_results_of_a_spec_with_a_child(t *testing.T) {
   - Child A
 
 2 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
@@ -117,7 +122,8 @@ func Test__Collecting_results_of_a_spec_with_nested_children(t *testing.T) {
     - Child AA
 
 3 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing.T) {
@@ -136,7 +142,8 @@ func Test__Collecting_results_of_a_spec_with_multiple_nested_children(t *testing
     - Child BC
 
 8 specs, 0 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__Collecting_results_of_failing_specs(t *testing.T) {
@@ -160,7 +167,8 @@ func Test__Collecting_results_of_failing_specs(t *testing.T) {
       moon was not cheese
 
 3 specs, 2 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_reported(t *testing.T) {
@@ -175,7 +183,7 @@ func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_
 		c.Specify("Child B", func() {})
 	})
 	runner.Run()
-	
+
 	assertReportIs(runner.Results(), `
 - RootSpec [FAIL]
     Expected '20' but was '10'
@@ -183,7 +191,8 @@ func Test__When_spec_passes_on_first_run_but_fails_on_second__Then_the_error_is_
   - Child B
 
 3 specs, 1 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
@@ -200,7 +209,7 @@ func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *test
 		c.Then(10 + i).Should.Equal(20) // changes - will be reported many times
 	})
 	runner.Run()
-	
+
 	assertReportIs(runner.Results(), `
 - RootSpec [FAIL]
     Expected '20' but was '10'
@@ -210,7 +219,8 @@ func Test__When_root_spec_fails_sporadically__Then_the_errors_are_merged(t *test
   - Child B
 
 3 specs, 1 failures
-	`, t)
+`,
+		t)
 }
 
 func Test__When_non_root_spec_fails_sporadically__Then_the_errors_are_merged(t *testing.T) {
@@ -229,7 +239,7 @@ func Test__When_non_root_spec_fails_sporadically__Then_the_errors_are_merged(t *
 		})
 	})
 	runner.Run()
-	
+
 	assertReportIs(runner.Results(), `
 - RootSpec
   - Failing [FAIL]
@@ -240,7 +250,8 @@ func Test__When_non_root_spec_fails_sporadically__Then_the_errors_are_merged(t *
     - Child B
 
 4 specs, 1 failures
-	`, t)
+`,
+		t)
 }
 
 func assertReportIs(results *ResultCollector, expected string, t *testing.T) {
@@ -249,4 +260,3 @@ func assertReportIs(results *ResultCollector, expected string, t *testing.T) {
 	report := out.String()
 	assertEqualsTrim(expected, report, t)
 }
-

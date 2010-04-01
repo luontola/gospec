@@ -39,7 +39,7 @@ func (this *matcherAdapter) addError(message string) {
 
 
 // Matchers are used in expectations to compare the actual and expected values.
-// 
+//
 // Return values:
 //   match: Should be true when `actual` and `expected` match, otherwise false.
 //   pos:   Message for a failed expectation.
@@ -120,12 +120,12 @@ type Equality interface {
 
 // The actual value must be a pointer to the same object as the expected value.
 func IsSame(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	ptr1, err := pointerOf(actual);
-	if err != nil{
+	ptr1, err := pointerOf(actual)
+	if err != nil {
 		return
 	}
 	ptr2, err := pointerOf(expected)
-	if err != nil{
+	if err != nil {
 		return
 	}
 	match = ptr1 == ptr2
@@ -198,8 +198,8 @@ func IsWithin(delta float64) Matcher {
 		if err != nil {
 			return
 		}
-		
-		match = math.Fabs(expected - actual) < delta
+
+		match = math.Fabs(expected-actual) < delta
 		pos = Errorf("Expected '%v' ± %v but was '%v'", expected, delta, actual)
 		neg = Errorf("Did not expect '%v' ± %v but was '%v'", expected, delta, actual)
 		return
@@ -227,7 +227,7 @@ func Contains(actual_ interface{}, expected interface{}) (match bool, pos os.Err
 	if err != nil {
 		return
 	}
-	
+
 	match = arrayContains(actual, expected)
 	pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
 	neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
@@ -238,17 +238,17 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 	if it, ok := values.(iterable.Iterable); ok {
 		return toArray(it.Iter())
 	}
-	
+
 	result := new(vector.Vector)
 	switch v := reflect.NewValue(values).(type) {
-	
+
 	case reflect.ArrayOrSliceValue:
 		arr := v
 		for i := 0; i < arr.Len(); i++ {
-			obj :=  arr.Elem(i).Interface()
+			obj := arr.Elem(i).Interface()
 			result.Push(obj)
 		}
-		
+
 	case *reflect.ChanValue:
 		ch := v
 		for {
@@ -258,7 +258,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 			}
 			result.Push(obj)
 		}
-		
+
 	default:
 		return nil, Errorf("Unknown type '%T', not iterable: %v", values, values)
 	}
@@ -292,7 +292,7 @@ func ContainsAll(actual_ interface{}, expected_ interface{}) (match bool, pos os
 	if err != nil {
 		return
 	}
-	
+
 	containsAll := true
 	for i := 0; i < len(expected); i++ {
 		if !arrayContains(actual, expected[i]) {
@@ -300,7 +300,7 @@ func ContainsAll(actual_ interface{}, expected_ interface{}) (match bool, pos os
 			break
 		}
 	}
-	
+
 	match = containsAll
 	pos = Errorf("Expected all of '%v' to be in '%v' but they were not", expected, actual)
 	neg = Errorf("Did not expect all of '%v' to be in '%v' but they were", expected, actual)
@@ -318,7 +318,7 @@ func ContainsAny(actual_ interface{}, expected_ interface{}) (match bool, pos os
 	if err != nil {
 		return
 	}
-	
+
 	containsAny := false
 	for i := 0; i < len(expected); i++ {
 		if arrayContains(actual, expected[i]) {
@@ -326,7 +326,7 @@ func ContainsAny(actual_ interface{}, expected_ interface{}) (match bool, pos os
 			break
 		}
 	}
-	
+
 	match = containsAny
 	pos = Errorf("Expected any of '%v' to be in '%v' but they were not", expected, actual)
 	neg = Errorf("Did not expect any of '%v' to be in '%v' but they were", expected, actual)
@@ -345,7 +345,7 @@ func ContainsExactly(actual_ interface{}, expected_ interface{}) (match bool, po
 	if err != nil {
 		return
 	}
-	
+
 	containsAll := true
 	remaining := new(vector.Vector)
 	remaining.AppendVector((*vector.Vector)(&actual))
@@ -357,7 +357,7 @@ func ContainsExactly(actual_ interface{}, expected_ interface{}) (match bool, po
 			break
 		}
 	}
-	
+
 	match = containsAll && remaining.Len() == 0
 	pos = Errorf("Expected exactly '%v' to be in '%v' but they were not", expected, actual)
 	neg = Errorf("Did not expect exactly '%v' to be in '%v' but they were", expected, actual)
@@ -375,14 +375,14 @@ func ContainsInOrder(actual_ interface{}, expected_ interface{}) (match bool, po
 	if err != nil {
 		return
 	}
-	
+
 	containsInOrder := len(actual) == len(expected)
 	for i := 0; i < len(actual) && i < len(expected); i++ {
 		if !areEqual(actual[i], expected[i]) {
 			containsInOrder = false
 		}
 	}
-	
+
 	match = containsInOrder
 	pos = Errorf("Expected in order '%v' to be in '%v' but they were not", expected, actual)
 	neg = Errorf("Did not expect in order '%v' to be in '%v' but they were", expected, actual)
@@ -403,7 +403,7 @@ func ContainsInPartialOrder(actual_ interface{}, expected_ interface{}) (match b
 	if err != nil {
 		return
 	}
-	
+
 	containsInPartialOrder := true
 	for ie, ia := 0, 0; ie < len(expected); {
 		if ia >= len(actual) {
@@ -417,10 +417,9 @@ func ContainsInPartialOrder(actual_ interface{}, expected_ interface{}) (match b
 			ia++
 		}
 	}
-	
+
 	match = containsInPartialOrder
 	pos = Errorf("Expected in partial order '%v' to be in '%v' but they were not", expected, actual)
 	neg = Errorf("Did not expect in partial order '%v' to be in '%v' but they were", expected, actual)
 	return
 }
-

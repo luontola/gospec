@@ -4,8 +4,7 @@
 
 package gospec
 
-import (
-)
+import ()
 
 
 type printMode int
@@ -26,10 +25,10 @@ type Printer struct {
 
 func NewPrinter(format PrintFormat) *Printer {
 	return &Printer{
-		format: format,
-		show: ALL,
+		format:      format,
+		show:        ALL,
 		showSummary: true,
-		notPrinted: []string{},
+		notPrinted:  []string{},
 	}
 }
 
@@ -52,7 +51,7 @@ func (this *Printer) ShowSummary() {
 func (this *Printer) VisitSpec(nestingLevel int, name string, errors []*Error) {
 	isPassing := len(errors) == 0
 	isFailing := !isPassing
-	
+
 	if isPassing {
 		if this.show == ALL {
 			this.format.PrintPassing(nestingLevel, name)
@@ -93,4 +92,3 @@ func resizeArray(arr *[]string, newLength int) {
 	*arr = make([]string, newLength)
 	copy(*arr, old)
 }
-

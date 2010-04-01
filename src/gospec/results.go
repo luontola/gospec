@@ -14,8 +14,8 @@ import (
 // Collects test results for all specs in a reporting friendly format.
 type ResultCollector struct {
 	rootsByName map[string]*specResult
-	passCount int
-	failCount int
+	passCount   int
+	failCount   int
 }
 
 func newResultCollector() *ResultCollector {
@@ -170,7 +170,7 @@ func (this *specResult) update(spec *specRun) {
 	isMe := this.path.isEqual(spec.path)
 	isMyChild := this.path.isOn(spec.path) && !isMe
 	isMyDirectChild := isMyChild && len(this.path)+1 == len(spec.path)
-	
+
 	if isMe {
 		this.mergeErrors(spec.errors)
 	}
@@ -251,4 +251,3 @@ func (this *specResult) String() string {
 	return fmt.Sprintf("%T{%v, %v, %d children, %d errors}",
 		this, this.name, this.path, this.children.Len(), this.errors.Len())
 }
-

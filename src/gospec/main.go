@@ -12,7 +12,7 @@ import (
 
 
 var (
-    printAll = flag.Bool("print-all", false, "print also passing specs and not only failing (GoSpec)")
+	printAll = flag.Bool("print-all", false, "print also passing specs and not only failing (GoSpec)")
 )
 
 // Executes the specs which have been added to the Runner
@@ -34,9 +34,9 @@ func Main(runner *Runner) {
 // test if any of the specs fails.
 func MainGoTest(runner *Runner, t *testing.T) {
 	// Assume that this method will then be executed by gotest and
-	// flag.Parse() has already been called in testing.Main() so 
+	// flag.Parse() has already been called in testing.Main() so
 	// we don't need to call it here.
-	
+
 	results := runAndPrint(runner)
 	if results.FailCount() > 0 {
 		t.Fail()
@@ -51,10 +51,9 @@ func runAndPrint(runner *Runner) *ResultCollector {
 		printer.ShowOnlyFailing()
 	}
 	printer.ShowSummary()
-	
+
 	runner.Run()
 	results := runner.Results()
 	results.Visit(printer)
 	return results
 }
-

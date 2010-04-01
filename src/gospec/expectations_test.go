@@ -85,4 +85,3 @@ func assertErrorIsInFile(file string, results *ResultCollector, t *testing.T) {
 		assertEquals(file, error.Location.File, t)
 	}
 }
-

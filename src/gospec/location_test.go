@@ -28,4 +28,3 @@ func Test__Calls_to_newLocation_are_synced_with_the_helper_methods(t *testing.T)
 	assertEquals(currentLocation().String(), newLocation(0).String(), t)
 	assertEquals(callerLocation().String(), newLocation(1).String(), t)
 }
-

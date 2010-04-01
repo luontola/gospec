@@ -27,15 +27,14 @@ import (
 
 func FibSpec(c gospec.Context) {
 	fib := NewFib().Sequence(10)
-	
+
 	c.Specify("The first two Fibonacci numbers are 0 and 1", func() {
 		c.Expect(fib[0], Equals, 0)
 		c.Expect(fib[1], Equals, 1)
 	})
 	c.Specify("Each remaining number is the sum of the previous two", func() {
 		for i := 2; i < len(fib); i++ {
-			c.Expect(fib[i], Equals, fib[i-1] + fib[i-2])
+			c.Expect(fib[i], Equals, fib[i-1]+fib[i-2])
 		}
 	})
 }
-
