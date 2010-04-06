@@ -6,67 +6,63 @@ package gospec
 
 import (
 	"container/vector"
+	"nanospec"
 	"sort"
-	"testing"
 )
 
+func ExecutionModelSpec(c nanospec.Context) {
 
-// Specs with children, but without siblings
+	c.Specify("Specs with children, but without siblings, are executed fully on one run", func() {
 
-func Test__Given_a_spec_with_no_children__When_it_is_run_initially__Then_the_root_is_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithNoChildren, newInitialContext())
-	assertTestSpyHas("root", t)
-}
+		c.Specify("Case: no children", func() {
+			runSpecWithContext(DummySpecWithNoChildren, newInitialContext())
+			c.Expect(testSpy).Equals("root")
+		})
+		c.Specify("Case: one child", func() {
+			runSpecWithContext(DummySpecWithOneChild, newInitialContext())
+			c.Expect(testSpy).Equals("root,a")
+		})
+		c.Specify("Case: nested children", func() {
+			runSpecWithContext(DummySpecWithNestedChildren, newInitialContext())
+			c.Expect(testSpy).Equals("root,a,aa")
+		})
+	})
 
-func Test__Given_a_spec_with_one_child__When_it_is_run_initially__Then_the_child_is_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithOneChild, newInitialContext())
-	assertTestSpyHas("root,a", t)
-}
+	c.Specify("Specs with siblings are executed only one sibling at a time", func() {
 
-func Test__Given_a_spec_with_nested_children__When_it_is_run_initially__Then_the_nested_children_are_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithNestedChildren, newInitialContext())
-	assertTestSpyHas("root,a,aa", t)
-}
+		c.Specify("Case: on initial run, the 1st child is executed", func() {
+			runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
+			c.Expect(testSpy).Equals("root,a")
+		})
+		c.Specify("Case: explicitly execute the 1st child", func() {
+			runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{0}))
+			c.Expect(testSpy).Equals("root,a")
+		})
+		c.Specify("Case: explicitly execute the 2nd child", func() {
+			runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{1}))
+			c.Expect(testSpy).Equals("root,b")
+		})
+	})
 
+	c.Specify("Specs with nested siblings: eventually all siblings are executed, one at a time, in isolation", func() {
+		r := NewRunner()
+		r.AddSpec("RootSpec", DummySpecWithMultipleNestedChildren)
 
-// Specs with siblings, execute only one sibling at a time
+		// Execute manually instead of calling Run(), in order to avoid running
+		// the specs multi-threadedly, which would mess up the test spy.
+		runs := new(vector.StringVector)
+		for r.hasScheduledTasks() {
+			resetTestSpy()
+			r.executeNextScheduledTask()
+			runs.Push(testSpy)
+		}
+		sort.Sort(runs)
 
-func Test__Given_a_spec_with_two_children__When_it_is_run_initially__Then_the_1st_child_is_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
-	assertTestSpyHas("root,a", t)
-}
-
-func Test__Given_a_spec_with_two_children__When_the_1st_child_is_run_explicitly__Then_the_1st_child_is_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{0}))
-	assertTestSpyHas("root,a", t)
-}
-
-func Test__Given_a_spec_with_two_children__When_the_2nd_child_is_run_explicitly__Then_the_2nd_child_is_executed(t *testing.T) {
-	runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{1}))
-	assertTestSpyHas("root,b", t)
-}
-
-
-// Specs with nested siblings, execute eventually all siblings, one at a time
-
-func Test__Given_a_spec_with_multiple_nested_children__When_it_is_run_fully__Then_all_the_children_are_executed_in_isolation(t *testing.T) {
-	r := NewRunner()
-	r.AddSpec("RootSpec", DummySpecWithMultipleNestedChildren)
-
-	// Execute manually instead of calling Run(), in order to avoid running
-	// the specs multi-threadedly, which would mess up the test spy.
-	runs := new(vector.StringVector)
-	for r.hasScheduledTasks() {
-		resetTestSpy()
-		r.executeNextScheduledTask()
-		runs.Push(testSpy)
-	}
-	sort.Sort(runs)
-
-	assertEquals(5, runs.Len(), t)
-	assertEquals("root,a,aa", runs.At(0), t)
-	assertEquals("root,a,ab", runs.At(1), t)
-	assertEquals("root,b,ba", runs.At(2), t)
-	assertEquals("root,b,bb", runs.At(3), t)
-	assertEquals("root,b,bc", runs.At(4), t)
+		c.Expect(runs.Len()).Equals(5)
+		c.Expect(runs.At(0)).Equals("root,a,aa")
+		c.Expect(runs.At(1)).Equals("root,a,ab")
+		c.Expect(runs.At(2)).Equals("root,b,ba")
+		c.Expect(runs.At(3)).Equals("root,b,bb")
+		c.Expect(runs.At(4)).Equals("root,b,bc")
+	})
 }

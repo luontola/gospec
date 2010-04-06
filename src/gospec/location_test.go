@@ -5,26 +5,27 @@
 package gospec
 
 import (
-	"testing"
+	"nanospec"
+	"strings"
 )
 
 
-func Test__Get_the_location_of_current_method(t *testing.T) {
-	loc := currentLocation()
-	assertHasPrefix("location_test.go:", loc.String(), t)
-}
+func LocationSpec(c nanospec.Context) {
 
-func Test__Get_the_location_of_calling_method(t *testing.T) {
-	loc := callerLocation()
-	assertHasPrefix("testing.go:", loc.String(), t)
-}
-
-func Test__Failing_to_get_the_location_fails_grafecully_with_an_error_message(t *testing.T) {
-	loc := newLocation(1000)
-	assertEquals("Unknown File", loc.String(), t)
-}
-
-func Test__Calls_to_newLocation_are_synced_with_the_helper_methods(t *testing.T) {
-	assertEquals(currentLocation().String(), newLocation(0).String(), t)
-	assertEquals(callerLocation().String(), newLocation(1).String(), t)
+	c.Specify("Location of the current method can be found", func() {
+		loc := currentLocation()
+		c.Expect(loc).Satisfies(strings.HasPrefix(loc.String(), "location_test.go:"))
+	})
+	c.Specify("Location of the calling method can be found", func() {
+		loc := callerLocation()
+		c.Expect(loc).Satisfies(strings.HasPrefix(loc.String(), "context.go:"))
+	})
+	c.Specify("When failing to get the location, it will fail gracefully with an error message", func() {
+		loc := newLocation(1000)
+		c.Expect(loc.String()).Equals("Unknown File")
+	})
+	c.Specify("Calls to newLocation are synced with the helper methods", func() {
+		c.Expect(newLocation(0).String()).Equals(currentLocation().String())
+		c.Expect(newLocation(1).String()).Equals(callerLocation().String())
+	})
 }

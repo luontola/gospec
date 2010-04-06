@@ -5,83 +5,74 @@
 package gospec
 
 import (
-	"testing"
+	"nanospec"
 )
 
 
-func Test__When_a_spec_has_passing_expectations__Then_the_spec_passes(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Expect(1, Equals, 1)
-	})
-	assertEquals(1, results.PassCount(), t)
-	assertEquals(0, results.FailCount(), t)
-}
+func ExpectationsSpec(c nanospec.Context) {
 
-func Test__When_a_spec_has_failing_expectations__Then_the_spec_fails(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Expect(1, Equals, 2)
-	})
-	assertEquals(0, results.PassCount(), t)
-	assertEquals(1, results.FailCount(), t)
-}
+	c.Specify("When a spec has passing expectations or assumptions", func() {
+		results := runSpec(func(c Context) {
+			c.Expect(1, Equals, 1)
+			c.Assume(1, Equals, 1)
+			c.Specify("Child", func() {})
+		})
 
-
-func Test__When_a_spec_has_passing_expectations__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Expect(1, Equals, 1)
-		c.Specify("Child", func() {
+		c.Specify("then the spec passes", func() {
+			c.Expect(results.FailCount()).Equals(0)
+		})
+		c.Specify("then its children are executed", func() {
+			c.Expect(results.TotalCount()).Equals(2)
 		})
 	})
-	assertEquals(2, results.TotalCount(), t)
-}
 
-func Test__When_a_spec_has_failing_expectations__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Expect(1, Equals, 2)
-		c.Specify("Child", func() {
+	c.Specify("When a spec has failing expectations", func() {
+		results := runSpec(func(c Context) {
+			c.Expect(1, Equals, 2)
+			c.Specify("Child", func() {})
+		})
+
+		c.Specify("then the spec fails", func() {
+			c.Expect(results.FailCount()).Equals(1)
+		})
+		c.Specify("then its children are executed", func() {
+			c.Expect(results.TotalCount()).Equals(2)
 		})
 	})
-	assertEquals(2, results.TotalCount(), t)
-}
 
-func Test__When_a_spec_has_passing_assumptions__Then_its_children_are_executed(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Assume(1, Equals, 1)
-		c.Specify("Child", func() {
+	c.Specify("When a spec has failing assumptions", func() {
+		results := runSpec(func(c Context) {
+			c.Assume(1, Equals, 2)
+			c.Specify("Child", func() {})
+		})
+
+		c.Specify("then the spec fails", func() {
+			c.Expect(results.FailCount()).Equals(1)
+		})
+		c.Specify("then its children are NOT executed", func() {
+			c.Expect(results.TotalCount()).Equals(1)
 		})
 	})
-	assertEquals(2, results.TotalCount(), t)
-}
 
-func Test__When_a_spec_has_failing_assumptions__Then_its_children_are_NOT_executed(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Assume(1, Equals, 2)
-		c.Specify("Child", func() {
+	c.Specify("The location of a failed expectation is reported", func() {
+		results := runSpec(func(c Context) {
+			c.Expect(1, Equals, 2)
 		})
+		c.Expect(fileOfError(results)).Equals("expectations_test.go")
 	})
-	assertEquals(1, results.TotalCount(), t)
+	c.Specify("The location of a failed assumption is reported", func() {
+		results := runSpec(func(c Context) {
+			c.Assume(1, Equals, 2)
+		})
+		c.Expect(fileOfError(results)).Equals("expectations_test.go")
+	})
 }
 
-
-// Location
-
-func Test__The_location_of_a_failed_expectation_is_reported(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Expect(1, Equals, 2)
-	})
-	assertErrorIsInFile("expectations_test.go", results, t)
-}
-
-func Test__The_location_of_a_failed_assumption_is_reported(t *testing.T) {
-	results := runSpec(func(c Context) {
-		c.Assume(1, Equals, 2)
-	})
-	assertErrorIsInFile("expectations_test.go", results, t)
-}
-
-func assertErrorIsInFile(file string, results *ResultCollector, t *testing.T) {
+func fileOfError(results *ResultCollector) string {
+	file := ""
 	for spec := range results.sortedRoots() {
 		error := spec.errors.Front().Value.(*Error)
-		assertEquals(file, error.Location.File, t)
+		file = error.Location.File
 	}
+	return file
 }
