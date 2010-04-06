@@ -6,7 +6,7 @@ package gospec
 
 import (
 	"math"
-	"testing"
+	"nanospec"
 	"time"
 )
 
@@ -18,7 +18,7 @@ const (
 	DELAY       = 50 * MILLISECOND
 )
 
-func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
+func ConcurrencySpec(c nanospec.Context) {
 	r := NewRunner()
 	r.AddSpec("VerySlowDummySpec", VerySlowDummySpec)
 
@@ -35,15 +35,15 @@ func Test__Specs_are_executed_concurrently_on_multiple_threads(t *testing.T) {
 	expectedMaxTime := int64(math.Floor(2.9 * DELAY))
 
 	if totalTime > expectedMaxTime {
-		t.Errorf("Expected the run to take less than %v ms but it took %v ms",
+		c.Errorf("Expected the run to take less than %v ms but it took %v ms",
 			expectedMaxTime/MILLISECOND, totalTime/MILLISECOND)
 	}
 
 	runCounts := countSpecNames(r.executed)
-	assertEquals(1, runCounts["Child A"], t)
-	assertEquals(1, runCounts["Child B"], t)
-	assertEquals(1, runCounts["Child C"], t)
-	assertEquals(1, runCounts["Child D"], t)
+	c.Expect(runCounts["Child A"]).Equals(1)
+	c.Expect(runCounts["Child B"]).Equals(1)
+	c.Expect(runCounts["Child C"]).Equals(1)
+	c.Expect(runCounts["Child D"]).Equals(1)
 }
 
 func VerySlowDummySpec(c Context) {

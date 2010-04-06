@@ -24,6 +24,7 @@ func assertTestSpyHas(expected string, t *testing.T) {
 	assertEquals(expected, testSpy, t)
 }
 
+// TODO: remove when the c.Then() syntax is removed
 func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
 	if expected != actual {
 		t.Error(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))

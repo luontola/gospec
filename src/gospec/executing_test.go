@@ -5,63 +5,62 @@
 package gospec
 
 import (
-	"testing"
+	"nanospec"
 )
 
 
-// When specs are run, they should report which specs were executed now and which were postponed
+func ExecutingSpecsSpec(c nanospec.Context) {
 
-func Test__Executed_specs_are_reported(t *testing.T) {
-	result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
+	c.Specify("When specs are executed", func() {
+		result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
+		executed := result.executedSpecs
+		postponed := result.postponedSpecs
 
-	executed := result.executedSpecs
-	assertEquals(2, len(executed), t)
-	assertEquals("RootSpec", executed[0].name, t)
-	assertEquals("Child A", executed[1].name, t)
-}
+		c.Specify("executed specs are reported", func() {
+			c.Expect(len(executed)).Equals(2)
+			c.Expect(executed[0].name).Equals("RootSpec")
+			c.Expect(executed[1].name).Equals("Child A")
+		})
+		c.Specify("postponed specs are reported", func() {
+			c.Expect(len(postponed)).Equals(1)
+			c.Expect(postponed[0].name).Equals("Child B")
+		})
+	})
 
-func Test__Postponed_specs_are_reported(t *testing.T) {
-	result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())
+	c.Specify("When some of the specs have previously been executed", func() {
+		result := runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{1}))
+		executed := result.executedSpecs
+		postponed := result.postponedSpecs
 
-	postponed := result.postponedSpecs
-	assertEquals(1, len(postponed), t)
-	assertEquals("Child B", postponed[0].name, t)
-}
+		c.Specify("previously executed specs are NOT reported", func() {
+			c.Expect(len(executed)).Equals(2)
+			c.Expect(executed[0].name).Equals("RootSpec")
+			c.Expect(executed[1].name).Equals("Child B")
 
-func Test__Previously_executed_specs_are_NOT_reported(t *testing.T) {
-	result := runSpecWithContext(DummySpecWithTwoChildren, newExplicitContext([]int{1}))
+			c.Expect(len(postponed)).Equals(0)
+		})
+	})
 
-	executed := result.executedSpecs
-	assertEquals(2, len(executed), t)
-	assertEquals("RootSpec", executed[0].name, t)
-	assertEquals("Child B", executed[1].name, t)
+	c.Specify("Postponed specs are scheduled for execution, until they all have been executed", func() {
+		r := NewRunner()
+		r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
+		r.Run()
 
-	postponed := result.postponedSpecs
-	assertEquals(0, len(postponed), t)
-}
+		runCounts := countSpecNames(r.executed)
+		c.Expect(len(runCounts)).Equals(3)
+		c.Expect(runCounts["DummySpecWithTwoChildren"]).Equals(2)
+		c.Expect(runCounts["Child A"]).Equals(1)
+		c.Expect(runCounts["Child B"]).Equals(1)
+	})
 
+	c.Specify("Multiple specs can be executed in one batch", func() {
+		r := NewRunner()
+		r.AddSpec("DummySpecWithOneChild", DummySpecWithOneChild)
+		r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
+		r.Run()
 
-// Scheduling specs for execution
-
-func Test__Postponed_specs_are_scheduled_for_execution_until_they_all_have_been_executed(t *testing.T) {
-	r := NewRunner()
-	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
-	r.Run()
-
-	runCounts := countSpecNames(r.executed)
-	assertEquals(3, len(runCounts), t)
-	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t)
-	assertEquals(1, runCounts["Child A"], t)
-	assertEquals(1, runCounts["Child B"], t)
-}
-
-func Test__Multiple_specs_can_be_executed_in_one_batch(t *testing.T) {
-	r := NewRunner()
-	r.AddSpec("DummySpecWithOneChild", DummySpecWithOneChild)
-	r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
-	r.Run()
-
-	runCounts := countSpecNames(r.executed)
-	assertEquals(1, runCounts["DummySpecWithOneChild"], t)
-	assertEquals(2, runCounts["DummySpecWithTwoChildren"], t)
+		runCounts := countSpecNames(r.executed)
+		c.Expect(runCounts["DummySpecWithOneChild"]).Equals(1)
+		c.Expect(runCounts["DummySpecWithTwoChildren"]).Equals(2)
+	})
 }
