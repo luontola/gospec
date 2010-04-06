@@ -53,23 +53,22 @@ func MatchersSpec(c nanospec.Context) {
 
 	c.Specify("Matcher: Equals", func() {
 		c.Specify("strings", func() {
-			expectation(c, "apple", Equals, "apple").Passes()
-			expectation(c, "apple", Equals, "orange").Fails().
-				WithMessage(
+			c.Expect(E("apple", Equals, "apple")).Matches(Passes)
+			c.Expect(E("apple", Equals, "orange")).Matches(FailsWithMessage(
 				"Expected 'orange' but was 'apple'",
-				"Did not expect 'orange' but was 'apple'")
+				"Did not expect 'orange' but was 'apple'"))
 		})
 		c.Specify("ints", func() {
-			expectation(c, 42, Equals, 42).Passes()
-			expectation(c, 42, Equals, 999).Fails()
+			c.Expect(E(42, Equals, 42)).Matches(Passes)
+			c.Expect(E(42, Equals, 999)).Matches(Fails)
 		})
 		c.Specify("structs", func() {
-			expectation(c, DummyStruct{42, 1}, Equals, DummyStruct{42, 2}).Passes()
-			expectation(c, DummyStruct{42, 1}, Equals, DummyStruct{999, 2}).Fails()
+			c.Expect(E(DummyStruct{42, 1}, Equals, DummyStruct{42, 2})).Matches(Passes)
+			c.Expect(E(DummyStruct{42, 1}, Equals, DummyStruct{999, 2})).Matches(Fails)
 		})
 		c.Specify("struct pointers", func() {
-			expectation(c, &DummyStruct{42, 1}, Equals, &DummyStruct{42, 2}).Passes()
-			expectation(c, &DummyStruct{42, 1}, Equals, &DummyStruct{999, 2}).Fails()
+			c.Expect(E(&DummyStruct{42, 1}, Equals, &DummyStruct{42, 2})).Matches(Passes)
+			c.Expect(E(&DummyStruct{42, 1}, Equals, &DummyStruct{999, 2})).Matches(Fails)
 		})
 	})
 
@@ -77,170 +76,166 @@ func MatchersSpec(c nanospec.Context) {
 		a1 := new(os.File)
 		a2 := a1
 		b := new(os.File)
-		expectation(c, a1, IsSame, a2).Passes()
-		expectation(c, a1, IsSame, b).Fails().
-			WithMessage(
+
+		c.Expect(E(a1, IsSame, a2)).Matches(Passes)
+		c.Expect(E(a1, IsSame, b)).Matches(FailsWithMessage(
 			fmt.Sprintf("Expected '%v' but was '%v'", b, a1),
-			fmt.Sprintf("Did not expect '%v' but was '%v'", b, a1))
-		expectation(c, 1, IsSame, b).GivesError("Expected a pointer, but was '1' of type 'int'")
-		expectation(c, b, IsSame, 1).GivesError("Expected a pointer, but was '1' of type 'int'")
+			fmt.Sprintf("Did not expect '%v' but was '%v'", b, a1)))
+
+		c.Specify("cannot compare values, but only pointers", func() {
+			c.Expect(E(1, IsSame, b)).Matches(GivesError("Expected a pointer, but was '1' of type 'int'"))
+			c.Expect(E(b, IsSame, 1)).Matches(GivesError("Expected a pointer, but was '1' of type 'int'"))
+		})
 	})
 
 	c.Specify("Matcher: IsNil", func() {
-		expectation(c, nil, IsNil).Passes()         // interface value nil
-		expectation(c, (*int)(nil), IsNil).Passes() // typed pointer nil inside an interface value
-		expectation(c, new(int), IsNil).Fails()
-		expectation(c, 1, IsNil).Fails().
-			WithMessage(
+		c.Expect(E(nil, IsNil)).Matches(Passes)         // interface value nil
+		c.Expect(E((*int)(nil), IsNil)).Matches(Passes) // typed pointer nil inside an interface value
+		c.Expect(E(new(int), IsNil)).Matches(Fails)
+		c.Expect(E(1, IsNil)).Matches(FailsWithMessage(
 			"Expected <nil> but was '1'",
-			"Did not expect <nil> but was '1'")
+			"Did not expect <nil> but was '1'"))
 	})
 
 	c.Specify("Matcher: IsTrue", func() {
-		expectation(c, true, IsTrue).Passes()
-		expectation(c, false, IsTrue).Fails().
-			WithMessage(
+		c.Expect(E(true, IsTrue)).Matches(Passes)
+		c.Expect(E(false, IsTrue)).Matches(FailsWithMessage(
 			"Expected 'true' but was 'false'",
-			"Did not expect 'true' but was 'false'")
+			"Did not expect 'true' but was 'false'"))
 	})
 
 	c.Specify("Matcher: IsFalse", func() {
-		expectation(c, false, IsFalse).Passes()
-		expectation(c, true, IsFalse).Fails().
-			WithMessage(
+		c.Expect(E(false, IsFalse)).Matches(Passes)
+		c.Expect(E(true, IsFalse)).Matches(FailsWithMessage(
 			"Expected 'false' but was 'true'",
-			"Did not expect 'false' but was 'true'")
+			"Did not expect 'false' but was 'true'"))
 	})
 
 	c.Specify("Matcher: Satisfies", func() {
 		value := 42
-		expectation(c, value, Satisfies, value < 100).Passes()
-		expectation(c, value, Satisfies, value > 100).Fails().
-			WithMessage(
+
+		c.Expect(E(value, Satisfies, value < 100)).Matches(Passes)
+		c.Expect(E(value, Satisfies, value > 100)).Matches(FailsWithMessage(
 			"Criteria not satisfied by '42'",
-			"Criteria not satisfied by '42'")
+			"Criteria not satisfied by '42'"))
 	})
 
 	c.Specify("Matcher: IsWithin", func() {
 		value := float64(3.141)
 		pi := float64(math.Pi)
-		expectation(c, value, IsWithin(0.001), pi).Passes()
-		expectation(c, value, IsWithin(0.0001), pi).Fails().
-			WithMessage(
+
+		c.Expect(E(value, IsWithin(0.001), pi)).Matches(Passes)
+		c.Expect(E(value, IsWithin(0.0001), pi)).Matches(FailsWithMessage(
 			"Expected '3.141592653589793' ± 0.0001 but was '3.141'",
-			"Did not expect '3.141592653589793' ± 0.0001 but was '3.141'")
+			"Did not expect '3.141592653589793' ± 0.0001 but was '3.141'"))
 
 		c.Specify("cannot compare ints", func() {
 			value := int(3)
 			pi := float64(math.Pi)
-			expectation(c, value, IsWithin(0.001), pi).GivesError("Expected a float, but was '3' of type 'int'")
-			expectation(c, pi, IsWithin(0.001), value).GivesError("Expected a float, but was '3' of type 'int'")
+
+			c.Expect(E(value, IsWithin(0.001), pi)).Matches(GivesError("Expected a float, but was '3' of type 'int'"))
+			c.Expect(E(pi, IsWithin(0.001), value)).Matches(GivesError("Expected a float, but was '3' of type 'int'"))
 		})
 	})
 
 	c.Specify("Matcher: Contains", func() {
 		values := []string{"one", "two", "three"}
 
-		expectation(c, values, Contains, "one").Passes()
-		expectation(c, values, Contains, "two").Passes()
-		expectation(c, values, Contains, "three").Passes()
+		c.Expect(E(values, Contains, "one")).Matches(Passes)
+		c.Expect(E(values, Contains, "two")).Matches(Passes)
+		c.Expect(E(values, Contains, "three")).Matches(Passes)
 
-		expectation(c, values, Contains, "four").Fails().
-			WithMessage(
+		c.Expect(E(values, Contains, "four")).Matches(FailsWithMessage(
 			"Expected 'four' to be in '[one two three]' but it was not",
-			"Did not expect 'four' to be in '[one two three]' but it was")
+			"Did not expect 'four' to be in '[one two three]' but it was"))
 	})
 
 	c.Specify("Matcher: ContainsAll", func() {
 		values := []string{"one", "two", "three"}
 
-		expectation(c, values, ContainsAll, Values()).Passes()
-		expectation(c, values, ContainsAll, Values("one")).Passes()
-		expectation(c, values, ContainsAll, Values("three", "two")).Passes()
-		expectation(c, values, ContainsAll, Values("one", "two", "three")).Passes()
+		c.Expect(E(values, ContainsAll, Values())).Matches(Passes)
+		c.Expect(E(values, ContainsAll, Values("one"))).Matches(Passes)
+		c.Expect(E(values, ContainsAll, Values("three", "two"))).Matches(Passes)
+		c.Expect(E(values, ContainsAll, Values("one", "two", "three"))).Matches(Passes)
 
-		expectation(c, values, ContainsAll, Values("four")).Fails()
-		expectation(c, values, ContainsAll, Values("one", "four")).Fails().
-			WithMessage(
+		c.Expect(E(values, ContainsAll, Values("four"))).Matches(Fails)
+		c.Expect(E(values, ContainsAll, Values("one", "four"))).Matches(FailsWithMessage(
 			"Expected all of '[one four]' to be in '[one two three]' but they were not",
-			"Did not expect all of '[one four]' to be in '[one two three]' but they were")
+			"Did not expect all of '[one four]' to be in '[one two three]' but they were"))
 	})
 
 	c.Specify("Matcher: ContainsAny", func() {
 		values := []string{"one", "two", "three"}
 
-		expectation(c, values, ContainsAny, Values("one")).Passes()
-		expectation(c, values, ContainsAny, Values("three", "two")).Passes()
-		expectation(c, values, ContainsAny, Values("four", "one", "five")).Passes()
-		expectation(c, values, ContainsAny, Values("one", "two", "three")).Passes()
+		c.Expect(E(values, ContainsAny, Values("one"))).Matches(Passes)
+		c.Expect(E(values, ContainsAny, Values("three", "two"))).Matches(Passes)
+		c.Expect(E(values, ContainsAny, Values("four", "one", "five"))).Matches(Passes)
+		c.Expect(E(values, ContainsAny, Values("one", "two", "three"))).Matches(Passes)
 
-		expectation(c, values, ContainsAny, Values()).Fails()
-		expectation(c, values, ContainsAny, Values("four")).Fails()
-		expectation(c, values, ContainsAny, Values("four", "five")).Fails().
-			WithMessage(
+		c.Expect(E(values, ContainsAny, Values())).Matches(Fails)
+		c.Expect(E(values, ContainsAny, Values("four"))).Matches(Fails)
+		c.Expect(E(values, ContainsAny, Values("four", "five"))).Matches(FailsWithMessage(
 			"Expected any of '[four five]' to be in '[one two three]' but they were not",
-			"Did not expect any of '[four five]' to be in '[one two three]' but they were")
+			"Did not expect any of '[four five]' to be in '[one two three]' but they were"))
 	})
 
 	c.Specify("Matcher: ContainsExactly", func() {
 		values := []string{"one", "two", "three"}
 
-		expectation(c, values, ContainsExactly, Values("one", "two", "three")).Passes()
-		expectation(c, values, ContainsExactly, Values("three", "one", "two")).Passes()
+		c.Expect(E(values, ContainsExactly, Values("one", "two", "three"))).Matches(Passes)
+		c.Expect(E(values, ContainsExactly, Values("three", "one", "two"))).Matches(Passes)
 
-		expectation(c, values, ContainsExactly, Values()).Fails()
-		expectation(c, values, ContainsExactly, Values("four")).Fails()
-		expectation(c, values, ContainsExactly, Values("one", "two")).Fails()
-		expectation(c, values, ContainsExactly, Values("one", "two", "three", "four")).Fails().
-			WithMessage(
+		c.Expect(E(values, ContainsExactly, Values())).Matches(Fails)
+		c.Expect(E(values, ContainsExactly, Values("four"))).Matches(Fails)
+		c.Expect(E(values, ContainsExactly, Values("one", "two"))).Matches(Fails)
+		c.Expect(E(values, ContainsExactly, Values("one", "two", "three", "four"))).Matches(FailsWithMessage(
 			"Expected exactly '[one two three four]' to be in '[one two three]' but they were not",
-			"Did not expect exactly '[one two three four]' to be in '[one two three]' but they were")
+			"Did not expect exactly '[one two three four]' to be in '[one two three]' but they were"))
 
 		// duplicate values are allowed
 		values = []string{"a", "a", "b"}
 
-		expectation(c, values, ContainsExactly, Values("a", "a", "b")).Passes()
-		expectation(c, values, ContainsExactly, Values("a", "b", "a")).Passes()
+		c.Expect(E(values, ContainsExactly, Values("a", "a", "b"))).Matches(Passes)
+		c.Expect(E(values, ContainsExactly, Values("a", "b", "a"))).Matches(Passes)
 
-		expectation(c, values, ContainsExactly, Values("a", "b", "b")).Fails()
-		expectation(c, values, ContainsExactly, Values("a", "a", "a", "b")).Fails()
-		expectation(c, values, ContainsExactly, Values("a", "a", "b", "b")).Fails()
+		c.Expect(E(values, ContainsExactly, Values("a", "b", "b"))).Matches(Fails)
+		c.Expect(E(values, ContainsExactly, Values("a", "a", "a", "b"))).Matches(Fails)
+		c.Expect(E(values, ContainsExactly, Values("a", "a", "b", "b"))).Matches(Fails)
 	})
 
 	c.Specify("Matcher: ContainsInOrder", func() {
 		values := []string{"one", "two", "three"}
 
-		expectation(c, values, ContainsInOrder, Values("one", "two", "three")).Passes()
+		c.Expect(E(values, ContainsInOrder, Values("one", "two", "three"))).Matches(Passes)
 
-		expectation(c, values, ContainsInOrder, Values()).Fails()
-		expectation(c, values, ContainsInOrder, Values("one", "two")).Fails()
-		expectation(c, values, ContainsInOrder, Values("one", "two", "four")).Fails()
-		expectation(c, values, ContainsInOrder, Values("one", "two", "three", "four")).Fails()
-		expectation(c, values, ContainsInOrder, Values("three", "one", "two")).Fails().
-			WithMessage(
+		c.Expect(E(values, ContainsInOrder, Values())).Matches(Fails)
+		c.Expect(E(values, ContainsInOrder, Values("one", "two"))).Matches(Fails)
+		c.Expect(E(values, ContainsInOrder, Values("one", "two", "four"))).Matches(Fails)
+		c.Expect(E(values, ContainsInOrder, Values("one", "two", "three", "four"))).Matches(Fails)
+		c.Expect(E(values, ContainsInOrder, Values("three", "one", "two"))).Matches(FailsWithMessage(
 			"Expected in order '[three one two]' to be in '[one two three]' but they were not",
-			"Did not expect in order '[three one two]' to be in '[one two three]' but they were")
+			"Did not expect in order '[three one two]' to be in '[one two three]' but they were"))
 	})
 
 	c.Specify("Matcher: ContainsInPartialOrder", func() {
 		values := []string{"1", "2", "2", "3", "4"}
 
-		expectation(c, values, ContainsInPartialOrder, Values()).Passes()
-		expectation(c, values, ContainsInPartialOrder, Values("1")).Passes()
-		expectation(c, values, ContainsInPartialOrder, Values("1", "2", "2")).Passes()
-		expectation(c, values, ContainsInPartialOrder, Values("1", "2", "3")).Passes()
-		expectation(c, values, ContainsInPartialOrder, Values("1", "2", "2", "3", "4")).Passes()
+		c.Expect(E(values, ContainsInPartialOrder, Values())).Matches(Passes)
+		c.Expect(E(values, ContainsInPartialOrder, Values("1"))).Matches(Passes)
+		c.Expect(E(values, ContainsInPartialOrder, Values("1", "2", "2"))).Matches(Passes)
+		c.Expect(E(values, ContainsInPartialOrder, Values("1", "2", "3"))).Matches(Passes)
+		c.Expect(E(values, ContainsInPartialOrder, Values("1", "2", "2", "3", "4"))).Matches(Passes)
 
-		expectation(c, values, ContainsInPartialOrder, Values("1", "1")).Fails()
-		expectation(c, values, ContainsInPartialOrder, Values("2", "1")).Fails()
-		expectation(c, values, ContainsInPartialOrder, Values("2", "2", "2")).Fails()
-		expectation(c, values, ContainsInPartialOrder, Values("1", "4", "3")).Fails().
-			WithMessage(
+		c.Expect(E(values, ContainsInPartialOrder, Values("1", "1"))).Matches(Fails)
+		c.Expect(E(values, ContainsInPartialOrder, Values("2", "1"))).Matches(Fails)
+		c.Expect(E(values, ContainsInPartialOrder, Values("2", "2", "2"))).Matches(Fails)
+		c.Expect(E(values, ContainsInPartialOrder, Values("1", "4", "3"))).Matches(FailsWithMessage(
 			"Expected in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were not",
-			"Did not expect in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were")
+			"Did not expect in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were"))
 	})
 
 	c.Specify("Conversions for containment matchers", func() {
+
 		c.Specify("array to array", func() {
 			values := [...]string{"one", "two", "three"}
 
@@ -312,52 +307,61 @@ func (this DummyStruct) String() string {
 
 // Test utilities
 
-func expectation(c nanospec.Context, actual interface{}, matcher Matcher, expected ...interface{}) *matchAssert {
-	match, pos, neg, err := matcher.Match(actual, expected)
-	return &matchAssert{match, pos, neg, err, c}
-}
-
-type matchAssert struct {
+type ExpectationHolder struct {
 	match bool
 	pos   os.Error
 	neg   os.Error
 	err   os.Error
-	c     nanospec.Context
 }
 
-func (this *matchAssert) Passes() *matchAssert {
-	if this.err != nil {
-		this.c.Errorf("expected to pass, but had an error: %v", this.err)
-	}
-	if !this.match {
-		this.c.Errorf("expected to pass, but failed")
-	}
-	return this
+func E(actual interface{}, matcher Matcher, expected ...interface{}) *ExpectationHolder {
+	match, pos, neg, err := matcher.Match(actual, expected)
+	return &ExpectationHolder{match, pos, neg, err}
 }
 
-func (this *matchAssert) Fails() *matchAssert {
-	if this.err != nil {
-		this.c.Errorf("expected to fail, but had an error: %v", this.err)
+func Passes(v interface{}) os.Error {
+	ex := v.(*ExpectationHolder)
+	if ex.match && ex.err == nil {
+		return nil
 	}
-	if this.match {
-		this.c.Errorf("expected to fail, but passed")
-	}
-	return this
+	return ex.ToError()
 }
 
-func (this *matchAssert) WithMessage(expectedPos string, expectedNeg string) *matchAssert {
-	this.c.Expect(this.pos.String()).Equals(expectedPos)
-	this.c.Expect(this.neg.String()).Equals(expectedNeg)
-	return this
+func Fails(v interface{}) os.Error {
+	ex := v.(*ExpectationHolder)
+	if !ex.match && ex.err == nil {
+		return nil
+	}
+	return ex.ToError()
 }
 
-func (this *matchAssert) GivesError(expectedErr string) *matchAssert {
-	if this.err == nil {
-		this.c.Errorf("expected have an error, but did not")
-	} else {
-		this.c.Expect(this.err.String()).Equals(expectedErr)
+func FailsWithMessage(pos string, neg string) nanospec.Matcher {
+	return func(v interface{}) os.Error {
+		ex := v.(*ExpectationHolder)
+		if !ex.match &&
+			ex.pos.String() == pos &&
+			ex.neg.String() == neg &&
+			ex.err == nil {
+			return nil
+		}
+		return ex.ToError()
 	}
-	return this
+}
+
+func GivesError(err string) nanospec.Matcher {
+	return func(v interface{}) os.Error {
+		ex := v.(*ExpectationHolder)
+		if ex.err != nil && ex.err.String() == err {
+			return nil
+		}
+		return ex.ToError()
+	}
+}
+
+func (this *ExpectationHolder) ToError() os.Error {
+	return os.ErrorString(fmt.Sprintf(
+		"Mather failed its expectations\n\tmatch: %v\n\tpos: %v\n\tneg: %v\n\terr: %v",
+		this.match, this.pos, this.neg, this.err))
 }
 
 
