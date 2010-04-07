@@ -85,6 +85,7 @@ Version History
 *UPGRADE NOTES:* In your spec suite, replace `r.AddSpec("SomeSpec", SomeSpec)` with `r.AddSpec(SomeSpec)`.
 
 - Retrieve the spec function names using reflection
+- Improved documentation and provided a hello world project template
 - ...
 
 **1.1.0 (2010-03-08)**
