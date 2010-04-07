@@ -11,4 +11,3 @@ func TestAllSpecs(t *testing.T) {
 	r.AddSpec(HelloSpec)
 	gospec.MainGoTest(r, t)
 }
-

@@ -12,4 +12,3 @@ func HelloSpec(c gospec.Context) {
 		c.Expect(SayHello("World"), Equals, "Hello, World")
 	})
 }
-
