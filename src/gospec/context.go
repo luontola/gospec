@@ -19,11 +19,6 @@ type Context interface {
 	// specification as code.
 	Specify(name string, closure func())
 
-	// Makes an assertion. For example:
-	//    c.Then(theAnswer).Should.Equal(42);
-	//    c.Then(theAnswer).ShouldNot.Equal(666);
-	Then(actual interface{}) *MatcherBuilder
-
 	// Makes an expectation. For example:
 	//    c.Expect(theAnswer, Equals, 42)
 	//    c.Expect(theAnswer, Not(Equals), 666)
@@ -99,10 +94,6 @@ func (c *taskContext) execute(spec *specRun) {
 
 func (c *taskContext) postpone(spec *specRun) {
 	c.postponedSpecs.PushBack(spec)
-}
-
-func (c *taskContext) Then(actual interface{}) *MatcherBuilder {
-	return newMatcherBuilder(actual, callerLocation(), c.currentSpec)
 }
 
 func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {

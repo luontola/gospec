@@ -152,7 +152,7 @@ func ResultsSpec(c nanospec.Context) {
 		runner := NewRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			if i == 1 {
-				c.Then(10).Should.Equal(20)
+				c.Expect(10, Equals, 20)
 			}
 			i++
 			c.Specify("Child A", func() {})
@@ -181,8 +181,8 @@ func ResultsSpec(c nanospec.Context) {
 			c.Specify("Child B", func() {
 				i = 2
 			})
-			c.Then(10).Should.Equal(20)     // stays same - will be reported once
-			c.Then(10 + i).Should.Equal(20) // changes - will be reported many times
+			c.Expect(10, Equals, 20)   // stays same - will be reported once
+			c.Expect(10+i, Equals, 20) // changes - will be reported many times
 		})
 		runner.Run()
 
@@ -210,8 +210,8 @@ func ResultsSpec(c nanospec.Context) {
 				c.Specify("Child B", func() {
 					i = 2
 				})
-				c.Then(10).Should.Equal(20)     // stays same - will be reported once
-				c.Then(10 + i).Should.Equal(20) // changes - will be reported many times
+				c.Expect(10, Equals, 20)   // stays same - will be reported once
+				c.Expect(10+i, Equals, 20) // changes - will be reported many times
 			})
 		})
 		runner.Run()

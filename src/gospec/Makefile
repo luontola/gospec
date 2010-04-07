@@ -7,7 +7,6 @@ GOFILES=\
 	funcname.go\
 	location.go\
 	main.go\
-	matcher.go\
 	new_matchers.go\
 	printer.go\
 	print_format.go\

@@ -86,6 +86,7 @@ Version History
 
 - Retrieve the spec function names using reflection
 - Improved documentation and provided a hello world project template
+- Removed the deprecated `c.Then()` syntax
 - ...
 
 **1.1.0 (2010-03-08)**

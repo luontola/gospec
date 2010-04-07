@@ -6,43 +6,8 @@ package gospec
 
 import (
 	"exp/iterable"
-	"fmt"
-	"strings"
-	"testing"
 )
 
-
-// Generic test utilities
-
-var testSpy = ""
-
-func resetTestSpy() {
-	testSpy = ""
-}
-
-func assertTestSpyHas(expected string, t *testing.T) {
-	assertEquals(expected, testSpy, t)
-}
-
-// TODO: remove when the c.Then() syntax is removed
-func assertEquals(expected interface{}, actual interface{}, t *testing.T) {
-	if expected != actual {
-		t.Error(fmt.Sprintf("Expected '%v' but was '%v'", expected, actual))
-	}
-}
-
-func assertEqualsTrim(expected string, actual string, t *testing.T) {
-	assertEquals(strings.TrimSpace(expected), strings.TrimSpace(actual), t)
-}
-
-func assertHasPrefix(prefix string, actual string, t *testing.T) {
-	if !strings.HasPrefix(actual, prefix) {
-		t.Error(fmt.Sprintf("Expected prefix '%v' but it was '%v'", prefix, actual))
-	}
-}
-
-
-// GoSpec specific test utilites
 
 func runSpec(spec func(Context)) *ResultCollector {
 	r := NewRunner()
@@ -71,7 +36,13 @@ func countSpecNames(specs iterable.Iterable) map[string]int {
 }
 
 
-// Test dummies for all test cases
+// Test dummies
+
+var testSpy = ""
+
+func resetTestSpy() {
+	testSpy = ""
+}
 
 func DummySpecWithNoChildren(c Context) {
 	testSpy += "root"
