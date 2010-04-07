@@ -30,6 +30,8 @@ When new versions of GoSpec are released, you can update it by pulling the lates
 
 See "Version History" for any additional upgrade notes.
 
+(If you want to develop GoSpec and run its tests with `make test`, you must first install GoSpec's bootstrap testing framework, [NanoSpec.go](http://github.com/orfjackal/nanospec.go), but regular users of GoSpec don't need to install it.)
+
 
 ### Sample Project
 
