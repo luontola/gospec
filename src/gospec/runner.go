@@ -29,10 +29,15 @@ func NewRunner() *Runner {
 	return r
 }
 
-// Adds a spec for later execution. The name of the spec method must be provided,
-// because the program does not know how to find it out at runtime. Example:
-//     r.AddSpec("SomeSpec", SomeSpec);
-func (r *Runner) AddSpec(name string, closure func(Context)) {
+// Adds a spec for later execution. Example:
+//     r.AddSpec(SomeSpec);
+func (r *Runner) AddSpec(closure func(Context)) {
+	r.AddNamedSpec(functionName(closure), closure)
+}
+
+// Adds a spec for later execution. Uses the provided name instead of
+// retrieving the name of the spec function with reflection.
+func (r *Runner) AddNamedSpec(name string, closure func(Context)) {
 	task := newScheduledTask(name, closure, newInitialContext())
 	r.scheduled.Push(task)
 }

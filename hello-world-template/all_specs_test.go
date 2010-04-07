@@ -8,7 +8,7 @@ import (
 
 func TestAllSpecs(t *testing.T) {
 	r := gospec.NewRunner()
-	r.AddSpec("HelloSpec", HelloSpec)
+	r.AddSpec(HelloSpec)
 	gospec.MainGoTest(r, t)
 }
 

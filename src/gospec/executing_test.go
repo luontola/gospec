@@ -43,24 +43,24 @@ func ExecutingSpecsSpec(c nanospec.Context) {
 
 	c.Specify("Postponed specs are scheduled for execution, until they all have been executed", func() {
 		r := NewRunner()
-		r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
+		r.AddSpec(DummySpecWithTwoChildren)
 		r.Run()
 
 		runCounts := countSpecNames(r.executed)
 		c.Expect(len(runCounts)).Equals(3)
-		c.Expect(runCounts["DummySpecWithTwoChildren"]).Equals(2)
+		c.Expect(runCounts["gospec.DummySpecWithTwoChildren"]).Equals(2)
 		c.Expect(runCounts["Child A"]).Equals(1)
 		c.Expect(runCounts["Child B"]).Equals(1)
 	})
 
 	c.Specify("Multiple specs can be executed in one batch", func() {
 		r := NewRunner()
-		r.AddSpec("DummySpecWithOneChild", DummySpecWithOneChild)
-		r.AddSpec("DummySpecWithTwoChildren", DummySpecWithTwoChildren)
+		r.AddSpec(DummySpecWithOneChild)
+		r.AddSpec(DummySpecWithTwoChildren)
 		r.Run()
 
 		runCounts := countSpecNames(r.executed)
-		c.Expect(runCounts["DummySpecWithOneChild"]).Equals(1)
-		c.Expect(runCounts["DummySpecWithTwoChildren"]).Equals(2)
+		c.Expect(runCounts["gospec.DummySpecWithOneChild"]).Equals(1)
+		c.Expect(runCounts["gospec.DummySpecWithTwoChildren"]).Equals(2)
 	})
 }

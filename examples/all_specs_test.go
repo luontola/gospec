@@ -19,13 +19,12 @@ import (
 func TestAllSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 
-	// List all specs here. The name must be given as a string, because GoSpec
-	// doesn't know how to get it from the function reference using reflection.
-	r.AddSpec("ExecutionModelSpec", ExecutionModelSpec)
-	r.AddSpec("ExpectationSyntaxSpec", ExpectationSyntaxSpec)
-	r.AddSpec("FibSpec", FibSpec)
-	r.AddSpec("StackSpec", StackSpec)
+	// List all specs here
+	r.AddSpec(ExecutionModelSpec)
+	r.AddSpec(ExpectationSyntaxSpec)
+	r.AddSpec(FibSpec)
+	r.AddSpec(StackSpec)
 
-	// Run GoSpec and report any errors to gotest's `testing.T` instance.
+	// Run GoSpec and report any errors to gotest's `testing.T` instance
 	gospec.MainGoTest(r, t)
 }

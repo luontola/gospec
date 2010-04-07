@@ -50,7 +50,7 @@ func BenchmarkReport(b *testing.B) {
 func runSpecs() *Runner {
 	runner := NewRunner()
 	for i := 0; i < ROOT_SPEC_COUNT; i++ {
-		runner.AddSpec(fmt.Sprintf("DummySpecForBenchmarks%v", i), DummySpecForBenchmarks)
+		runner.AddNamedSpec(fmt.Sprintf("DummySpecForBenchmarks%v", i), DummySpecForBenchmarks)
 	}
 	runner.Run()
 	return runner

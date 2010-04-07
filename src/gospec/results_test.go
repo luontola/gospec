@@ -108,10 +108,10 @@ func ResultsSpec(c nanospec.Context) {
 	})
 	c.Specify("Case: spec with multiple nested children", func() {
 		runner := NewRunner()
-		runner.AddSpec("DummySpecWithMultipleNestedChildren", DummySpecWithMultipleNestedChildren)
+		runner.AddSpec(DummySpecWithMultipleNestedChildren)
 		runner.Run()
 		c.Expect(runner.Results()).Matches(ReportIs(`
-- DummySpecWithMultipleNestedChildren
+- gospec.DummySpecWithMultipleNestedChildren
   - Child A
     - Child AA
     - Child AB
@@ -150,7 +150,7 @@ func ResultsSpec(c nanospec.Context) {
 	c.Specify("When spec passes on 1st run but fails on 2nd run", func() {
 		i := 0
 		runner := NewRunner()
-		runner.AddSpec("RootSpec", func(c Context) {
+		runner.AddNamedSpec("RootSpec", func(c Context) {
 			if i == 1 {
 				c.Then(10).Should.Equal(20)
 			}
@@ -173,7 +173,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 	c.Specify("When root spec fails sporadically", func() {
 		runner := NewRunner()
-		runner.AddSpec("RootSpec", func(c Context) {
+		runner.AddNamedSpec("RootSpec", func(c Context) {
 			i := 0
 			c.Specify("Child A", func() {
 				i = 1
@@ -201,7 +201,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 	c.Specify("When non-root spec fails sporadically", func() {
 		runner := NewRunner()
-		runner.AddSpec("RootSpec", func(c Context) {
+		runner.AddNamedSpec("RootSpec", func(c Context) {
 			c.Specify("Failing", func() {
 				i := 0
 				c.Specify("Child A", func() {

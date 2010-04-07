@@ -82,6 +82,9 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
+*UPGRADE NOTES:* In your spec suite, replace `r.AddSpec("SomeSpec", SomeSpec)` with `r.AddSpec(SomeSpec)`.
+
+- Retrieve the spec function names using reflection
 - ...
 
 **1.1.0 (2010-03-08)**

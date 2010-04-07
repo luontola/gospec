@@ -46,7 +46,7 @@ func ExecutionModelSpec(c nanospec.Context) {
 
 	c.Specify("Specs with nested siblings: eventually all siblings are executed, one at a time, in isolation", func() {
 		r := NewRunner()
-		r.AddSpec("RootSpec", DummySpecWithMultipleNestedChildren)
+		r.AddSpec(DummySpecWithMultipleNestedChildren)
 
 		// Execute manually instead of calling Run(), in order to avoid running
 		// the specs multi-threadedly, which would mess up the test spy.

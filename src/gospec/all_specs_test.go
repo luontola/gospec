@@ -15,6 +15,7 @@ func TestAllSpecs(t *testing.T) {
 	nanospec.Run(t, ExecutingSpecsSpec)
 	nanospec.Run(t, ExecutionModelSpec)
 	nanospec.Run(t, ExpectationsSpec)
+	nanospec.Run(t, FuncNameSpec)
 	nanospec.Run(t, LocationSpec)
 	nanospec.Run(t, MatcherMessagesSpec)
 	nanospec.Run(t, MatchersSpec)

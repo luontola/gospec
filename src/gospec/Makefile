@@ -4,6 +4,7 @@ TARG=gospec
 GOFILES=\
 	context.go\
 	error.go\
+	funcname.go\
 	location.go\
 	main.go\
 	matcher.go\

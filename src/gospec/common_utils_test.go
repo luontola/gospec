@@ -46,7 +46,7 @@ func assertHasPrefix(prefix string, actual string, t *testing.T) {
 
 func runSpec(spec func(Context)) *ResultCollector {
 	r := NewRunner()
-	r.AddSpec("RootSpec", spec)
+	r.AddNamedSpec("RootSpec", spec)
 	r.Run()
 	return r.Results()
 }
