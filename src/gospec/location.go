@@ -25,7 +25,7 @@ func callerLocation() *Location {
 }
 
 func newLocation(n int) *Location {
-	if _, file, line, ok := runtime.Caller(n + 2); ok { // TODO: is the change from n+1 to n+2 a bug in runtime.Caller or not?
+	if _, file, line, ok := runtime.Caller(n + 1); ok {
 		return &Location{filename(file), line}
 	}
 	return nil
