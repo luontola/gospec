@@ -9,7 +9,7 @@ import (
 )
 
 
-func ExecutingSpecsSpec(c nanospec.Context) {
+func ContextSpec(c nanospec.Context) {
 
 	c.Specify("When specs are executed", func() {
 		result := runSpecWithContext(DummySpecWithTwoChildren, newInitialContext())

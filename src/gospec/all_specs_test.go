@@ -12,7 +12,7 @@ import (
 
 func TestAllSpecs(t *testing.T) {
 	nanospec.Run(t, ConcurrencySpec)
-	nanospec.Run(t, ExecutingSpecsSpec)
+	nanospec.Run(t, ContextSpec)
 	nanospec.Run(t, ExecutionModelSpec)
 	nanospec.Run(t, ExpectationsSpec)
 	nanospec.Run(t, FuncNameSpec)
