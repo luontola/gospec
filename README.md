@@ -90,7 +90,7 @@ Version History
 - Improved documentation and provided a hello world project template
 - Removed the deprecated `c.Then()` syntax
 - ...
-- Upgraded to Go tip@2010-04-06
+- Upgraded to Go release.2010-04-13
 
 **1.1.0 (2010-03-08)**
 
