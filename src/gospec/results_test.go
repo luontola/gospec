@@ -230,19 +230,37 @@ func ResultsSpec(c nanospec.Context) {
 `))
 		})
 	})
+
+	c.Specify("When a spec panics", func() {
+		runner := NewRunner()
+		runner.AddNamedSpec("RootSpec", func(c Context) {
+			panic("boom!")
+		})
+		runner.Run()
+
+		c.Specify("then the panic's stack trace is reported", func() {
+			results := resultToString(runner.Results())
+			containsPanic := strings.Index(results, "panic: boom!") > 0
+			// TODO: test for stack trace
+
+			c.Expect(results).Satisfies(containsPanic)
+		})
+	})
 }
 
 func ReportIs(expected string) nanospec.Matcher {
 	return func(v interface{}) os.Error {
-		out := new(bytes.Buffer)
-		results := v.(*ResultCollector)
-		results.Visit(NewPrinter(SimplePrintFormat(out)))
-
-		actual := strings.TrimSpace(out.String())
+		actual := strings.TrimSpace(resultToString(v.(*ResultCollector)))
 		expected = strings.TrimSpace(expected)
 		if actual != expected {
 			return os.ErrorString("Expected report:\n" + expected + "\n\nBut was:\n" + actual)
 		}
 		return nil
 	}
+}
+
+func resultToString(result *ResultCollector) string {
+	out := new(bytes.Buffer)
+	result.Visit(NewPrinter(SimplePrintFormat(out)))
+	return out.String()
 }

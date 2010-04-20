@@ -37,7 +37,11 @@ func (spec *specRun) isUnseen() bool       { return spec.path.isBeyond(spec.targ
 func (spec *specRun) isFirstChild() bool   { return spec.path.lastIndex() == 0 }
 
 func (spec *specRun) execute() {
-	spec.closure()
+	exception := recoverOnPanic(spec.closure)
+	if exception != nil {
+		error := &Error{exception.String(), nil} // TODO: convert stack trace to location?
+		spec.AddFatalError(error)
+	}
 }
 
 func (spec *specRun) AddError(error *Error) {

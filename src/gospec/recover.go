@@ -5,6 +5,7 @@
 package gospec
 
 import (
+	"fmt"
 	"runtime"
 )
 
@@ -14,11 +15,16 @@ type exception struct {
 	StackTrace []*runtime.Func
 }
 
+func (this *exception) String() string {
+	return fmt.Sprintf("panic: %v", this.Cause)
+}
+
+
 func recoverOnPanic(f func()) (err *exception) {
 	defer func() {
 		if cause := recover(); cause != nil {
 			st := stackTraceOfPanic()
-			st = cutStackTraceAt(functionToFunc(f), st)
+			st = cutStackTraceAt(functionToFunc(recoverOnPanic), st)
 			err = &exception{cause, st}
 		}
 	}()
@@ -51,7 +57,7 @@ func asFuncArray(ptrs []uintptr) []*runtime.Func {
 func cutStackTraceAt(cutpoint *runtime.Func, stacktrace []*runtime.Func) []*runtime.Func {
 	for i, f := range stacktrace {
 		if f.Entry() == cutpoint.Entry() {
-			return stacktrace[0 : i+1]
+			return stacktrace[0:i]
 		}
 	}
 	return stacktrace
