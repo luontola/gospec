@@ -20,5 +20,6 @@ func TestAllSpecs(t *testing.T) {
 	nanospec.Run(t, MatcherMessagesSpec)
 	nanospec.Run(t, MatchersSpec)
 	nanospec.Run(t, PrinterSpec)
+	nanospec.Run(t, RecoverSpec)
 	nanospec.Run(t, ResultsSpec)
 }

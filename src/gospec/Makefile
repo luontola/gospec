@@ -10,6 +10,7 @@ GOFILES=\
 	matchers.go\
 	printer.go\
 	print_format.go\
+	recover.go\
 	results.go\
 	runner.go\
 	specification.go\

@@ -11,10 +11,14 @@ import (
 
 
 func functionName(function interface{}) string {
-	fval := reflect.NewValue(function).(*reflect.FuncValue)
-	f := runtime.FuncForPC(fval.Get())
+	f := functionToFunc(function)
 	if f != nil {
 		return f.Name()
 	}
 	return "<unknown function>"
+}
+
+func functionToFunc(function interface{}) *runtime.Func {
+	fval := reflect.NewValue(function).(*reflect.FuncValue)
+	return runtime.FuncForPC(fval.Get())
 }
