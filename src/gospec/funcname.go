@@ -9,13 +9,20 @@ import (
 	"runtime"
 )
 
+const unknownFunction = "<unknown function>"
 
-func functionName(function interface{}) string {
-	f := functionToFunc(function)
-	if f != nil {
+func functionNameFromPC(pc uintptr) string {
+	if f := runtime.FuncForPC(pc); f != nil {
 		return f.Name()
 	}
-	return "<unknown function>"
+	return unknownFunction
+}
+
+func functionName(function interface{}) string {
+	if f := functionToFunc(function); f != nil {
+		return f.Name()
+	}
+	return unknownFunction
 }
 
 func functionToFunc(function interface{}) *runtime.Func {

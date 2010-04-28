@@ -30,19 +30,25 @@ func (this *defaultPrintFormat) PrintPassing(nestingLevel int, name string) {
 	if nestingLevel == 0 {
 		fmt.Fprintf(this.out, "\n%v\n", name)
 	} else {
-		indent := indent(nestingLevel)
-		fmt.Fprintf(this.out, "%v- %v\n", indent, name)
+		fmt.Fprintf(this.out, "%v- %v\n", indent(nestingLevel), name)
 	}
 }
 
 func (this *defaultPrintFormat) PrintFailing(nestingLevel int, name string, errors []*Error) {
-	indent := indent(nestingLevel)
 	// TODO: use colors (red)
-	fmt.Fprintf(this.out, "%v- %v [FAIL]\n\n", indent, name)
+	fmt.Fprintf(this.out, "%v- %v [FAIL]\n\n", indent(nestingLevel), name)
 	for _, error := range errors {
-		fmt.Fprintf(this.out, "*** %v\n    at %v\n\n", error.Message, error.Location)
+		this.printError(error)
 	}
 	fmt.Fprint(this.out, "\n")
+}
+
+func (this *defaultPrintFormat) printError(error *Error) {
+	fmt.Fprintf(this.out, "*** %v\n", error.Message)
+	for _, loc := range error.StackTrace {
+		fmt.Fprintf(this.out, "    %v()  at  %v:%v\n", loc.Name(), loc.File(), loc.Line())
+	}
+	fmt.Fprintf(this.out, "\n")
 }
 
 func (this *defaultPrintFormat) PrintSummary(passCount int, failCount int) {
@@ -63,15 +69,20 @@ type simplePrintFormat struct {
 }
 
 func (this *simplePrintFormat) PrintPassing(nestingLevel int, name string) {
-	indent := indent(nestingLevel)
-	fmt.Fprintf(this.out, "%v- %v\n", indent, name)
+	fmt.Fprintf(this.out, "%v- %v\n", indent(nestingLevel), name)
 }
 
 func (this *simplePrintFormat) PrintFailing(nestingLevel int, name string, errors []*Error) {
-	indent := indent(nestingLevel)
-	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent, name)
+	fmt.Fprintf(this.out, "%v- %v [FAIL]\n", indent(nestingLevel), name)
 	for _, error := range errors {
-		fmt.Fprintf(this.out, "%v    %v\n", indent, error.Message)
+		this.printError(error)
+	}
+}
+
+func (this *simplePrintFormat) printError(error *Error) {
+	fmt.Fprintf(this.out, "*** %v\n", error.Message)
+	for _, loc := range error.StackTrace {
+		fmt.Fprintf(this.out, "    at %v\n", loc.FileName())
 	}
 }
 

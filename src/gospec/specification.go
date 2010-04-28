@@ -39,8 +39,7 @@ func (spec *specRun) isFirstChild() bool   { return spec.path.lastIndex() == 0 }
 func (spec *specRun) execute() {
 	exception := recoverOnPanic(spec.closure)
 	if exception != nil {
-		error := &Error{exception.String(), nil} // TODO: convert stack trace to location?
-		spec.AddFatalError(error)
+		spec.AddFatalError(exception.ToError())
 	}
 }
 

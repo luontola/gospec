@@ -12,7 +12,11 @@ import (
 
 type exception struct {
 	Cause      interface{}
-	StackTrace []*runtime.Func
+	StackTrace []*Location
+}
+
+func (this *exception) ToError() *Error {
+	return newError(this.String(), this.StackTrace)
 }
 
 func (this *exception) String() string {
@@ -23,18 +27,21 @@ func (this *exception) String() string {
 func recoverOnPanic(f func()) (err *exception) {
 	defer func() {
 		if cause := recover(); cause != nil {
-			st := stackTraceOfPanic()
-			st = cutStackTraceAt(functionToFunc(recoverOnPanic), st)
-			err = &exception{cause, st}
+			callers := stackTraceOfPanic()
+			callers = cutStackTraceAt(recoverOnPanic, callers)
+			err = &exception{cause, asLocationArray(callers)}
 		}
 	}()
 	f()
 	return
 }
 
-func stackTraceOfPanic() []*runtime.Func {
+func stackTraceOfPanic() []uintptr {
+	// When changing this method, remember to test the array resizing code
+	// by temporarily setting the initial array size to 1.
 	callers := make([]uintptr, 16)
 	for {
+		// Magic number for correct operation when called from recoverOnPanic()
 		count := runtime.Callers(4, callers)
 		if count == len(callers) {
 			callers = make([]uintptr, len(callers)*2)
@@ -43,22 +50,25 @@ func stackTraceOfPanic() []*runtime.Func {
 			break
 		}
 	}
-	return asFuncArray(callers)
+	return callers
 }
 
-func asFuncArray(ptrs []uintptr) []*runtime.Func {
-	result := make([]*runtime.Func, len(ptrs))
-	for i, ptr := range ptrs {
-		result[i] = runtime.FuncForPC(ptr)
-	}
-	return result
-}
+func cutStackTraceAt(cutpoint_ interface{}, callers []uintptr) []uintptr {
+	cutpoint := functionToFunc(cutpoint_).Entry()
 
-func cutStackTraceAt(cutpoint *runtime.Func, stacktrace []*runtime.Func) []*runtime.Func {
-	for i, f := range stacktrace {
-		if f.Entry() == cutpoint.Entry() {
-			return stacktrace[0:i]
+	for i, ptr := range callers {
+		current := runtime.FuncForPC(ptr).Entry()
+		if current == cutpoint {
+			return callers[0:i]
 		}
 	}
-	return stacktrace
+	return callers
+}
+
+func asLocationArray(pcs []uintptr) []*Location {
+	result := make([]*Location, len(pcs))
+	for i, pc := range pcs {
+		result[i] = locationForPC(pc)
+	}
+	return result
 }

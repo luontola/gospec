@@ -86,6 +86,7 @@ Version History
 
 *UPGRADE NOTES:* In your spec suite, replace `r.AddSpec("SomeSpec", SomeSpec)` with `r.AddSpec(SomeSpec)`.
 
+- Recover from panics in specs and report their stack traces
 - Retrieve the spec function names using reflection
 - Improved documentation and provided a hello world project template
 - Removed the deprecated `c.Then()` syntax

@@ -126,22 +126,22 @@ func ResultsSpec(c nanospec.Context) {
 
 	c.Specify("When specs fail", func() {
 		a1 := newSpecRun("Failing", nil, nil, nil)
-		a1.AddError(newError("X did not equal Y", currentLocation()))
+		a1.AddError(newError("X did not equal Y", []*Location{}))
 		results.Update(a1)
 
 		b1 := newSpecRun("Passing", nil, nil, nil)
 		b2 := newSpecRun("Child failing", nil, b1, nil)
-		b2.AddError(newError("moon was not cheese", currentLocation()))
+		b2.AddError(newError("moon was not cheese", []*Location{}))
 		results.Update(b1)
 		results.Update(b2)
 
 		c.Specify("then the errors are reported", func() {
 			c.Expect(results).Matches(ReportIs(`
 - Failing [FAIL]
-    X did not equal Y
+*** X did not equal Y
 - Passing
   - Child failing [FAIL]
-      moon was not cheese
+*** moon was not cheese
 
 3 specs, 2 failures
 `))
@@ -163,7 +163,8 @@ func ResultsSpec(c nanospec.Context) {
 		c.Specify("then the error is reported", func() {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec [FAIL]
-    Expected '20' but was '10'
+*** Expected '20' but was '10'
+    at results_test.go
   - Child A
   - Child B
 
@@ -189,9 +190,12 @@ func ResultsSpec(c nanospec.Context) {
 		c.Specify("then the errors are merged together", func() {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec [FAIL]
-    Expected '20' but was '10'
-    Expected '20' but was '11'
-    Expected '20' but was '12'
+*** Expected '20' but was '10'
+    at results_test.go
+*** Expected '20' but was '11'
+    at results_test.go
+*** Expected '20' but was '12'
+    at results_test.go
   - Child A
   - Child B
 
@@ -220,9 +224,12 @@ func ResultsSpec(c nanospec.Context) {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec
   - Failing [FAIL]
-      Expected '20' but was '10'
-      Expected '20' but was '11'
-      Expected '20' but was '12'
+*** Expected '20' but was '10'
+    at results_test.go
+*** Expected '20' but was '11'
+    at results_test.go
+*** Expected '20' but was '12'
+    at results_test.go
     - Child A
     - Child B
 
@@ -234,18 +241,50 @@ func ResultsSpec(c nanospec.Context) {
 	c.Specify("When a spec panics", func() {
 		runner := NewRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
-			panic("boom!")
+			c.Specify("Child A", func() {
+				boom2()
+			})
 		})
 		runner.Run()
 
 		c.Specify("then the panic's stack trace is reported", func() {
-			results := resultToString(runner.Results())
-			containsPanic := strings.Index(results, "panic: boom!") > 0
-			// TODO: test for stack trace
+			c.Expect(runner.Results()).Matches(ReportIs(`
+- RootSpec
+  - Child A [FAIL]
+*** panic: boom!
+    at recover_test.go
+    at recover_test.go
+    at recover_test.go
+    at results_test.go
 
-			c.Expect(results).Satisfies(containsPanic)
+2 specs, 1 failures
+`))
 		})
 	})
+
+	// TODO: Is it worth the effort to implement this? Let's skip it for now.
+/*
+	c.Specify("When a root spec panics", func() {
+		runner := NewRunner()
+		runner.AddNamedSpec("RootSpec", func(c Context) {
+			boom2()
+		})
+
+		runner.Run()
+		c.Specify("the bootstrap code in runner.go does not show up in the stack trace", func() {
+			c.Expect(runner.Results()).Matches(ReportIs(`
+- RootSpec [FAIL]
+*** panic: boom!
+    at recover_test.go
+    at recover_test.go
+    at recover_test.go
+    at results_test.go
+
+1 specs, 1 failures
+`))
+		})
+	})
+*/
 }
 
 func ReportIs(expected string) nanospec.Matcher {

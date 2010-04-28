@@ -6,26 +6,41 @@ package gospec
 
 import (
 	"nanospec"
-	"strings"
+	"runtime"
 )
 
 
 func LocationSpec(c nanospec.Context) {
 
 	c.Specify("Location of the current method can be found", func() {
-		loc := currentLocation()
-		c.Expect(loc).Satisfies(strings.HasPrefix(loc.String(), "location_test.go:"))
+		loc := currentLocation() // line 16
+		c.Expect(loc.FileName()).Equals("location_test.go")
+		c.Expect(loc.Line()).Equals(16)
 	})
 	c.Specify("Location of the calling method can be found", func() {
 		loc := callerLocation()
-		c.Expect(loc).Satisfies(strings.HasPrefix(loc.String(), "context.go:"))
+		c.Expect(loc.FileName()).Equals("context.go")
 	})
-	c.Specify("When failing to get the location, it will fail gracefully with an error message", func() {
-		loc := newLocation(1000)
-		c.Expect(loc.String()).Equals("Unknown File")
+	c.Specify("The name of the method is provided", func() {
+		loc := methodWhereLocationIsCalled()
+		c.Expect(loc.Name()).Equals("gospec.methodWhereLocationIsCalled")
 	})
 	c.Specify("Calls to newLocation are synced with the helper methods", func() {
-		c.Expect(newLocation(0).String()).Equals(currentLocation().String())
-		c.Expect(newLocation(1).String()).Equals(callerLocation().String())
+		c.Expect(newLocation(0).Name()).Equals(currentLocation().Name())
+		c.Expect(newLocation(0).File()).Equals(currentLocation().File())
+		c.Expect(newLocation(1).Name()).Equals(callerLocation().Name())
+		c.Expect(newLocation(1).File()).Equals(callerLocation().File())
 	})
+	c.Specify("Program Counters can be converted to Locations", func() {
+		//expectedLine := currentLocation().Line() + 1
+		pc, _, _, _ := runtime.Caller(0)
+		loc := locationForPC(pc)
+		c.Expect(loc.FileName()).Equals("location_test.go")
+		// TODO: wait for the bug in runtime.Func.FileLine() to be fixed - after that update also location.go
+		//c.Expect(loc.Line()).Equals(expectedLine)
+	})
+}
+
+func methodWhereLocationIsCalled() *Location {
+	return currentLocation()
 }

@@ -8,21 +8,37 @@ import ()
 
 
 type Error struct {
-	Message  string
-	Location *Location
+	Message    string
+	StackTrace []*Location
 }
 
-func newError(message string, location *Location) *Error {
-	return &Error{message, location}
+func newError(message string, stacktrace []*Location) *Error {
+	return &Error{message, stacktrace}
 }
 
 func (this *Error) equals(that *Error) bool {
 	return this.Message == that.Message &&
-		this.Location.equals(that.Location)
+		stackTracesEqual(this.StackTrace, that.StackTrace)
+}
+
+func stackTracesEqual(a []*Location, b []*Location) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, _ := range a {
+		if !a[i].equals(b[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func (this *Error) String() string {
-	return this.Location.String() + " " + this.Message
+	s := this.Message
+	for _, loc := range this.StackTrace {
+		s += "\nat " + loc.String()
+	}
+	return s
 }
 
 type errorLogger interface {

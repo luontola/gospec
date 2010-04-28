@@ -12,7 +12,7 @@ import (
 
 
 var noErrors = []*Error{}
-var someError = []*Error{newError("some error", currentLocation())}
+var someError = []*Error{newError("some error", []*Location{})}
 
 func PrinterSpec(c nanospec.Context) {
 	trim := strings.TrimSpace
@@ -32,7 +32,7 @@ func PrinterSpec(c nanospec.Context) {
 - Passing 1
 - Passing 2
 - Failing [FAIL]
-    some error
+*** some error
 
 3 specs, 1 failures
 `))
@@ -51,7 +51,7 @@ func PrinterSpec(c nanospec.Context) {
 - Passing 1
 - Passing 2
 - Failing [FAIL]
-    some error
+*** some error
 `))
 		})
 	})
@@ -65,7 +65,7 @@ func PrinterSpec(c nanospec.Context) {
 			c.Expect(trim(out.String())).Equals(trim(`
 - Passing
 - Failing [FAIL]
-    some error
+*** some error
 `))
 		})
 	})
@@ -77,7 +77,7 @@ func PrinterSpec(c nanospec.Context) {
 			p.VisitSpec(0, "Failing", someError)
 			c.Expect(trim(out.String())).Equals(trim(`
 - Failing [FAIL]
-    some error
+*** some error
 `))
 		})
 
@@ -87,7 +87,7 @@ func PrinterSpec(c nanospec.Context) {
 			c.Expect(trim(out.String())).Equals(trim(`
 - Passing parent
   - Failing child [FAIL]
-      some error
+*** some error
 `))
 		})
 
@@ -98,9 +98,9 @@ func PrinterSpec(c nanospec.Context) {
 			c.Expect(trim(out.String())).Equals(trim(`
 - Passing parent
   - Failing child A [FAIL]
-      some error
+*** some error
   - Failing child B [FAIL]
-      some error
+*** some error
 `))
 		})
 
@@ -110,10 +110,10 @@ func PrinterSpec(c nanospec.Context) {
 			p.VisitSpec(2, "Failing grandchild", someError)
 			c.Expect(trim(out.String())).Equals(trim(`
 - Failing parent [FAIL]
-    some error
+*** some error
   - Passing child
     - Failing grandchild [FAIL]
-        some error
+*** some error
 `))
 		})
 
@@ -125,9 +125,9 @@ func PrinterSpec(c nanospec.Context) {
 			p.VisitSpec(1, "Failing child", someError)
 			c.Expect(trim(out.String())).Equals(trim(`
 - Failing parent [FAIL]
-    some error
+*** some error
   - Failing child [FAIL]
-      some error
+*** some error
 `))
 		})
 	})

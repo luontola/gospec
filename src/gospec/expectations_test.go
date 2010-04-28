@@ -72,7 +72,7 @@ func fileOfError(results *ResultCollector) string {
 	file := ""
 	for spec := range results.sortedRoots() {
 		error := spec.errors.Front().Value.(*Error)
-		file = error.Location.File
+		file = error.StackTrace[0].FileName()
 	}
 	return file
 }

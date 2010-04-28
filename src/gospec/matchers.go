@@ -33,8 +33,16 @@ func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected
 }
 
 func (this *matcherAdapter) addError(message string) {
-	e := newError(message, this.location)
+	stacktrace := toStackTrace(this.location)
+	e := newError(message, stacktrace)
 	this.log.AddError(e)
+}
+
+func toStackTrace(loc *Location) []*Location {
+	if loc != nil {
+		return []*Location{loc}
+	}
+	return []*Location{}
 }
 
 
