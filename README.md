@@ -68,29 +68,29 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 
 []:    Replace /master/ with /gospec-1.x.x/ before making a release.
-[hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
-[examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/master/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/master/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/master/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/master/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/master/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/master/examples/execution_model_test.go
+[hello-world-template]:       http://github.com/orfjackal/gospec/tree/gospec-1.2.0/hello-world-template/
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.2.0/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.2.0/examples/execution_model_test.go
 
 
 Version History
 ---------------
 
-**1.x.x (2010-xx-xx)**
+**1.2.0 (2010-04-29)**
 
 *UPGRADE NOTES:* In your spec suite, replace `r.AddSpec("SomeSpec", SomeSpec)` with `r.AddSpec(SomeSpec)`.
 
 - Recover from panics in specs and report their stack traces
-- Retrieve the spec function names using reflection
+- Retrieve the spec function names using reflection, to avoid some boilerplate in the spec suite
+- Changes to error messages: function names and full file paths are now shown in the stack traces
 - Improved documentation and provided a hello world project template
 - Removed the deprecated `c.Then()` syntax
-- ...
 - Upgraded to Go release.2010-04-13
 
 **1.1.0 (2010-03-08)**
