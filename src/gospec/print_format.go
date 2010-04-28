@@ -44,6 +44,9 @@ func (this *defaultPrintFormat) PrintFailing(nestingLevel int, name string, erro
 }
 
 func (this *defaultPrintFormat) printError(error *Error) {
+	// Go's stack trace format can be seen in
+	// traceback() at src/pkg/runtime/amd64/traceback.c
+	// but we don't have to use exactly the same format.
 	fmt.Fprintf(this.out, "*** %v\n", error.Message)
 	for _, loc := range error.StackTrace {
 		fmt.Fprintf(this.out, "    %v()  at  %v:%v\n", loc.Name(), loc.File(), loc.Line())
