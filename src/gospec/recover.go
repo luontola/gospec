@@ -16,7 +16,7 @@ type exception struct {
 }
 
 func (this *exception) ToError() *Error {
-	return newError(this.String(), this.StackTrace)
+	return newError(OtherError, this.String(), "", this.StackTrace)
 }
 
 func (this *exception) String() string {

@@ -126,12 +126,12 @@ func ResultsSpec(c nanospec.Context) {
 
 	c.Specify("When specs fail", func() {
 		a1 := newSpecRun("Failing", nil, nil, nil)
-		a1.AddError(newError("X did not equal Y", []*Location{}))
+		a1.AddError(newError(OtherError, "X did not equal Y", "", []*Location{}))
 		results.Update(a1)
 
 		b1 := newSpecRun("Passing", nil, nil, nil)
 		b2 := newSpecRun("Child failing", nil, b1, nil)
-		b2.AddError(newError("moon was not cheese", []*Location{}))
+		b2.AddError(newError(OtherError, "moon was not cheese", "", []*Location{}))
 		results.Update(b1)
 		results.Update(b2)
 
@@ -163,7 +163,8 @@ func ResultsSpec(c nanospec.Context) {
 		c.Specify("then the error is reported", func() {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec [FAIL]
-*** Expected '20' but was '10'
+*** Expected: equals “20”
+         got: “10”
     at results_test.go
   - Child A
   - Child B
@@ -190,11 +191,14 @@ func ResultsSpec(c nanospec.Context) {
 		c.Specify("then the errors are merged together", func() {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec [FAIL]
-*** Expected '20' but was '10'
+*** Expected: equals “20”
+         got: “10”
     at results_test.go
-*** Expected '20' but was '11'
+*** Expected: equals “20”
+         got: “11”
     at results_test.go
-*** Expected '20' but was '12'
+*** Expected: equals “20”
+         got: “12”
     at results_test.go
   - Child A
   - Child B
@@ -224,16 +228,37 @@ func ResultsSpec(c nanospec.Context) {
 			c.Expect(runner.Results()).Matches(ReportIs(`
 - RootSpec
   - Failing [FAIL]
-*** Expected '20' but was '10'
+*** Expected: equals “20”
+         got: “10”
     at results_test.go
-*** Expected '20' but was '11'
+*** Expected: equals “20”
+         got: “11”
     at results_test.go
-*** Expected '20' but was '12'
+*** Expected: equals “20”
+         got: “12”
     at results_test.go
     - Child A
     - Child B
 
 4 specs, 1 failures
+`))
+		})
+	})
+
+	c.Specify("When an expectation gives an error", func() {
+		runner := NewRunner()
+		runner.AddNamedSpec("RootSpec", func(c Context) {
+			c.Expect(1, IsWithin(0.1), 1.0)
+		})
+		runner.Run()
+
+		c.Specify("the error is reported as-is", func() {
+			c.Expect(runner.Results()).Matches(ReportIs(`
+- RootSpec [FAIL]
+*** type error: expected a float, but was “1” of type “int”
+    at results_test.go
+
+1 specs, 1 failures
 `))
 		})
 	})

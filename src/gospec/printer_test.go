@@ -12,7 +12,7 @@ import (
 
 
 var noErrors = []*Error{}
-var someError = []*Error{newError("some error", []*Location{})}
+var someError = []*Error{newError(OtherError, "some error", "", []*Location{})}
 
 func PrinterSpec(c nanospec.Context) {
 	trim := strings.TrimSpace

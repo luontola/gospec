@@ -15,7 +15,7 @@ import (
 
 func MatcherMessagesSpec(c nanospec.Context) {
 	spy := new(SpyErrorLogger)
-	m := newMatcherAdapter(nil, spy)
+	m := newMatcherAdapter(nil, spy, ExpectFailed)
 
 	c.Specify("Positive expectation failures are reported with the positive message", func() {
 		m.Expect(1, DummyEquals, 1)
@@ -55,8 +55,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Specify("strings", func() {
 			c.Expect(E("apple", Equals, "apple")).Matches(Passes)
 			c.Expect(E("apple", Equals, "orange")).Matches(FailsWithMessage(
-				"Expected 'orange' but was 'apple'",
-				"Did not expect 'orange' but was 'apple'"))
+				"equals “orange”",
+				"NOT equals “orange”"))
 		})
 		c.Specify("ints", func() {
 			c.Expect(E(42, Equals, 42)).Matches(Passes)
@@ -79,12 +79,12 @@ func MatchersSpec(c nanospec.Context) {
 
 		c.Expect(E(a1, IsSame, a2)).Matches(Passes)
 		c.Expect(E(a1, IsSame, b)).Matches(FailsWithMessage(
-			fmt.Sprintf("Expected '%v' but was '%v'", b, a1),
-			fmt.Sprintf("Did not expect '%v' but was '%v'", b, a1)))
+			fmt.Sprintf("is same as “%v”", b),
+			fmt.Sprintf("is NOT same as “%v”", b)))
 
 		c.Specify("cannot compare values, but only pointers", func() {
-			c.Expect(E(1, IsSame, b)).Matches(GivesError("Expected a pointer, but was '1' of type 'int'"))
-			c.Expect(E(b, IsSame, 1)).Matches(GivesError("Expected a pointer, but was '1' of type 'int'"))
+			c.Expect(E(1, IsSame, b)).Matches(GivesError("type error: expected a pointer, but was “1” of type “int”"))
+			c.Expect(E(b, IsSame, 1)).Matches(GivesError("type error: expected a pointer, but was “1” of type “int”"))
 		})
 	})
 
@@ -93,22 +93,22 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E((*int)(nil), IsNil)).Matches(Passes) // typed pointer nil inside an interface value
 		c.Expect(E(new(int), IsNil)).Matches(Fails)
 		c.Expect(E(1, IsNil)).Matches(FailsWithMessage(
-			"Expected <nil> but was '1'",
-			"Did not expect <nil> but was '1'"))
+			"is <nil>",
+			"is NOT <nil>"))
 	})
 
 	c.Specify("Matcher: IsTrue", func() {
 		c.Expect(E(true, IsTrue)).Matches(Passes)
 		c.Expect(E(false, IsTrue)).Matches(FailsWithMessage(
-			"Expected 'true' but was 'false'",
-			"Did not expect 'true' but was 'false'"))
+			"equals “true”",
+			"NOT equals “true”"))
 	})
 
 	c.Specify("Matcher: IsFalse", func() {
 		c.Expect(E(false, IsFalse)).Matches(Passes)
 		c.Expect(E(true, IsFalse)).Matches(FailsWithMessage(
-			"Expected 'false' but was 'true'",
-			"Did not expect 'false' but was 'true'"))
+			"equals “false”",
+			"NOT equals “false”"))
 	})
 
 	c.Specify("Matcher: Satisfies", func() {
@@ -116,8 +116,8 @@ func MatchersSpec(c nanospec.Context) {
 
 		c.Expect(E(value, Satisfies, value < 100)).Matches(Passes)
 		c.Expect(E(value, Satisfies, value > 100)).Matches(FailsWithMessage(
-			"Criteria not satisfied by '42'",
-			"Criteria not satisfied by '42'"))
+			"satisfies the criteria",
+			"does NOT satisfy the criteria"))
 	})
 
 	c.Specify("Matcher: IsWithin", func() {
@@ -126,15 +126,15 @@ func MatchersSpec(c nanospec.Context) {
 
 		c.Expect(E(value, IsWithin(0.001), pi)).Matches(Passes)
 		c.Expect(E(value, IsWithin(0.0001), pi)).Matches(FailsWithMessage(
-			"Expected '3.141592653589793' ± 0.0001 but was '3.141'",
-			"Did not expect '3.141592653589793' ± 0.0001 but was '3.141'"))
+			"is within 3.141592653589793 ± 0.0001",
+			"is NOT within 3.141592653589793 ± 0.0001"))
 
 		c.Specify("cannot compare ints", func() {
 			value := int(3)
 			pi := float64(math.Pi)
 
-			c.Expect(E(value, IsWithin(0.001), pi)).Matches(GivesError("Expected a float, but was '3' of type 'int'"))
-			c.Expect(E(pi, IsWithin(0.001), value)).Matches(GivesError("Expected a float, but was '3' of type 'int'"))
+			c.Expect(E(value, IsWithin(0.001), pi)).Matches(GivesError("type error: expected a float, but was “3” of type “int”"))
+			c.Expect(E(pi, IsWithin(0.001), value)).Matches(GivesError("type error: expected a float, but was “3” of type “int”"))
 		})
 	})
 

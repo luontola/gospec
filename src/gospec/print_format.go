@@ -47,12 +47,28 @@ func (this *defaultPrintFormat) printError(error *Error) {
 	// Go's stack trace format can be seen in
 	// traceback() at src/pkg/runtime/amd64/traceback.c
 	// but we don't have to use exactly the same format.
-	fmt.Fprintf(this.out, "*** %v\n", error.Message)
+	fmt.Fprint(this.out, formatErrorMessage(error))
 	for _, loc := range error.StackTrace {
 		fmt.Fprintf(this.out, "    %v()  at  %v:%v\n", loc.Name(), loc.File(), loc.Line())
 	}
 	fmt.Fprintf(this.out, "\n")
 }
+
+func formatErrorMessage(e *Error) string {
+	s := ""
+	switch e.Type {
+	case ExpectFailed:
+		s += fmt.Sprintf("*** Expected: %v\n", e.Message)
+		s += fmt.Sprintf("         got: “%v”\n", e.Actual)
+	case AssumeFailed:
+		s += fmt.Sprintf("*** Assumed: %v\n", e.Message)
+		s += fmt.Sprintf("        got: “%v”\n", e.Actual)
+	case OtherError:
+		s += fmt.Sprintf("*** %v\n", e.Message)
+	}
+	return s
+}
+
 
 func (this *defaultPrintFormat) PrintSummary(passCount int, failCount int) {
 	totalCount := passCount + failCount
@@ -83,7 +99,7 @@ func (this *simplePrintFormat) PrintFailing(nestingLevel int, name string, error
 }
 
 func (this *simplePrintFormat) printError(error *Error) {
-	fmt.Fprintf(this.out, "*** %v\n", error.Message)
+	fmt.Fprintf(this.out, formatErrorMessage(error))
 	for _, loc := range error.StackTrace {
 		fmt.Fprintf(this.out, "    at %v\n", loc.FileName())
 	}

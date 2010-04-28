@@ -7,17 +7,28 @@ package gospec
 import ()
 
 
+type ErrorType int
+
+const (
+	ExpectFailed ErrorType = iota
+	AssumeFailed
+	OtherError
+)
+
 type Error struct {
+	Type       ErrorType
 	Message    string
+	Actual     string
 	StackTrace []*Location
 }
 
-func newError(message string, stacktrace []*Location) *Error {
-	return &Error{message, stacktrace}
+func newError(errortype ErrorType, message string, actual string, stacktrace []*Location) *Error {
+	return &Error{errortype, message, actual, stacktrace}
 }
 
 func (this *Error) equals(that *Error) bool {
 	return this.Message == that.Message &&
+		this.Actual == that.Actual &&
 		stackTracesEqual(this.StackTrace, that.StackTrace)
 }
 
@@ -43,5 +54,9 @@ func (this *Error) String() string {
 
 type errorLogger interface {
 	AddError(error *Error)
+}
+
+type ratedErrorLogger interface {
+	errorLogger
 	AddFatalError(error *Error)
 }

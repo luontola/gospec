@@ -15,26 +15,27 @@ import (
 
 
 type matcherAdapter struct {
-	location *Location
-	log      errorLogger
+	location    *Location
+	log         errorLogger
+	matcherType ErrorType
 }
 
-func newMatcherAdapter(location *Location, log errorLogger) *matcherAdapter {
-	return &matcherAdapter{location, log}
+func newMatcherAdapter(location *Location, log errorLogger, matcherType ErrorType) *matcherAdapter {
+	return &matcherAdapter{location, log, matcherType}
 }
 
 func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
 	match, pos, _, err := matcher.Match(actual, expected)
 	if err != nil {
-		this.addError(err.String())
+		this.addError(err.String(), actual, OtherError)
 	} else if !match {
-		this.addError(pos.String())
+		this.addError(pos.String(), actual, this.matcherType)
 	}
 }
 
-func (this *matcherAdapter) addError(message string) {
+func (this *matcherAdapter) addError(message string, actual interface{}, etype ErrorType) {
 	stacktrace := toStackTrace(this.location)
-	e := newError(message, stacktrace)
+	e := newError(etype, message, fmt.Sprint(actual), stacktrace)
 	this.log.AddError(e)
 }
 
@@ -106,11 +107,8 @@ func Not(matcher Matcher) Matcher {
 // operator is used. All other objects must implement the Equality interface.
 func Equals(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
 	match = areEqual(actual, expected)
-	// TODO: change the messages to following?
-	// '%v' should equal '%v', but it did not
-	// '%v' should NOT equal '%v', but it did
-	pos = Errorf("Expected '%v' but was '%v'", expected, actual)
-	neg = Errorf("Did not expect '%v' but was '%v'", expected, actual)
+	pos = Errorf("equals “%v”", expected)
+	neg = Errorf("NOT equals “%v”", expected)
 	return
 }
 
@@ -137,8 +135,8 @@ func IsSame(actual interface{}, expected interface{}) (match bool, pos os.Error,
 		return
 	}
 	match = ptr1 == ptr2
-	pos = Errorf("Expected '%v' but was '%v'", expected, actual)
-	neg = Errorf("Did not expect '%v' but was '%v'", expected, actual)
+	pos = Errorf("is same as “%v”", expected)
+	neg = Errorf("is NOT same as “%v”", expected)
 	return
 }
 
@@ -147,7 +145,7 @@ func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
 	case *reflect.PtrValue:
 		ptr = v.Get()
 	default:
-		err = Errorf("Expected a pointer, but was '%v' of type '%T'", value, value)
+		err = Errorf("type error: expected a pointer, but was “%v” of type “%T”", value, value)
 	}
 	return
 }
@@ -158,8 +156,8 @@ func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
 // for discussion on how in Go typed nil values can turn into non-nil interface values.
 func IsNil(actual interface{}, _ interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
 	match = actual == nil || isNilPointerInsideInterfaceValue(actual)
-	pos = Errorf("Expected <nil> but was '%v'", actual)
-	neg = Errorf("Did not expect <nil> but was '%v'", actual)
+	pos = Errorf("is <nil>")
+	neg = Errorf("is NOT <nil>")
 	return
 }
 
@@ -189,8 +187,8 @@ func IsFalse(actual interface{}, _ interface{}) (match bool, pos os.Error, neg o
 // The actual value must satisfy the given criteria.
 func Satisfies(actual interface{}, criteria interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
 	match = criteria.(bool) == true
-	pos = Errorf("Criteria not satisfied by '%v'", actual)
-	neg = pos
+	pos = Errorf("satisfies the criteria")
+	neg = Errorf("does NOT satisfy the criteria")
 	return
 }
 
@@ -208,8 +206,8 @@ func IsWithin(delta float64) Matcher {
 		}
 
 		match = math.Fabs(expected-actual) < delta
-		pos = Errorf("Expected '%v' ± %v but was '%v'", expected, delta, actual)
-		neg = Errorf("Did not expect '%v' ± %v but was '%v'", expected, delta, actual)
+		pos = Errorf("is within %v ± %v", expected, delta)
+		neg = Errorf("is NOT within %v ± %v", expected, delta)
 		return
 	}
 }
@@ -223,7 +221,7 @@ func toFloat64(actual interface{}) (result float64, err os.Error) {
 	case float64:
 		result = float64(v)
 	default:
-		err = Errorf("Expected a float, but was '%v' of type '%T'", actual, actual)
+		err = Errorf("type error: expected a float, but was “%v” of type “%T”", actual, actual)
 	}
 	return
 }

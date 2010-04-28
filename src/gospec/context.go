@@ -97,19 +97,32 @@ func (c *taskContext) postpone(spec *specRun) {
 }
 
 func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
-	m := newMatcherAdapter(callerLocation(), c.currentSpec)
+	location := callerLocation()
+	logger := expectationLogger{c.currentSpec}
+	m := newMatcherAdapter(location, logger, ExpectFailed)
 	m.Expect(actual, matcher, expected)
 }
 
 func (c *taskContext) Assume(actual interface{}, matcher Matcher, expected ...interface{}) {
-	m := newMatcherAdapter(callerLocation(), fatalErrorLogger{c.currentSpec})
+	location := callerLocation()
+	logger := assumptionLogger{c.currentSpec}
+	m := newMatcherAdapter(location, logger, AssumeFailed)
 	m.Expect(actual, matcher, expected)
 }
 
-type fatalErrorLogger struct {
-	errorLogger
+
+type expectationLogger struct {
+	log ratedErrorLogger
 }
 
-func (this fatalErrorLogger) AddError(error *Error) {
-	this.AddFatalError(error)
+func (this expectationLogger) AddError(e *Error) {
+	this.log.AddError(e)
+}
+
+type assumptionLogger struct {
+	log ratedErrorLogger
+}
+
+func (this assumptionLogger) AddError(e *Error) {
+	this.log.AddFatalError(e)
 }
