@@ -287,8 +287,6 @@ func ResultsSpec(c nanospec.Context) {
 		})
 	})
 
-	// TODO: Is it worth the effort to implement this? Let's skip it for now.
-/*
 	c.Specify("When a root spec panics", func() {
 		runner := NewRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
@@ -309,7 +307,6 @@ func ResultsSpec(c nanospec.Context) {
 `))
 		})
 	})
-*/
 }
 
 func ReportIs(expected string) nanospec.Matcher {
@@ -334,6 +331,7 @@ func ReportContains(needle string) nanospec.Matcher {
 	}
 }
 
+// TODO: convert all the tests to use a matcher like this, which takes itself care of running the spec
 func SpecsReportContains(needle string) nanospec.Matcher {
 	return func(v interface{}) os.Error {
 		spec := v.(func(Context))

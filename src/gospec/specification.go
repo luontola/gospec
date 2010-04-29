@@ -39,7 +39,18 @@ func (spec *specRun) isFirstChild() bool   { return spec.path.lastIndex() == 0 }
 func (spec *specRun) execute() {
 	exception := recoverOnPanic(spec.closure)
 	if exception != nil {
+		spec.fixupStackTraceForRootSpec(exception)
 		spec.AddFatalError(exception.ToError())
+	}
+}
+
+func (spec *specRun) fixupStackTraceForRootSpec(e *exception) {
+	if spec.path.isRoot() {
+		// Remove the stack frame which comes when gospec.Runner.execute()
+		// wraps the root spec (which takes Context as a parameter)
+		// into a closure (which takes no parameters).
+		dropLast := len(e.StackTrace) - 1
+		e.StackTrace = e.StackTrace[0:dropLast]
 	}
 }
 

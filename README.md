@@ -88,6 +88,7 @@ Version History
 
 - New error message format
 - Workaround for a bug in gedit 2.28.0 which caused stack traces to be sometimes non-clickable
+- Improved the stack traces to hide GoSpec internals also for root specs
 - ...
 
 **1.2.0 (2010-04-29)**
