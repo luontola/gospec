@@ -84,6 +84,7 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
+- Workaround for a bug in gedit 2.28.0 which caused stack traces to be sometimes non-clickable
 - ...
 
 **1.2.0 (2010-04-29)**

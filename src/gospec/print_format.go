@@ -49,7 +49,11 @@ func (this *defaultPrintFormat) printError(error *Error) {
 	// but we don't have to use exactly the same format.
 	fmt.Fprint(this.out, formatErrorMessage(error))
 	for _, loc := range error.StackTrace {
-		fmt.Fprintf(this.out, "    %v()  at  %v:%v\n", loc.Name(), loc.File(), loc.Line())
+		// Keep the function name on a different line than the file path,
+		// because gedit 2.28.0 has a bug which causes the path to be
+		// non-clickable if the same line has a non-ASCII character before
+		// the path. And Go methods have the interpunct · in their names.
+		fmt.Fprintf(this.out, "    %v()\n        at %v:%v\n", loc.Name(), loc.File(), loc.Line())
 	}
 	fmt.Fprintf(this.out, "\n")
 }
@@ -68,7 +72,6 @@ func formatErrorMessage(e *Error) string {
 	}
 	return s
 }
-
 
 func (this *defaultPrintFormat) PrintSummary(passCount int, failCount int) {
 	totalCount := passCount + failCount
