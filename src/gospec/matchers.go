@@ -56,6 +56,10 @@ func toStackTrace(loc *Location) []*Location {
 //   err:   Message for an unrecoverable error, for example if the arguments had a wrong type.
 type Matcher func(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error)
 
+// TODO: maybe use one of these to solve the containment error message problem
+type ArrayMatcher func(actual []interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error)
+type MutableActualMatcher func(actual *interface{}, expected *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error)
+
 // Calls the matcher with the actual value and an optional expected value.
 // If no expected value is given, then <nil> will be used.
 func (matcher Matcher) Match(actual interface{}, optionalExpected ...interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
@@ -234,6 +238,7 @@ func Contains(actual_ interface{}, expected interface{}) (match bool, pos os.Err
 		return
 	}
 
+	// TODO: How to put the formatted actual on the "got" line? Only the matcher knows how to format it.
 	match = arrayContains(actual, expected)
 	pos = Errorf("Expected '%v' to be in '%v' but it was not", expected, actual)
 	neg = Errorf("Did not expect '%v' to be in '%v' but it was", expected, actual)
