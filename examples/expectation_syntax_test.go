@@ -90,9 +90,16 @@ func ExpectationSyntaxSpec(c gospec.Context) {
 	})
 }
 
-func HasSameLengthAs(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	match = len(actual.(string)) == len(expected.(string))
-	pos = Errorf("'%v' should have same length as '%v'", actual, expected)
-	neg = Errorf("'%v' should NOT have same length as '%v'", actual, expected)
+func HasSameLengthAs(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
+	actual := *actual_
+	expected := *expected_
+
+	lenActual := len(actual.(string))
+	lenExpected := len(expected.(string))
+	difference := lenActual - lenExpected
+
+	match = difference == 0
+	pos = Errorf("has same length as “%v” (difference was %+d)", expected, difference)
+	neg = Errorf("does NOT have same length as “%v” (difference was %+d)", expected, difference)
 	return
 }

@@ -37,7 +37,10 @@ func MatcherMessagesSpec(c nanospec.Context) {
 	})
 }
 
-func DummyEquals(actual interface{}, expected interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
+func DummyEquals(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
+	actual := *actual_
+	expected := *expected_
+
 	if actual.(int) == 666 {
 		err = Errorf("Error: %v", actual)
 		return
@@ -56,7 +59,7 @@ func MatchersSpec(c nanospec.Context) {
 			c.Expect(E("apple", Equals, "apple")).Matches(Passes)
 			c.Expect(E("apple", Equals, "orange")).Matches(FailsWithMessage(
 				"equals “orange”",
-				"NOT equals “orange”"))
+				"does NOT equal “orange”"))
 		})
 		c.Specify("ints", func() {
 			c.Expect(E(42, Equals, 42)).Matches(Passes)
@@ -100,15 +103,15 @@ func MatchersSpec(c nanospec.Context) {
 	c.Specify("Matcher: IsTrue", func() {
 		c.Expect(E(true, IsTrue)).Matches(Passes)
 		c.Expect(E(false, IsTrue)).Matches(FailsWithMessage(
-			"equals “true”",
-			"NOT equals “true”"))
+			"is <true>",
+			"is NOT <true>"))
 	})
 
 	c.Specify("Matcher: IsFalse", func() {
 		c.Expect(E(false, IsFalse)).Matches(Passes)
 		c.Expect(E(true, IsFalse)).Matches(FailsWithMessage(
-			"equals “false”",
-			"NOT equals “false”"))
+			"is <false>",
+			"is NOT <false>"))
 	})
 
 	c.Specify("Matcher: Satisfies", func() {
@@ -146,8 +149,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E(values, Contains, "three")).Matches(Passes)
 
 		c.Expect(E(values, Contains, "four")).Matches(FailsWithMessage(
-			"Expected 'four' to be in '[one two three]' but it was not",
-			"Did not expect 'four' to be in '[one two three]' but it was"))
+			"contains “four”",
+			"does NOT contain “four”"))
 	})
 
 	c.Specify("Matcher: ContainsAll", func() {
@@ -160,8 +163,8 @@ func MatchersSpec(c nanospec.Context) {
 
 		c.Expect(E(values, ContainsAll, Values("four"))).Matches(Fails)
 		c.Expect(E(values, ContainsAll, Values("one", "four"))).Matches(FailsWithMessage(
-			"Expected all of '[one four]' to be in '[one two three]' but they were not",
-			"Did not expect all of '[one four]' to be in '[one two three]' but they were"))
+			"contains all of “[one four]”",
+			"does NOT contain all of “[one four]”"))
 	})
 
 	c.Specify("Matcher: ContainsAny", func() {
@@ -175,8 +178,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E(values, ContainsAny, Values())).Matches(Fails)
 		c.Expect(E(values, ContainsAny, Values("four"))).Matches(Fails)
 		c.Expect(E(values, ContainsAny, Values("four", "five"))).Matches(FailsWithMessage(
-			"Expected any of '[four five]' to be in '[one two three]' but they were not",
-			"Did not expect any of '[four five]' to be in '[one two three]' but they were"))
+			"contains any of “[four five]”",
+			"does NOT contain any of “[four five]”"))
 	})
 
 	c.Specify("Matcher: ContainsExactly", func() {
@@ -189,8 +192,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E(values, ContainsExactly, Values("four"))).Matches(Fails)
 		c.Expect(E(values, ContainsExactly, Values("one", "two"))).Matches(Fails)
 		c.Expect(E(values, ContainsExactly, Values("one", "two", "three", "four"))).Matches(FailsWithMessage(
-			"Expected exactly '[one two three four]' to be in '[one two three]' but they were not",
-			"Did not expect exactly '[one two three four]' to be in '[one two three]' but they were"))
+			"contains exactly “[one two three four]”",
+			"does NOT contain exactly “[one two three four]”"))
 
 		// duplicate values are allowed
 		values = []string{"a", "a", "b"}
@@ -213,8 +216,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E(values, ContainsInOrder, Values("one", "two", "four"))).Matches(Fails)
 		c.Expect(E(values, ContainsInOrder, Values("one", "two", "three", "four"))).Matches(Fails)
 		c.Expect(E(values, ContainsInOrder, Values("three", "one", "two"))).Matches(FailsWithMessage(
-			"Expected in order '[three one two]' to be in '[one two three]' but they were not",
-			"Did not expect in order '[three one two]' to be in '[one two three]' but they were"))
+			"contains in order “[three one two]”",
+			"does NOT contain in order “[three one two]”"))
 	})
 
 	c.Specify("Matcher: ContainsInPartialOrder", func() {
@@ -230,8 +233,8 @@ func MatchersSpec(c nanospec.Context) {
 		c.Expect(E(values, ContainsInPartialOrder, Values("2", "1"))).Matches(Fails)
 		c.Expect(E(values, ContainsInPartialOrder, Values("2", "2", "2"))).Matches(Fails)
 		c.Expect(E(values, ContainsInPartialOrder, Values("1", "4", "3"))).Matches(FailsWithMessage(
-			"Expected in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were not",
-			"Did not expect in partial order '[1 4 3]' to be in '[1 2 2 3 4]' but they were"))
+			"contains in partial order “[1 4 3]”",
+			"does NOT contain in partial order “[1 4 3]”"))
 	})
 
 	c.Specify("Conversions for containment matchers", func() {
@@ -274,9 +277,41 @@ func MatchersSpec(c nanospec.Context) {
 		})
 		c.Specify("unsupported value to array", func() {
 			_, err := toArray("foo")
-			c.Expect(err.String()).Equals("Unknown type 'string', not iterable: foo")
+			c.Expect(err.String()).Equals("type error: expected an iterable type, but was “foo” of type “string”")
 		})
 	})
+
+	c.Specify("Containment matchers convert the actual value to a printable array "+
+		"when it's not originally printable",
+		func() {
+			values := list.New()
+			values.PushBack("one")
+			values.PushBack("two")
+			values.PushBack("three")
+			nonPrintableList := values.Iter()
+			listAsString := "[one two three]"
+
+			c.Specify("Matcher: Contains", func() {
+				c.Expect(func(c Context) {
+					c.Expect(nonPrintableList, Contains, "xxx")
+				}).Matches(SpecsReportContains(listAsString))
+			})
+
+			multiValueMatchers := []Matcher{
+				ContainsAll,
+				ContainsAny,
+				ContainsExactly,
+				ContainsInOrder,
+				ContainsInPartialOrder,
+			}
+			for _, matcher := range multiValueMatchers {
+				c.Specify("Matcher: "+functionName(matcher), func() {
+					c.Expect(func(c Context) {
+						c.Expect(nonPrintableList, matcher, Values("xxx"))
+					}).Matches(SpecsReportContains(listAsString))
+				})
+			}
+		})
 }
 
 
@@ -315,7 +350,7 @@ type ExpectationHolder struct {
 }
 
 func E(actual interface{}, matcher Matcher, expected ...interface{}) *ExpectationHolder {
-	match, pos, neg, err := matcher.Match(actual, expected)
+	match, pos, neg, err := matcher.Match(&actual, expected)
 	return &ExpectationHolder{match, pos, neg, err}
 }
 
@@ -339,7 +374,9 @@ func FailsWithMessage(pos string, neg string) nanospec.Matcher {
 	return func(v interface{}) os.Error {
 		ex := v.(*ExpectationHolder)
 		if !ex.match &&
+			ex.pos != nil &&
 			ex.pos.String() == pos &&
+			ex.neg != nil &&
 			ex.neg.String() == neg &&
 			ex.err == nil {
 			return nil

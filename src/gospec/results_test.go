@@ -323,6 +323,30 @@ func ReportIs(expected string) nanospec.Matcher {
 	}
 }
 
+func ReportContains(needle string) nanospec.Matcher {
+	return func(v interface{}) os.Error {
+		actual := resultToString(v.(*ResultCollector))
+		found := strings.Index(actual, needle) >= 0
+		if !found {
+			return os.ErrorString("Expected report to contain:\n" + needle + "\n\nBut report was:\n" + actual)
+		}
+		return nil
+	}
+}
+
+func SpecsReportContains(needle string) nanospec.Matcher {
+	return func(v interface{}) os.Error {
+		spec := v.(func(Context))
+
+		runner := NewRunner()
+		runner.AddNamedSpec("RootSpec", spec)
+		runner.Run()
+
+		return ReportContains(needle)(runner.Results())
+	}
+}
+
+
 func resultToString(result *ResultCollector) string {
 	out := new(bytes.Buffer)
 	result.Visit(NewPrinter(SimplePrintFormat(out)))
