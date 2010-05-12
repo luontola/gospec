@@ -28,23 +28,23 @@ func StackSpec(c gospec.Context) {
 			c.Expect(stack.Empty(), IsTrue)
 		})
 		c.Specify("After a push, the stack is no longer empty", func() {
-			stack.Push("foo")
+			stack.Push("a push")
 			c.Expect(stack.Empty(), IsFalse)
 		})
 	})
 
 	c.Specify("When objects have been pushed onto a stack", func() {
-		stack.Push("one")
-		stack.Push("two")
+		stack.Push("pushed first")
+		stack.Push("pushed last")
 
 		c.Specify("the object pushed last is popped first", func() {
-			x := stack.Pop()
-			c.Expect(x, Equals, "two")
+			poppedFirst := stack.Pop()
+			c.Expect(poppedFirst, Equals, "pushed last")
 		})
 		c.Specify("the object pushed first is popped last", func() {
 			stack.Pop()
-			x := stack.Pop()
-			c.Expect(x, Equals, "one")
+			poppedLast := stack.Pop()
+			c.Expect(poppedLast, Equals, "pushed first")
 		})
 		c.Specify("After popping all objects, the stack is empty", func() {
 			stack.Pop()
