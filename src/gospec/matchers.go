@@ -25,17 +25,25 @@ func newMatcherAdapter(location *Location, log errorLogger, matcherType ErrorTyp
 }
 
 func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
-	match, pos, _, err := matcher.Match(&actual, expected)
+	match, pos, _, err := matcher.Match(actual, expected)
 	if err != nil {
-		this.addError(err.String(), actual, OtherError)
+		this.addError(err, actual)
 	} else if !match {
-		this.addError(pos.String(), actual, this.matcherType)
+		this.addFailure(pos)
 	}
 }
 
-func (this *matcherAdapter) addError(message string, actual interface{}, etype ErrorType) {
+func (this *matcherAdapter) addFailure(message Message) {
+	this.writeToLog(this.matcherType, message.Expectation(), message.Actual())
+}
+
+func (this *matcherAdapter) addError(err os.Error, actual interface{}) {
+	this.writeToLog(OtherError, err.String(), actual)
+}
+
+func (this *matcherAdapter) writeToLog(errortype ErrorType, message string, actual interface{}) {
 	stacktrace := toStackTrace(this.location)
-	e := newError(etype, message, fmt.Sprint(actual), stacktrace)
+	e := newError(errortype, message, fmt.Sprint(actual), stacktrace)
 	this.log.AddError(e)
 }
 
@@ -49,29 +57,46 @@ func toStackTrace(loc *Location) []*Location {
 
 // Matchers are used in expectations to compare the actual and expected values.
 //
-// Parameters:
-//   actual:   Pointer to the actual value. The matcher is allowed to change
-//             the pointed value to something which can be better printed in
-//             the error messages (for example, convert an iterator to an array).
-//   expected: Pointer to the expected value. The pointer is <nil> if no expected
-//             value was provided by the user.
-//
 // Return values:
 //   match: Should be true when `actual` and `expected` match, otherwise false.
 //   pos:   Message for a failed expectation.
 //   neg:   Message for a failed expectation when the matcher is combined with Not.
 //   err:   Message for an unrecoverable error, for example if the arguments had a wrong type.
-type Matcher func(actual *interface{}, expected *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error)
+type Matcher func(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error)
 
 // Calls the matcher with the actual value and an optional expected value.
 // If no expected value is given, then <nil> will be used.
-func (matcher Matcher) Match(actual *interface{}, optionalExpected ...interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	var expected *interface{}
+func (matcher Matcher) Match(actual interface{}, optionalExpected ...interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	var expected interface{}
 	if len(optionalExpected) > 0 {
-		expected = &optionalExpected[0]
+		expected = optionalExpected[0]
 	}
 	match, pos, neg, err = matcher(actual, expected)
 	return
+}
+
+
+type Message interface {
+	Actual() interface{}
+	Expectation() string
+}
+
+func Messagef(actual interface{}, expectationFormat string, expectationArgs ...interface{}) Message {
+	expectation := Errorf(expectationFormat, expectationArgs)
+	return &message{actual, expectation}
+}
+
+type message struct {
+	actual      interface{}
+	expectation os.Error
+}
+
+func (this *message) Actual() interface{} {
+	return this.actual
+}
+
+func (this *message) Expectation() string {
+	return this.expectation.String()
 }
 
 
@@ -80,15 +105,15 @@ func (matcher Matcher) Match(actual *interface{}, optionalExpected ...interface{
 // string parsing in matchers, because most of the time there are no failures
 // and thus the error messages are not used.
 func Errorf(format string, args ...interface{}) os.Error {
-	return lazyStringer(func() interface{} {
+	return lazyString(func() string {
 		return fmt.Sprintf(format, args)
 	})
 }
 
-type lazyStringer func() interface{}
+type lazyString func() string
 
-func (this lazyStringer) String() string {
-	return fmt.Sprint(this())
+func (this lazyString) String() string {
+	return this()
 }
 
 
@@ -101,7 +126,7 @@ func Values(values ...interface{}) []interface{} {
 // Negates the meaning of a Matcher. Matches when the original matcher does not
 // match, and the other way around.
 func Not(matcher Matcher) Matcher {
-	return func(actual *interface{}, expected *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
+	return func(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
 		match, pos, neg, err = matcher(actual, expected)
 		match = !match
 		pos, neg = neg, pos
@@ -112,13 +137,10 @@ func Not(matcher Matcher) Matcher {
 
 // The actual value must equal the expected value. For primitives the equality
 // operator is used. All other objects must implement the Equality interface.
-func Equals(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual := *actual_
-	expected := *expected_
-
+func Equals(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
 	match = areEqual(actual, expected)
-	pos = Errorf("equals “%v”", expected)
-	neg = Errorf("does NOT equal “%v”", expected)
+	pos = Messagef(actual, "equals “%v”", expected)
+	neg = Messagef(actual, "does NOT equal “%v”", expected)
 	return
 }
 
@@ -135,10 +157,7 @@ type Equality interface {
 
 
 // The actual value must be a pointer to the same object as the expected value.
-func IsSame(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual := *actual_
-	expected := *expected_
-
+func IsSame(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
 	ptr1, err := pointerOf(actual)
 	if err != nil {
 		return
@@ -148,8 +167,8 @@ func IsSame(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Er
 		return
 	}
 	match = ptr1 == ptr2
-	pos = Errorf("is same as “%v”", expected)
-	neg = Errorf("is NOT same as “%v”", expected)
+	pos = Messagef(actual, "is same as “%v”", expected)
+	neg = Messagef(actual, "is NOT same as “%v”", expected)
 	return
 }
 
@@ -167,12 +186,10 @@ func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
 // The actual value must be <nil>, or a typed nil pointer inside an interface value.
 // See http://groups.google.com/group/golang-nuts/browse_thread/thread/d900674d491ef8d
 // for discussion on how in Go typed nil values can turn into non-nil interface values.
-func IsNil(actual_ *interface{}, _ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual := *actual_
-
+func IsNil(actual interface{}, _ interface{}) (match bool, pos Message, neg Message, err os.Error) {
 	match = actual == nil || isNilPointerInsideInterfaceValue(actual)
-	pos = Errorf("is <nil>")
-	neg = Errorf("is NOT <nil>")
+	pos = Messagef(actual, "is <nil>")
+	neg = Messagef(actual, "is NOT <nil>")
 	return
 }
 
@@ -186,47 +203,47 @@ func isNilPointerInsideInterfaceValue(value interface{}) bool {
 
 
 // The actual value must be <true>.
-func IsTrue(actual *interface{}, _ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	match = (*actual).(bool) == true
-	pos = Errorf("is <true>")
-	neg = Errorf("is NOT <true>")
+func IsTrue(actual interface{}, _ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	match = actual.(bool) == true
+	pos = Messagef(actual, "is <true>")
+	neg = Messagef(actual, "is NOT <true>")
 	return
 }
 
 
 // The actual value must be <false>.
-func IsFalse(actual *interface{}, _ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	match = (*actual).(bool) == false
-	pos = Errorf("is <false>")
-	neg = Errorf("is NOT <false>")
+func IsFalse(actual interface{}, _ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	match = actual.(bool) == false
+	pos = Messagef(actual, "is <false>")
+	neg = Messagef(actual, "is NOT <false>")
 	return
 }
 
 
 // The actual value must satisfy the given criteria.
-func Satisfies(_ *interface{}, criteria *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	match = (*criteria).(bool) == true
-	pos = Errorf("satisfies the criteria")
-	neg = Errorf("does NOT satisfy the criteria")
+func Satisfies(actual interface{}, criteria interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	match = criteria.(bool) == true
+	pos = Messagef(actual, "satisfies the criteria")
+	neg = Messagef(actual, "does NOT satisfy the criteria")
 	return
 }
 
 
 // The actual value must be within delta from the expected value.
 func IsWithin(delta float64) Matcher {
-	return func(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-		actual, err := toFloat64(*actual_)
+	return func(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+		actual, err := toFloat64(actual_)
 		if err != nil {
 			return
 		}
-		expected, err := toFloat64(*expected_)
+		expected, err := toFloat64(expected_)
 		if err != nil {
 			return
 		}
 
 		match = math.Fabs(expected-actual) < delta
-		pos = Errorf("is within %v ± %v", expected, delta)
-		neg = Errorf("is NOT within %v ± %v", expected, delta)
+		pos = Messagef(actual, "is within %v ± %v", expected, delta)
+		neg = Messagef(actual, "is NOT within %v ± %v", expected, delta)
 		return
 	}
 }
@@ -247,17 +264,15 @@ func toFloat64(actual interface{}) (result float64, err os.Error) {
 
 
 // The actual collection must contain the expected value.
-func Contains(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func Contains(actual_ interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected := *expected_
 
 	match = arrayContains(actual, expected)
-	pos = Errorf("contains “%v”", expected)
-	neg = Errorf("does NOT contain “%v”", expected)
+	pos = Messagef(actual, "contains “%v”", expected)
+	neg = Messagef(actual, "does NOT contain “%v”", expected)
 	return
 }
 
@@ -310,13 +325,12 @@ func findIndex(haystack []interface{}, needle interface{}) (idx int, found bool)
 // The actual collection must contain all expected elements,
 // but it may contain also other non-expected elements.
 // The order of elements is not significant.
-func ContainsAll(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func ContainsAll(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected, err := toArray(*expected_)
+	expected, err := toArray(expected_)
 	if err != nil {
 		return
 	}
@@ -330,20 +344,19 @@ func ContainsAll(actual_ *interface{}, expected_ *interface{}) (match bool, pos 
 	}
 
 	match = containsAll
-	pos = Errorf("contains all of “%v”", expected)
-	neg = Errorf("does NOT contain all of “%v”", expected)
+	pos = Messagef(actual, "contains all of “%v”", expected)
+	neg = Messagef(actual, "does NOT contain all of “%v”", expected)
 	return
 }
 
 
 // The actual collection must contain at least one of the expected elements.
-func ContainsAny(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func ContainsAny(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected, err := toArray(*expected_)
+	expected, err := toArray(expected_)
 	if err != nil {
 		return
 	}
@@ -357,21 +370,20 @@ func ContainsAny(actual_ *interface{}, expected_ *interface{}) (match bool, pos 
 	}
 
 	match = containsAny
-	pos = Errorf("contains any of “%v”", expected)
-	neg = Errorf("does NOT contain any of “%v”", expected)
+	pos = Messagef(actual, "contains any of “%v”", expected)
+	neg = Messagef(actual, "does NOT contain any of “%v”", expected)
 	return
 }
 
 
 // The actual collection must contain all expected elements and nothing else.
 // The order of elements is not significant.
-func ContainsExactly(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func ContainsExactly(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected, err := toArray(*expected_)
+	expected, err := toArray(expected_)
 	if err != nil {
 		return
 	}
@@ -389,20 +401,19 @@ func ContainsExactly(actual_ *interface{}, expected_ *interface{}) (match bool, 
 	}
 
 	match = containsAll && remaining.Len() == 0
-	pos = Errorf("contains exactly “%v”", expected)
-	neg = Errorf("does NOT contain exactly “%v”", expected)
+	pos = Messagef(actual, "contains exactly “%v”", expected)
+	neg = Messagef(actual, "does NOT contain exactly “%v”", expected)
 	return
 }
 
 
 // The actual collection must contain all expected elements, in the same order, and nothing else.
-func ContainsInOrder(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func ContainsInOrder(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected, err := toArray(*expected_)
+	expected, err := toArray(expected_)
 	if err != nil {
 		return
 	}
@@ -415,8 +426,8 @@ func ContainsInOrder(actual_ *interface{}, expected_ *interface{}) (match bool, 
 	}
 
 	match = containsInOrder
-	pos = Errorf("contains in order “%v”", expected)
-	neg = Errorf("does NOT contain in order “%v”", expected)
+	pos = Messagef(actual, "contains in order “%v”", expected)
+	neg = Messagef(actual, "does NOT contain in order “%v”", expected)
 	return
 }
 
@@ -425,13 +436,12 @@ func ContainsInOrder(actual_ *interface{}, expected_ *interface{}) (match bool, 
 // but it may contain also other non-expected objects.
 // For example [1, 2, 2, 3, 4] contains in partial order [1, 2, 3].
 // See http://en.wikipedia.org/wiki/Partial_order for further information.
-func ContainsInPartialOrder(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual, err := toArray(*actual_)
+func ContainsInPartialOrder(actual_ interface{}, expected_ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	actual, err := toArray(actual_)
 	if err != nil {
 		return
 	}
-	*actual_ = actual
-	expected, err := toArray(*expected_)
+	expected, err := toArray(expected_)
 	if err != nil {
 		return
 	}
@@ -451,7 +461,7 @@ func ContainsInPartialOrder(actual_ *interface{}, expected_ *interface{}) (match
 	}
 
 	match = containsInPartialOrder
-	pos = Errorf("contains in partial order “%v”", expected)
-	neg = Errorf("does NOT contain in partial order “%v”", expected)
+	pos = Messagef(actual, "contains in partial order “%v”", expected)
+	neg = Messagef(actual, "does NOT contain in partial order “%v”", expected)
 	return
 }

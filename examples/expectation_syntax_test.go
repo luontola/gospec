@@ -65,9 +65,7 @@ func ExpectationSyntaxSpec(c gospec.Context) {
 	})
 
 	c.Specify("Custom matchers can be defined for commonly used expressions", func() {
-		s1 := "first string"
-		s2 := "other string"
-		c.Expect(s1, HasSameLengthAs, s2)
+		c.Expect("first string", HasSameLengthAs, "other string")
 	})
 
 	c.Specify("Arrays, slices, iterables and channels can be tested for containment", func() {
@@ -90,16 +88,13 @@ func ExpectationSyntaxSpec(c gospec.Context) {
 	})
 }
 
-func HasSameLengthAs(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual := *actual_
-	expected := *expected_
-
+func HasSameLengthAs(actual interface{}, expected interface{}) (match bool, pos gospec.Message, neg gospec.Message, err os.Error) {
 	lenActual := len(actual.(string))
 	lenExpected := len(expected.(string))
 	difference := lenActual - lenExpected
 
 	match = difference == 0
-	pos = Errorf("has same length as “%v” (difference was %+d)", expected, difference)
-	neg = Errorf("does NOT have same length as “%v” (difference was %+d)", expected, difference)
+	pos = gospec.Messagef(actual, "has same length as “%v” (difference was %+d)", expected, difference)
+	neg = gospec.Messagef(actual, "does NOT have same length as “%v” (difference was %+d)", expected, difference)
 	return
 }

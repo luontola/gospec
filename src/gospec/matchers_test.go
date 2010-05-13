@@ -33,22 +33,43 @@ func MatcherMessagesSpec(c nanospec.Context) {
 	})
 	c.Specify("Errors in expectations are reported with the error message", func() {
 		m.Expect(666, DummyEquals, 1)
-		c.Expect(spy.LastError()).Equals("Error: 666")
+		c.Expect(spy.LastError()).Equals("666 illegal value")
 	})
 }
 
-func DummyEquals(actual_ *interface{}, expected_ *interface{}) (match bool, pos os.Error, neg os.Error, err os.Error) {
-	actual := *actual_
-	expected := *expected_
-
+func DummyEquals(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
 	if actual.(int) == 666 {
-		err = Errorf("Error: %v", actual)
+		err = Errorf("illegal value")
 		return
 	}
 	match = actual == expected
-	pos = Errorf("%v should equal %v", actual, expected)
-	neg = Errorf("%v should NOT equal %v", actual, expected)
+	pos = Messagef(actual, "should equal %v", expected)
+	neg = Messagef(actual, "should NOT equal %v", expected)
 	return
+}
+
+type SpyErrorLogger struct {
+	lastError *Error
+}
+
+func (this *SpyErrorLogger) AddError(error *Error) {
+	this.lastError = error
+}
+
+func (this *SpyErrorLogger) AddFatalError(error *Error) {
+	this.AddError(error)
+}
+
+func (this *SpyErrorLogger) LastError() string {
+	defer this.Reset()
+	if this.lastError == nil {
+		return ""
+	}
+	return this.lastError.Actual + " " + this.lastError.Message
+}
+
+func (this *SpyErrorLogger) Reset() {
+	this.lastError = nil
 }
 
 
@@ -344,13 +365,13 @@ func (this DummyStruct) String() string {
 
 type ExpectationHolder struct {
 	match bool
-	pos   os.Error
-	neg   os.Error
+	pos   Message
+	neg   Message
 	err   os.Error
 }
 
 func E(actual interface{}, matcher Matcher, expected ...interface{}) *ExpectationHolder {
-	match, pos, neg, err := matcher.Match(&actual, expected)
+	match, pos, neg, err := matcher.Match(actual, expected)
 	return &ExpectationHolder{match, pos, neg, err}
 }
 
@@ -375,9 +396,9 @@ func FailsWithMessage(pos string, neg string) nanospec.Matcher {
 		ex := v.(*ExpectationHolder)
 		if !ex.match &&
 			ex.pos != nil &&
-			ex.pos.String() == pos &&
+			ex.pos.Expectation() == pos &&
 			ex.neg != nil &&
-			ex.neg.String() == neg &&
+			ex.neg.Expectation() == neg &&
 			ex.err == nil {
 			return nil
 		}
@@ -399,29 +420,4 @@ func (this *ExpectationHolder) ToError() os.Error {
 	return os.ErrorString(fmt.Sprintf(
 		"Mather failed its expectations\n\tmatch: %v\n\tpos: %v\n\tneg: %v\n\terr: %v",
 		this.match, this.pos, this.neg, this.err))
-}
-
-
-type SpyErrorLogger struct {
-	lastError *Error
-}
-
-func (this *SpyErrorLogger) AddError(error *Error) {
-	this.lastError = error
-}
-
-func (this *SpyErrorLogger) AddFatalError(error *Error) {
-	this.AddError(error)
-}
-
-func (this *SpyErrorLogger) LastError() string {
-	defer this.Reset()
-	if this.lastError == nil {
-		return ""
-	}
-	return this.lastError.Message
-}
-
-func (this *SpyErrorLogger) Reset() {
-	this.lastError = nil
 }

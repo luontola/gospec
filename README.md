@@ -84,7 +84,7 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
-*UPGRADE NOTES:* If you have written custom matchers, their parameters' types have changed from `interface{}` to `*interface{}`. Also the error messages are expected to be in a different format. See GoSpec's built-in matchers for examples.
+*UPGRADE NOTES:* If you have written custom matchers, their result parameters' types have changed. Also the error messages are expected to be in a slightly different format. See [expectation_syntax_test.go] or GoSpec's built-in matchers for examples.
 
 - New error message format
 - Workaround for a bug in gedit 2.28.0 which caused stack traces to be sometimes non-clickable
