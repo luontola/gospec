@@ -115,8 +115,9 @@ func (r *Runner) Results() *ResultCollector {
 	// will get the result collector from a result channel.
 
 	results := newResultCollector()
-	for spec := range r.executed.Iter() {
-		results.Update(spec.(*specRun))
+	for _, v := range *r.executed {
+		spec := v.(*specRun)
+		results.Update(spec)
 	}
 	return results
 }

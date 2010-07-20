@@ -5,7 +5,7 @@
 package gospec
 
 import (
-	"exp/iterable"
+	"container/vector"
 )
 
 
@@ -22,9 +22,9 @@ func runSpecWithContext(closure func(Context), context *taskContext) *taskResult
 	return r.execute("RootSpec", closure, context)
 }
 
-func countSpecNames(specs iterable.Iterable) map[string]int {
+func countSpecNames(specs *vector.Vector) map[string]int {
 	results := make(map[string]int)
-	for v := range specs.Iter() {
+	for _, v := range *specs {
 		spec := v.(*specRun)
 		key := spec.name
 		if _, preset := results[key]; !preset {

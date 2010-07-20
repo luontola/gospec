@@ -90,6 +90,7 @@ Version History
 - Workaround for a bug in gedit 2.28.0 which caused stack traces to be sometimes non-clickable
 - Improved the stack traces to hide GoSpec internals also for root specs
 - ...
+- Upgraded to Go release.2010-07-14
 
 **1.2.0 (2010-04-29)**
 
