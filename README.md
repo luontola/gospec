@@ -82,6 +82,10 @@ For examples on how to write specs, see the files in the [examples] directory.
 Version History
 ---------------
 
+**Known Issues**
+
+- Line numbers in stack traces are incorrect because of a bug in Go (see [issue 754](http://code.google.com/p/go/issues/detail?id=754))
+
 **1.x.x (2010-xx-xx)**
 
 *UPGRADE NOTES:* If you have written custom matchers, their result parameters' types have changed. Also the error messages are expected to be in a slightly different format. See [expectation_syntax_test.go] or GoSpec's built-in matchers for examples.
