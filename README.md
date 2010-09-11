@@ -82,12 +82,9 @@ For examples on how to write specs, see the files in the [examples] directory.
 Version History
 ---------------
 
-**Known Issues**
-
-- Line numbers in stack traces are incorrect because of a bug in Go (see [issue 754](http://code.google.com/p/go/issues/detail?id=754))
-
 **1.x.x (2010-xx-xx)**
 
+- [Issue 754](http://code.google.com/p/go/issues/detail?id=754) was fixed in Go release.2010-09-06, so line numbers in GoSpec's stack traces are now correct
 - ...
 
 **1.3.0 (2010-09-06)**
