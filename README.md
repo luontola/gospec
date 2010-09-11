@@ -68,26 +68,25 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 
 []:    Replace /master/ with /gospec-1.x.x/ before making a release.
-[hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
-[examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/master/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/master/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/master/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/master/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/master/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/master/examples/execution_model_test.go
+[hello-world-template]:       http://github.com/orfjackal/gospec/tree/gospec-1.3.1/hello-world-template/
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.3.1/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.3.1/examples/execution_model_test.go
 
 
 Version History
 ---------------
 
-**1.x.x (2010-xx-xx)**
+**1.3.1 (2010-09-11)**
 
 - [Issue 754](http://code.google.com/p/go/issues/detail?id=754) was fixed in Go release.2010-09-06, so line numbers in GoSpec's stack traces are now correct
 - Fixed an occasional off-by-one in exception stack trace line numbers
 - Upgraded to Go release.2010-09-06
-- ...
 
 **1.3.0 (2010-09-06)**
 
