@@ -11,13 +11,6 @@ import (
 
 const unknownFunction = "<unknown function>"
 
-func functionNameFromPC(pc uintptr) string {
-	if f := runtime.FuncForPC(pc); f != nil {
-		return f.Name()
-	}
-	return unknownFunction
-}
-
 func functionName(function interface{}) string {
 	if f := functionToFunc(function); f != nil {
 		return f.Name()

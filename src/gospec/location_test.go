@@ -32,12 +32,11 @@ func LocationSpec(c nanospec.Context) {
 		c.Expect(newLocation(1).File()).Equals(callerLocation().File())
 	})
 	c.Specify("Program Counters can be converted to Locations", func() {
-		//expectedLine := currentLocation().Line() + 1
+		expectedLine := currentLocation().Line() + 1
 		pc, _, _, _ := runtime.Caller(0)
 		loc := locationForPC(pc)
 		c.Expect(loc.FileName()).Equals("location_test.go")
-		// TODO: wait for the bug in runtime.Func.FileLine() to be fixed - after that update also location.go
-		//c.Expect(loc.Line()).Equals(expectedLine)
+		c.Expect(loc.Line()).Equals(expectedLine)
 	})
 }
 

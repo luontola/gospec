@@ -26,11 +26,8 @@ func callerLocation() *Location {
 }
 
 func newLocation(n int) *Location {
-	if pc, file, line, ok := runtime.Caller(n + 1); ok {
-		name := functionNameFromPC(pc)
-		return &Location{name, file, line}
-		// TODO: replace with the following code when the bug in runtime.Func.FileLine() is fixed
-		// return locationForPC(pc)
+	if pc, _, _, ok := runtime.Caller(n + 1); ok {
+		return locationForPC(pc)
 	}
 	return nil
 }
