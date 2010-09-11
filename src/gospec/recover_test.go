@@ -9,6 +9,19 @@ import (
 )
 
 
+func boom2() {
+	boom1()
+}
+func boom1() {
+	boom0()
+}
+func boom0() {
+	panic("boom!") // line 19
+}
+func noBoom() {
+}
+
+
 func RecoverSpec(c nanospec.Context) {
 
 	c.Specify("When the called function panics", func() {
@@ -27,6 +40,10 @@ func RecoverSpec(c nanospec.Context) {
 			lastEntry := err.StackTrace[len(err.StackTrace)-1]
 			c.Expect(lastEntry.Name()).Equals("gospec.boom2")
 		})
+		c.Specify("the stack trace line numbers are the line of the call; not where the call will return", func() {
+			// For an explanation, see the comments at http://code.google.com/p/go/issues/detail?id=1100
+			c.Expect(err.StackTrace[0].Line()).Equals(19)
+		})
 	})
 
 	c.Specify("When the called function does not panic", func() {
@@ -36,16 +53,4 @@ func RecoverSpec(c nanospec.Context) {
 			c.Expect(err == nil).IsTrue()
 		})
 	})
-}
-
-func boom2() {
-	boom1()
-}
-func boom1() {
-	boom0()
-}
-func boom0() {
-	panic("boom!")
-}
-func noBoom() {
 }

@@ -85,6 +85,7 @@ Version History
 **1.x.x (2010-xx-xx)**
 
 - [Issue 754](http://code.google.com/p/go/issues/detail?id=754) was fixed in Go release.2010-09-06, so line numbers in GoSpec's stack traces are now correct
+- Fixed an occasional off-by-one in exception stack trace line numbers
 - Upgraded to Go release.2010-09-06
 - ...
 
