@@ -68,24 +68,23 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 
 []:    Replace /master/ with /gospec-1.x.x/ before making a release.
-[hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
-[examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/master/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/master/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/master/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/master/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/master/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/master/examples/execution_model_test.go
+[hello-world-template]:       http://github.com/orfjackal/gospec/tree/gospec-1.3.2/hello-world-template/
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.3.2/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.3.2/examples/execution_model_test.go
 
 
 Version History
 ---------------
 
-**1.x.x (2010-xx-xx)**
+**1.3.2 (2010-10-01)**
 
 - Upgraded to Go release.2010-09-29
-- ...
 
 **1.3.1 (2010-09-11)**
 
