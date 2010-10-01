@@ -84,6 +84,7 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
+- Upgraded to Go release.2010-09-29
 - ...
 
 **1.3.1 (2010-09-11)**

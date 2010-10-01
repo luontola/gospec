@@ -25,7 +25,7 @@ func newMatcherAdapter(location *Location, log errorLogger, matcherType ErrorTyp
 }
 
 func (this *matcherAdapter) Expect(actual interface{}, matcher Matcher, expected ...interface{}) {
-	match, pos, _, err := matcher.Match(actual, expected)
+	match, pos, _, err := matcher.Match(actual, expected...)
 	if err != nil {
 		this.addError(err, actual)
 	} else if !match {
@@ -82,7 +82,7 @@ type Message interface {
 }
 
 func Messagef(actual interface{}, expectationFormat string, expectationArgs ...interface{}) Message {
-	expectation := Errorf(expectationFormat, expectationArgs)
+	expectation := Errorf(expectationFormat, expectationArgs...)
 	return &message{actual, expectation}
 }
 
@@ -106,7 +106,7 @@ func (this *message) Expectation() string {
 // and thus the error messages are not used.
 func Errorf(format string, args ...interface{}) os.Error {
 	return lazyString(func() string {
-		return fmt.Sprintf(format, args)
+		return fmt.Sprintf(format, args...)
 	})
 }
 

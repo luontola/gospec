@@ -371,7 +371,7 @@ type ExpectationHolder struct {
 }
 
 func E(actual interface{}, matcher Matcher, expected ...interface{}) *ExpectationHolder {
-	match, pos, neg, err := matcher.Match(actual, expected)
+	match, pos, neg, err := matcher.Match(actual, expected...)
 	return &ExpectationHolder{match, pos, neg, err}
 }
 

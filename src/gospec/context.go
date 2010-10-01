@@ -100,14 +100,14 @@ func (c *taskContext) Expect(actual interface{}, matcher Matcher, expected ...in
 	location := callerLocation()
 	logger := expectationLogger{c.currentSpec}
 	m := newMatcherAdapter(location, logger, ExpectFailed)
-	m.Expect(actual, matcher, expected)
+	m.Expect(actual, matcher, expected...)
 }
 
 func (c *taskContext) Assume(actual interface{}, matcher Matcher, expected ...interface{}) {
 	location := callerLocation()
 	logger := assumptionLogger{c.currentSpec}
 	m := newMatcherAdapter(location, logger, AssumeFailed)
-	m.Expect(actual, matcher, expected)
+	m.Expect(actual, matcher, expected...)
 }
 
 
