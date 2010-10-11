@@ -33,10 +33,22 @@ func newLocation(n int) *Location {
 }
 
 func locationForPC(pc uintptr) *Location {
+	pc = pcOfWhereCallWasMade(pc)
 	f := runtime.FuncForPC(pc)
 	name := f.Name()
 	file, line := f.FileLine(pc)
 	return &Location{name, file, line}
+}
+
+// Quoted from http://code.google.com/p/go/issues/detail?id=1100
+//   "It's a subtle thing, but runtime.Callers returns the return PCs
+//   going up the stack.  The return PCs are the PCs of the instruction
+//   that the call returns to, not the call itself.  The code that formats
+//   the traceback for a crash subtracts 1 from each PC before translating
+//   it to a line number.  The equivalent change in your code would be to
+//   call f.FileLine(pc - 1)."
+func pcOfWhereCallWasMade(pcOfWhereCallReturnsTo uintptr) uintptr {
+	return pcOfWhereCallReturnsTo - 1
 }
 
 func (this *Location) Name() string     { return this.name }

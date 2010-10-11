@@ -17,6 +17,16 @@ func LocationSpec(c nanospec.Context) {
 		c.Expect(loc.FileName()).Equals("location_test.go")
 		c.Expect(loc.Line()).Equals(16)
 	})
+	c.Specify("The line number is that of the call instruction; not where the call will return to", func() {
+		// This indirection is needed to reproduce the off-by-one issue, because
+		// there must be no instructions on the same line after the call itself.
+		var loc *Location
+		f := func() {
+			loc = callerLocation()
+		}
+		f() // line 27; call returns to line 28
+		c.Expect(loc.Line()).Equals(27)
+	})
 	c.Specify("Location of the calling method can be found", func() {
 		loc := callerLocation()
 		c.Expect(loc.FileName()).Equals("context.go")

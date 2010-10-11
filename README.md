@@ -84,6 +84,7 @@ Version History
 
 **1.x.x (2010-xx-xx)**
 
+- Fixed an occasional off-by-one in exception stack trace line numbers
 - ...
 
 **1.3.2 (2010-10-01)**

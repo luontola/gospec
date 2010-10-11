@@ -68,18 +68,7 @@ func cutStackTraceAt(cutpoint_ interface{}, callers []uintptr) []uintptr {
 func asLocationArray(pcs []uintptr) []*Location {
 	result := make([]*Location, len(pcs))
 	for i, pc := range pcs {
-		result[i] = locationForPC(pcOfWhereCallWasMade(pc))
+		result[i] = locationForPC(pc)
 	}
 	return result
-}
-
-// Quoted from http://code.google.com/p/go/issues/detail?id=1100
-//   "It's a subtle thing, but runtime.Callers returns the return PCs
-//   going up the stack.  The return PCs are the PCs of the instruction
-//   that the call returns to, not the call itself.  The code that formats
-//   the traceback for a crash subtracts 1 from each PC before translating
-//   it to a line number.  The equivalent change in your code would be to
-//   call f.FileLine(pc - 1)."
-func pcOfWhereCallWasMade(pcOfWhereCallReturnsTo uintptr) uintptr {
-	return pcOfWhereCallReturnsTo - 1
 }
