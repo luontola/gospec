@@ -161,8 +161,9 @@ func (this *specResult) isFailed() bool {
 
 func (this *specResult) visitAll(visitor func(*specResult)) {
 	visitor(this)
-	for child := range this.children.Iter() {
-		child.(*specResult).visitAll(visitor)
+	for e := this.children.Front(); e != nil; e = e.Next() {
+		child := e.Value.(*specResult)
+		child.visitAll(visitor)
 	}
 }
 
@@ -186,8 +187,8 @@ func (this *specResult) update(spec *specRun) {
 }
 
 func (this *specResult) mergeErrors(newErrors *list.List) {
-	for v := range newErrors.Iter() {
-		error := v.(*Error)
+	for e := newErrors.Front(); e != nil; e = e.Next() {
+		error := e.Value.(*Error)
 		if !this.hasError(error) {
 			this.addError(error)
 		}

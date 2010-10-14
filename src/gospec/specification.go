@@ -79,8 +79,9 @@ func (spec *specRun) String() string {
 func asSpecArray(list *list.List) []*specRun {
 	arr := make([]*specRun, list.Len())
 	i := 0
-	for v := range list.Iter() {
-		arr[i] = v.(*specRun)
+	for e := list.Front(); e != nil; e = e.Next() {
+		v := e.Value.(*specRun)
+		arr[i] = v
 		i++
 	}
 	return arr

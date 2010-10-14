@@ -6,6 +6,7 @@ package examples
 
 import (
 	"container/list"
+	"container/vector"
 	"gospec"   // the "gospec.Context" interface
 	. "gospec" // the expectation matchers (Equals, IsTrue etc.), will later be renamed to "gospec/matchers"
 	"os"
@@ -68,16 +69,26 @@ func ExpectationSyntaxSpec(c gospec.Context) {
 		c.Expect("first string", HasSameLengthAs, "other string")
 	})
 
-	c.Specify("Arrays, slices, iterables and channels can be tested for containment", func() {
+	c.Specify("Arrays/slices, lists, vectors and channels can be tested for containment", func() {
 		array := []string{"one", "two", "three"}
 		list := list.New()
 		list.PushBack("one")
 		list.PushBack("two")
 		list.PushBack("three")
+		vector := new(vector.Vector)
+		vector.Push("one")
+		vector.Push("two")
+		vector.Push("three")
+		channel := make(chan string, 10)
+		channel <- "one"
+		channel <- "two"
+		channel <- "three"
+		close(channel)
 
 		c.Expect(array, Contains, "one")
 		c.Expect(list, Contains, "two")
-		c.Expect(list.Iter(), Contains, "three")
+		c.Expect(vector, Contains, "three")
+		c.Expect(channel, Contains, "three")
 		c.Expect(array, Not(Contains), "four")
 
 		c.Expect(list, ContainsAll, Values("two", "one"))

@@ -7,7 +7,7 @@ package gospec
 import (
 	"fmt"
 	"container/vector"
-	"exp/iterable"
+	"container/list"
 	"math"
 	"os"
 	"reflect"
@@ -277,13 +277,25 @@ func Contains(actual_ interface{}, expected interface{}) (match bool, pos Messag
 }
 
 func toArray(values interface{}) ([]interface{}, os.Error) {
-	if it, ok := values.(iterable.Iterable); ok {
-		return toArray(it.Iter())
+
+	// vector to array
+	if vector, ok := values.(*vector.Vector); ok {
+		return toArray(*vector)
 	}
 
 	result := new(vector.Vector)
+
+	// list to array
+	if list, ok := values.(*list.List); ok {
+		for e := list.Front(); e != nil; e = e.Next() {
+			result.Push(e.Value)
+		}
+		return *result, nil
+	}
+
 	switch v := reflect.NewValue(values).(type) {
 
+	// array to array (copy)
 	case reflect.ArrayOrSliceValue:
 		arr := v
 		for i := 0; i < arr.Len(); i++ {
@@ -291,6 +303,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 			result.Push(obj)
 		}
 
+	// channel to array
 	case *reflect.ChanValue:
 		ch := v
 		for {
@@ -301,8 +314,9 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 			result.Push(obj)
 		}
 
+	// unknown type
 	default:
-		return nil, Errorf("type error: expected an iterable type, but was “%v” of type “%T”", values, values)
+		return nil, Errorf("type error: expected a collection type, but was “%v” of type “%T”", values, values)
 	}
 	return *result, nil
 }

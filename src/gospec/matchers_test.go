@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"container/list"
+	"container/vector"
 	"fmt"
 	"math"
 	"nanospec"
@@ -271,19 +272,33 @@ func MatchersSpec(c nanospec.Context) {
 			c.Expect(result[2]).Equals("three")
 		})
 		c.Specify("channel to array", func() {
-			values := list.New()
-			values.PushBack("one")
-			values.PushBack("two")
-			values.PushBack("three")
+			values := make(chan string, 10)
+			values <- "one"
+			values <- "two"
+			values <- "three"
+			close(values)
 
-			result, _ := toArray(values.Iter())
+			result, _ := toArray(values)
 
 			c.Expect(len(result)).Equals(3)
 			c.Expect(result[0]).Equals("one")
 			c.Expect(result[1]).Equals("two")
 			c.Expect(result[2]).Equals("three")
 		})
-		c.Specify("iterable to array", func() {
+		c.Specify("vector to array", func() {
+			values := new(vector.Vector)
+			values.Push("one")
+			values.Push("two")
+			values.Push("three")
+
+			result, _ := toArray(values)
+
+			c.Expect(len(result)).Equals(3)
+			c.Expect(result[0]).Equals("one")
+			c.Expect(result[1]).Equals("two")
+			c.Expect(result[2]).Equals("three")
+		})
+		c.Specify("list to array", func() {
 			values := list.New()
 			values.PushBack("one")
 			values.PushBack("two")
@@ -298,7 +313,7 @@ func MatchersSpec(c nanospec.Context) {
 		})
 		c.Specify("unsupported value to array", func() {
 			_, err := toArray("foo")
-			c.Expect(err.String()).Equals("type error: expected an iterable type, but was “foo” of type “string”")
+			c.Expect(err.String()).Equals("type error: expected a collection type, but was “foo” of type “string”")
 		})
 	})
 
@@ -309,8 +324,9 @@ func MatchersSpec(c nanospec.Context) {
 			values.PushBack("one")
 			values.PushBack("two")
 			values.PushBack("three")
-			nonPrintableList := values.Iter()
+			nonPrintableList := values
 			listAsString := "[one two three]"
+			c.Expect(fmt.Sprint(nonPrintableList)).NotEquals(listAsString)
 
 			c.Specify("Matcher: Contains", func() {
 				c.Expect(func(c Context) {
