@@ -65,7 +65,7 @@ func ExecutionModelSpec(c gospec.Context) {
 		// body of the test, even though the bug was in the test setup.
 		//
 		// For this use case, GoSpec provides 'Assume' in addition to 'Expect'.
-		// Use 'Assume' when the test assumes the correct functionin of some
+		// Use 'Assume' when the test assumes the correct functioning of some
 		// behaviour which is not the focus of the current test:
 		//
 		// - When an 'Expect' fails, then the child specs are executed normally.
