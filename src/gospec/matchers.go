@@ -250,8 +250,6 @@ func IsWithin(delta float64) Matcher {
 
 func toFloat64(actual interface{}) (result float64, err os.Error) {
 	switch v := actual.(type) {
-	case float:
-		result = float64(v)
 	case float32:
 		result = float64(v)
 	case float64:
