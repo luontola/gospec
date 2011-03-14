@@ -84,6 +84,7 @@ Version History
 
 **1.x.x (2011-xx-xx)**
 
+- Upgraded to Go tip on 2011-03-14
 - ...
 
 **1.3.5 (2011-01-21)**

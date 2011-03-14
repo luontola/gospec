@@ -305,11 +305,12 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 	case *reflect.ChanValue:
 		ch := v
 		for {
-			obj := ch.Recv().Interface()
-			if ch.Closed() {
+			if x, ok := ch.Recv(); ok {
+				obj := x.Interface()
+				result.Push(obj)
+			} else {
 				break
 			}
-			result.Push(obj)
 		}
 
 	// unknown type
