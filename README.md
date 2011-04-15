@@ -66,8 +66,9 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 - [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
 
-
-[]:    Replace /master/ with /gospec-1.x.x/ before making a release.
+<!---
+Replace /master/ with /gospec-1.x.x/ before making a release.
+-->
 [hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/hello-world-template/
 [examples]:                   http://github.com/orfjackal/gospec/tree/master/examples/
 [all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/examples/all_specs_test.go
