@@ -173,9 +173,9 @@ func IsSame(actual interface{}, expected interface{}) (match bool, pos Message, 
 }
 
 func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
-	switch v := reflect.NewValue(value).(type) {
-	case *reflect.PtrValue:
-		ptr = v.Get()
+	switch v := reflect.NewValue(value); v.Kind() {
+	case reflect.Ptr:
+		ptr = v.Pointer()
 	default:
 		err = Errorf("type error: expected a pointer, but was “%v” of type “%T”", value, value)
 	}
@@ -194,8 +194,8 @@ func IsNil(actual interface{}, _ interface{}) (match bool, pos Message, neg Mess
 }
 
 func isNilPointerInsideInterfaceValue(value interface{}) bool {
-	switch v := reflect.NewValue(value).(type) {
-	case *reflect.PtrValue:
+	switch v := reflect.NewValue(value); v.Kind() {
+	case reflect.Ptr:
 		return v.IsNil()
 	}
 	return false
@@ -291,18 +291,18 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 		return *result, nil
 	}
 
-	switch v := reflect.NewValue(values).(type) {
+	switch v := reflect.NewValue(values); v.Kind() {
 
 	// array to array (copy)
-	case reflect.ArrayOrSliceValue:
+	case reflect.Array, reflect.Slice:
 		arr := v
 		for i := 0; i < arr.Len(); i++ {
-			obj := arr.Elem(i).Interface()
+			obj := arr.Index(i).Interface()
 			result.Push(obj)
 		}
 
 	// channel to array
-	case *reflect.ChanValue:
+	case reflect.Chan:
 		ch := v
 		for {
 			if x, ok := ch.Recv(); ok {
