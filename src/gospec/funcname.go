@@ -19,6 +19,6 @@ func functionName(function interface{}) string {
 }
 
 func functionToFunc(function interface{}) *runtime.Func {
-	fval := reflect.NewValue(function)
+	fval := reflect.ValueOf(function)
 	return runtime.FuncForPC(fval.Pointer())
 }

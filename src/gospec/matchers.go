@@ -173,7 +173,7 @@ func IsSame(actual interface{}, expected interface{}) (match bool, pos Message, 
 }
 
 func pointerOf(value interface{}) (ptr uintptr, err os.Error) {
-	switch v := reflect.NewValue(value); v.Kind() {
+	switch v := reflect.ValueOf(value); v.Kind() {
 	case reflect.Ptr:
 		ptr = v.Pointer()
 	default:
@@ -194,7 +194,7 @@ func IsNil(actual interface{}, _ interface{}) (match bool, pos Message, neg Mess
 }
 
 func isNilPointerInsideInterfaceValue(value interface{}) bool {
-	switch v := reflect.NewValue(value); v.Kind() {
+	switch v := reflect.ValueOf(value); v.Kind() {
 	case reflect.Ptr:
 		return v.IsNil()
 	}
@@ -291,7 +291,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 		return *result, nil
 	}
 
-	switch v := reflect.NewValue(values); v.Kind() {
+	switch v := reflect.ValueOf(values); v.Kind() {
 
 	// array to array (copy)
 	case reflect.Array, reflect.Slice:
