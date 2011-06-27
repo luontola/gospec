@@ -433,7 +433,7 @@ func GivesError(err string) nanospec.Matcher {
 }
 
 func (this *ExpectationHolder) ToError() os.Error {
-	return os.ErrorString(fmt.Sprintf(
+	return os.NewError(fmt.Sprintf(
 		"Mather failed its expectations\n\tmatch: %v\n\tpos: %v\n\tneg: %v\n\terr: %v",
 		this.match, this.pos, this.neg, this.err))
 }

@@ -314,7 +314,7 @@ func ReportIs(expected string) nanospec.Matcher {
 		actual := strings.TrimSpace(resultToString(v.(*ResultCollector)))
 		expected = strings.TrimSpace(expected)
 		if actual != expected {
-			return os.ErrorString("Expected report:\n" + expected + "\n\nBut was:\n" + actual)
+			return os.NewError("Expected report:\n" + expected + "\n\nBut was:\n" + actual)
 		}
 		return nil
 	}
@@ -325,7 +325,7 @@ func ReportContains(needle string) nanospec.Matcher {
 		actual := resultToString(v.(*ResultCollector))
 		found := strings.Index(actual, needle) >= 0
 		if !found {
-			return os.ErrorString("Expected report to contain:\n" + needle + "\n\nBut report was:\n" + actual)
+			return os.NewError("Expected report to contain:\n" + needle + "\n\nBut report was:\n" + actual)
 		}
 		return nil
 	}
