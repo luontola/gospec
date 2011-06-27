@@ -23,7 +23,7 @@ func ExecutionModelSpec(c gospec.Context) {
 
 		// All sibling specs (specs which are declared within a common parent)
 		// are fully isolated from each other. The following three siblings are
-		// executed concurrently, each in its own goroutine, and each of them
+		// executed in parallel, each in its own goroutine, and each of them
 		// has its own copy of the local variables declared in its parent specs.
 		c.Specify("I modify it, but none of my siblings will know it", func() {
 			commonVariable += "1"

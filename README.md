@@ -2,7 +2,7 @@
 GoSpec
 ======
 
-GoSpec is a [BDD](http://dannorth.net/introducing-bdd)-style testing framework for the [Go programming language](http://golang.org/). It allows writing self-documenting tests/specs, and executes them concurrently and safely isolated.
+GoSpec is a [BDD](http://dannorth.net/introducing-bdd)-style testing framework for the [Go programming language](http://golang.org/). It allows writing self-documenting tests/specs, and executes them in parallel and safely isolated.
 
 Source code is available at <http://github.com/orfjackal/gospec>
 
@@ -64,7 +64,7 @@ For examples on how to write specs, see the files in the [examples] directory.
 
 - [expectation_syntax_test.go] explains the syntax for writing expectations.
 
-- [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed concurrently.
+- [execution_model_test.go] explains GoSpec's runtime model, for example how the specs are isolated from each other and executed in parallel.
 
 <!---
 Replace /master/ with /gospec-1.x.x/ before making a release.
@@ -166,7 +166,7 @@ The following are *nice-to-haves*, which make it more pleasant to use the framew
 
 - **Fluent API** - The syntax for writing specs should be easily readable. It should be obvious that what an assert does, and which is the *expected* and which the *actual* value. Also writing the specs should be easy, requiring as little syntax as possible, but readability has always higher priority than writability.
 
-- **Parallel Execution** - Running the specs [quickly](http://agileinaflash.blogspot.com/2009/02/first.html) (i.e. less than 10-20 seconds) is a must for using TDD, so being able to take advantage of all processing power is important, and multiple CPU cores is the only way to go fast in the foreseen future. GoSpec executes the specs using as much concurrency as possible (one goroutine for each leaf spec), so that it would be possible to utilize all available CPU cores (just remember to set GOMAXPROCS).
+- **Parallel Execution** - Running the specs [quickly](http://agileinaflash.blogspot.com/2009/02/first.html) (i.e. less than 10-20 seconds) is a must for using TDD, so being able to take advantage of all processing power is important, and multiple CPU cores is the only way to go fast in the foreseen future. GoSpec executes the specs using as much parallelism as possible (one goroutine for each leaf spec), so that it would be possible to utilize all available CPU cores (just remember to set GOMAXPROCS).
 
 
 License
