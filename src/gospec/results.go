@@ -132,7 +132,7 @@ func (r *ResultCollector) sortedRootNames() []string {
 		names[i] = name
 		i++
 	}
-	sort.SortStrings(names)
+	sort.Strings(names)
 	return names
 }
 
