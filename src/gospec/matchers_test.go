@@ -145,6 +145,15 @@ func MatchersSpec(c nanospec.Context) {
 			"does NOT satisfy the criteria"))
 	})
 
+	c.Specify("Matcher: Is", func() {
+		value := 42
+
+		c.Expect(E(value, Is("OK"), value < 100)).Matches(Passes)
+		c.Expect(E(value, Is("OK"), value > 100)).Matches(FailsWithMessage(
+			"is OK",
+			"is NOT OK"))
+	})
+
 	c.Specify("Matcher: IsWithin", func() {
 		value := float64(3.141)
 		pi := float64(math.Pi)
