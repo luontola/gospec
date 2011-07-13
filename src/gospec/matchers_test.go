@@ -268,6 +268,29 @@ func MatchersSpec(c nanospec.Context) {
 			"does NOT contain in partial order “[1 4 3]”"))
 	})
 
+	c.Specify("Matcher: IsNoError", func() {
+		c.Expect(E(Catch(func() { panic("Error") }), IsNoError)).Matches(Fails)
+		// Esnure that it is not possible to create another noError value
+		c.Expect(E(Catch(func() { panic(&noErrorT{}) }), IsNoError)).Matches(Fails)
+		c.Expect(E(Catch(func() { }), IsNoError)).Matches(Passes)
+	})
+
+	c.Specify("Matcher: Panic", func() {
+		c.Expect(E(func() { panic("Error") }, Panic(Equals), "Error")).Matches(Passes)
+		c.Expect(E(func() { panic("Error") }, Panic(Equals), "Error2")).Matches(Fails)
+		c.Expect(E(func() { panic("Error") }, Panic(Equals), nil)).Matches(Fails)
+		c.Expect(E(func() { }, Panic(Equals), "Error")).Matches(Fails)
+		c.Expect(E(func() { }, Panic(Equals), "Error2")).Matches(Fails)
+		c.Expect(E(func() { }, Panic(Equals), nil)).Matches(Fails)
+		c.Expect(E(nil, Panic(Equals))).Matches(GivesError("type error: expected a func(), but was “<nil>” of type “<nil>”"))
+	})
+
+	c.Specify("Matcher: RunsNormally", func() {
+		c.Expect(E(func() { }, RunsNormally)).Matches(Passes)
+		c.Expect(E(func() { panic("Error") }, RunsNormally)).Matches(Fails)
+		c.Expect(E(nil, RunsNormally)).Matches(GivesError("type error: expected a func(), but was “<nil>” of type “<nil>”"))
+	})
+
 	c.Specify("Conversions for containment matchers", func() {
 
 		c.Specify("array to array", func() {
