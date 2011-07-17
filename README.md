@@ -85,6 +85,7 @@ Version History
 
 **1.x.x (2011-xx-xx)**
 
+- New matchers for checking calls to `panic()`: RunsNormally, Panic
 - Upgraded to Go weekly.2011-07-07
 
 **1.3.7 (2011-07-02)**
