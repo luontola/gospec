@@ -220,7 +220,6 @@ func IsFalse(actual interface{}, _ interface{}) (match bool, pos Message, neg Me
 }
 
 
-
 // The actual value must satisfy the given criteria.
 func Satisfies(actual interface{}, criteria interface{}) (match bool, pos Message, neg Message, err os.Error) {
 	match = criteria.(bool) == true
@@ -228,7 +227,6 @@ func Satisfies(actual interface{}, criteria interface{}) (match bool, pos Messag
 	neg = Messagef(actual, "does NOT satisfy the criteria")
 	return
 }
-
 
 
 // Like satisfies but allows to name the criteria
@@ -242,7 +240,6 @@ func Is(critDesc string, critArgs ...interface{}) Matcher {
 		return
 	}
 }
-
 
 
 // The actual value must be within delta from the expected value.
@@ -496,77 +493,65 @@ func ContainsInPartialOrder(actual_ interface{}, expected_ interface{}) (match b
 }
 
 
-// Type of the noError indicator
-type noErrorT struct { }
+// Special value thrown to indicate that there was no error
+var noError interface{} = &noErrorT{}
+
+type noErrorT struct{}
 
 func (noErr noErrorT) String() string {
-	return "gospec: not an error condition"
+	return "<gospec: not an error condition>"
 }
 
-// Error condition thrown to indicate that there was no error
-var noError interface{} = &noErrorT{ }
-
-// Runs code() and either delivers whatever value was thrown by
-// calling panic(value) by code() or, if panic(value) was not called,
-// returns the noError indicator (which can be tested with IsNoError)
+// Runs code() and returns whatever value it threw by calling panic(value).
+// Or if panic(value) was not called, returns a special value indicating
+// that no error happened, which can be tested with IsNoError.
 func Catch(code func()) (result interface{}) {
-	{
-		defer func() {
-			result = recover()
-		}()
+	defer func() {
+		result = recover()
+	}()
+	code()
+	panic(noError)
+}
 
-		code()
-		panic(noError)
-	}
+// Checks whether a call to Catch() returned a special value indicating
+// that panic() was not called by the code. Used together with either
+// Panic or Catch, but not both at the same time. 
+//
+// May be useful in cases when Panic and RunsNormally are not sufficient
+// and you need to do more complicated things with the error value.
+func IsNoError(actual interface{}, _ interface{}) (match bool, pos Message, neg Message, err os.Error) {
+	match = (actual == noError)
+	pos = Messagef(actual, "is not an error")
+	neg = Messagef(actual, "IS an error")
 	return
 }
 
-// Matcher for checking wether a call to Catch() returned the special
-// noError indicator. 
-//
-// This may be useful in cases when PanicsWith()/RunsNormal() are not sufficient
-// and you need to do more complicated things with the error value
-//
-func IsNoError(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
-	match, _, _, err = Equals(actual, noError)
-	pos = Messagef(actual, "is the noError indicator")
-	neg = Messagef(actual, "is NOT the noError indicator")
-	return
-}
 
-// Matcher that expects actual to be of type func(), calls it and ensures
-// that actual() panic'd with a value that matches matcher(value, expected)
+// The actual func() must panic with a value which matches the expected value
+// using the provided matcher.
 func Panic(matcher Matcher) Matcher {
 	return func(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
-		code, ok := actual.(func())
-		if ok {
-			actual = Catch(code)
-			match, pos, neg, err = matcher(actual, expected)
-			pos = Messagef(actual, fmt.Sprintf("does panic as expected (%v)", pos))
-			neg = Messagef(actual, fmt.Sprintf("does NOT panic as expected (%v)", neg))
-		} else {
+		closure, ok := actual.(func())
+		if !ok {
 			err = Errorf("type error: expected a func(), but was “%v” of type “%T”", actual, actual)
+			return
 		}
+
+		thrownValue := Catch(closure)
+		match, matcherPos, _, err := matcher(thrownValue, expected)
+		pos = Messagef(matcherPos.Actual(), fmt.Sprintf("panics with a value that %v", matcherPos.Expectation()))
+		neg = Messagef(matcherPos.Actual(), fmt.Sprintf("does NOT panic with a value that %v", matcherPos.Expectation()))
 		return
 	}
 }
 
-// Matcher that expects actual to be of type func(), calls it and ensures
-// that actual() did not panic
+
+// The actual func() must not panic.
 //
-// This is the same as Panic(IsNoError) except that it prints nicer
-// messages
+// This is the same as Panic(IsNoError) except that it prints nicer messages.
 func RunsNormally(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
-	code, ok := actual.(func())
-	if ok {
-		actual = Catch(code)
-		match, _, _, err = IsNoError(actual, expected)
-		pos = Messagef(actual, "runs normal (does not panic)")
-		neg = Messagef(actual, "does NOT run normal (DOES panic)")
-	} else {
-		err = Errorf("type error: expected a func(), but was “%v” of type “%T”", actual, actual)
-	}
+	match, _, _, err = Panic(IsNoError)(actual, expected)
+	pos = Messagef(actual, "runs normally (i.e. does NOT panic)")
+	neg = Messagef(actual, "does NOT run normally (i.e. panics)")
 	return
 }
-
-

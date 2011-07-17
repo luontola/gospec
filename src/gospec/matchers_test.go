@@ -269,26 +269,33 @@ func MatchersSpec(c nanospec.Context) {
 	})
 
 	c.Specify("Matcher: IsNoError", func() {
-		c.Expect(E(Catch(func() { panic("Error") }), IsNoError)).Matches(Fails)
-		// Esnure that it is not possible to create another noError value
-		c.Expect(E(Catch(func() { panic(&noErrorT{}) }), IsNoError)).Matches(Fails)
-		c.Expect(E(Catch(func() { }), IsNoError)).Matches(Passes)
+		c.Expect(E(Catch(func() {}), IsNoError)).Matches(Passes)
+
+		c.Expect(E(Catch(func() { panic("Error") }), IsNoError)).Matches(FailsWithMessage(
+			"is not an error",
+			"IS an error"))
 	})
 
 	c.Specify("Matcher: Panic", func() {
 		c.Expect(E(func() { panic("Error") }, Panic(Equals), "Error")).Matches(Passes)
-		c.Expect(E(func() { panic("Error") }, Panic(Equals), "Error2")).Matches(Fails)
+		c.Expect(E(func() { panic("Error") }, Panic(Equals), "Error2")).Matches(FailsWithMessage(
+			"panics with a value that equals “Error2”",
+			"does NOT panic with a value that equals “Error2”"))
 		c.Expect(E(func() { panic("Error") }, Panic(Equals), nil)).Matches(Fails)
-		c.Expect(E(func() { }, Panic(Equals), "Error")).Matches(Fails)
-		c.Expect(E(func() { }, Panic(Equals), "Error2")).Matches(Fails)
-		c.Expect(E(func() { }, Panic(Equals), nil)).Matches(Fails)
-		c.Expect(E(nil, Panic(Equals))).Matches(GivesError("type error: expected a func(), but was “<nil>” of type “<nil>”"))
+
+		c.Expect(E(func() {}, Panic(Equals), "Error")).Matches(Fails)
+
+		c.Expect(E(1, Panic(Equals))).Matches(GivesError("type error: expected a func(), but was “1” of type “int”"))
 	})
 
 	c.Specify("Matcher: RunsNormally", func() {
-		c.Expect(E(func() { }, RunsNormally)).Matches(Passes)
-		c.Expect(E(func() { panic("Error") }, RunsNormally)).Matches(Fails)
-		c.Expect(E(nil, RunsNormally)).Matches(GivesError("type error: expected a func(), but was “<nil>” of type “<nil>”"))
+		c.Expect(E(func() {}, RunsNormally)).Matches(Passes)
+
+		c.Expect(E(func() { panic("Error") }, RunsNormally)).Matches(FailsWithMessage(
+			"runs normally (i.e. does NOT panic)",
+			"does NOT run normally (i.e. panics)"))
+
+		c.Expect(E(1, RunsNormally)).Matches(GivesError("type error: expected a func(), but was “1” of type “int”"))
 	})
 
 	c.Specify("Conversions for containment matchers", func() {
