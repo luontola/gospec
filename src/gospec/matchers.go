@@ -229,14 +229,16 @@ func Satisfies(actual interface{}, criteria interface{}) (match bool, pos Messag
 }
 
 
-// Like satisfies but allows to name the criteria
-func Is(critDesc string, critArgs ...interface{}) Matcher {
-	// The actual value must satisfy the given criteria as described by
-	// criteriaDesc
+// The actual value must satisfy the given criteria as described
+// by the given description.
+//
+// Like Satisfies but allows to name the criteria. The description
+// and its args are formatted using fmt.Sprintf().
+func Is(description string, args ...interface{}) Matcher {
 	return func(actual interface{}, criteria interface{}) (match bool, pos Message, neg Message, err os.Error) {
 		match = criteria.(bool) == true
-		pos = Messagef(actual, "is %v", fmt.Sprintf(critDesc, critArgs...))
-		neg = Messagef(actual, "is NOT %v", fmt.Sprintf(critDesc, critArgs...))
+		pos = Messagef(actual, "is %v", fmt.Sprintf(description, args...))
+		neg = Messagef(actual, "is NOT %v", fmt.Sprintf(description, args...))
 		return
 	}
 }
