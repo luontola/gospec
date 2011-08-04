@@ -87,6 +87,9 @@ Version History
 
 - New matchers for checking calls to `panic()`: RunsNormally, Panic
 - New matcher similar to Satisfies, but with a custom description: Is
+
+**1.3.8 (2011-08-04)**
+
 - Upgraded to Go release.r59 (weekly.2011-07-07)
 
 **1.3.7 (2011-07-02)**
