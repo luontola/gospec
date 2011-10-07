@@ -241,7 +241,7 @@ func IsWithin(delta float64) Matcher {
 			return
 		}
 
-		match = math.Fabs(expected-actual) < delta
+		match = math.Abs(expected-actual) < delta
 		pos = Messagef(actual, "is within %v ± %v", expected, delta)
 		neg = Messagef(actual, "is NOT within %v ± %v", expected, delta)
 		return
