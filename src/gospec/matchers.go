@@ -6,7 +6,6 @@ package gospec
 
 import (
 	"fmt"
-	"container/vector"
 	"container/list"
 	"math"
 	"os"
@@ -261,20 +260,14 @@ func Contains(actual_ interface{}, expected interface{}) (match bool, pos Messag
 }
 
 func toArray(values interface{}) ([]interface{}, os.Error) {
-
-	// vector to array
-	if vector, ok := values.(*vector.Vector); ok {
-		return toArray(*vector)
-	}
-
-	result := new(vector.Vector)
+	result := make([]interface{}, 0)
 
 	// list to array
 	if list, ok := values.(*list.List); ok {
 		for e := list.Front(); e != nil; e = e.Next() {
-			result.Push(e.Value)
+			result = append(result, e.Value)
 		}
-		return *result, nil
+		return result, nil
 	}
 
 	switch v := reflect.ValueOf(values); v.Kind() {
@@ -284,7 +277,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 		arr := v
 		for i := 0; i < arr.Len(); i++ {
 			obj := arr.Index(i).Interface()
-			result.Push(obj)
+			result = append(result, obj)
 		}
 
 	// channel to array
@@ -293,7 +286,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 		for {
 			if x, ok := ch.Recv(); ok {
 				obj := x.Interface()
-				result.Push(obj)
+				result = append(result, obj)
 			} else {
 				break
 			}
@@ -303,7 +296,7 @@ func toArray(values interface{}) ([]interface{}, os.Error) {
 	default:
 		return nil, Errorf("type error: expected a collection type, but was “%v” of type “%T”", values, values)
 	}
-	return *result, nil
+	return result, nil
 }
 
 func arrayContains(haystack []interface{}, needle interface{}) bool {
@@ -385,18 +378,18 @@ func ContainsExactly(actual_ interface{}, expected_ interface{}) (match bool, po
 	}
 
 	containsAll := true
-	remaining := new(vector.Vector)
-	remaining.AppendVector((*vector.Vector)(&actual))
+	remaining := make([]interface{}, 0)
+	remaining = append(remaining, actual...)
 	for i := 0; i < len(expected); i++ {
-		if idx, found := findIndex(*remaining, expected[i]); found {
-			remaining.Delete(idx)
+		if idx, found := findIndex(remaining, expected[i]); found {
+			remaining = append(remaining[:idx], remaining[idx+1:]...)
 		} else {
 			containsAll = false
 			break
 		}
 	}
 
-	match = containsAll && remaining.Len() == 0
+	match = containsAll && len(remaining) == 0
 	pos = Messagef(actual, "contains exactly “%v”", expected)
 	neg = Messagef(actual, "does NOT contain exactly “%v”", expected)
 	return

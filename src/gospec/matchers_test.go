@@ -6,7 +6,6 @@ package gospec
 
 import (
 	"container/list"
-	"container/vector"
 	"fmt"
 	"math"
 	"nanospec"
@@ -275,19 +274,6 @@ func MatchersSpec(c nanospec.Context) {
 			values <- "two"
 			values <- "three"
 			close(values)
-
-			result, _ := toArray(values)
-
-			c.Expect(len(result)).Equals(3)
-			c.Expect(result[0]).Equals("one")
-			c.Expect(result[1]).Equals("two")
-			c.Expect(result[2]).Equals("three")
-		})
-		c.Specify("vector to array", func() {
-			values := new(vector.Vector)
-			values.Push("one")
-			values.Push("two")
-			values.Push("three")
 
 			result, _ := toArray(values)
 

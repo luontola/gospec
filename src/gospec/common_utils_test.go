@@ -4,10 +4,6 @@
 
 package gospec
 
-import (
-	"container/vector"
-)
-
 func runSpec(spec func(Context)) *ResultCollector {
 	r := NewRunner()
 	r.AddNamedSpec("RootSpec", spec)
@@ -21,10 +17,9 @@ func runSpecWithContext(closure func(Context), context *taskContext) *taskResult
 	return r.execute("RootSpec", closure, context)
 }
 
-func countSpecNames(specs *vector.Vector) map[string]int {
+func countSpecNames(specs []*specRun) map[string]int {
 	results := make(map[string]int)
-	for _, v := range *specs {
-		spec := v.(*specRun)
+	for _, spec := range specs {
 		key := spec.name
 		if _, preset := results[key]; !preset {
 			results[key] = 0

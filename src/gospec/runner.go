@@ -4,10 +4,6 @@
 
 package gospec
 
-import (
-	"container/vector"
-)
-
 const (
 	channelBufferSize = 10
 )
@@ -16,16 +12,16 @@ const (
 type Runner struct {
 	runningTasks int
 	results      chan *taskResult
-	executed     *vector.Vector
-	scheduled    *vector.Vector
+	executed     []*specRun
+	scheduled    []*scheduledTask
 }
 
 func NewRunner() *Runner {
 	r := new(Runner)
 	r.runningTasks = 0
 	r.results = make(chan *taskResult, channelBufferSize)
-	r.executed = new(vector.Vector)
-	r.scheduled = new(vector.Vector)
+	r.executed = make([]*specRun, 0)
+	r.scheduled = make([]*scheduledTask, 0)
 	return r
 }
 
@@ -39,7 +35,7 @@ func (r *Runner) AddSpec(closure func(Context)) {
 // retrieving the name of the spec function with reflection.
 func (r *Runner) AddNamedSpec(name string, closure func(Context)) {
 	task := newScheduledTask(name, closure, newInitialContext())
-	r.scheduled.Push(task)
+	r.scheduled = append(r.scheduled, task)
 }
 
 // Executes all the specs which have been added with AddSpec. The specs
@@ -83,9 +79,14 @@ func (r *Runner) processNextFinishedTask() {
 	r.saveResult(result)
 }
 
-func (r *Runner) hasRunningTasks() bool             { return r.runningTasks > 0 }
-func (r *Runner) hasScheduledTasks() bool           { return r.scheduled.Len() > 0 }
-func (r *Runner) nextScheduledTask() *scheduledTask { return r.scheduled.Pop().(*scheduledTask) }
+func (r *Runner) hasRunningTasks() bool   { return r.runningTasks > 0 }
+func (r *Runner) hasScheduledTasks() bool { return len(r.scheduled) > 0 }
+func (r *Runner) nextScheduledTask() *scheduledTask {
+	last := len(r.scheduled) - 1
+	popped := r.scheduled[last]
+	r.scheduled = r.scheduled[:last]
+	return popped
+}
 
 func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskResult {
 	c.Specify(name, func() { closure(c) })
@@ -99,11 +100,11 @@ func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskRes
 
 func (r *Runner) saveResult(result *taskResult) {
 	for _, spec := range result.executedSpecs {
-		r.executed.Push(spec)
+		r.executed = append(r.executed, spec)
 	}
 	for _, spec := range result.postponedSpecs {
 		task := newScheduledTask(result.name, result.closure, newExplicitContext(spec.path))
-		r.scheduled.Push(task)
+		r.scheduled = append(r.scheduled, task)
 	}
 }
 
@@ -115,8 +116,7 @@ func (r *Runner) Results() *ResultCollector {
 	// will get the result collector from a result channel.
 
 	results := newResultCollector()
-	for _, v := range *r.executed {
-		spec := v.(*specRun)
+	for _, spec := range r.executed {
 		results.Update(spec)
 	}
 	return results

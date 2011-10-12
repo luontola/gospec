@@ -5,7 +5,6 @@
 package gospec
 
 import (
-	"container/vector"
 	"nanospec"
 	"sort"
 )
@@ -50,19 +49,19 @@ func ExecutionModelSpec(c nanospec.Context) {
 
 		// Execute manually instead of calling Run(), in order to avoid running
 		// the specs multi-threadedly, which would mess up the test spy.
-		runs := new(vector.StringVector)
+		runs := make([]string, 0)
 		for r.hasScheduledTasks() {
 			resetTestSpy()
 			r.executeNextScheduledTask()
-			runs.Push(testSpy)
+			runs = append(runs, testSpy)
 		}
-		sort.Sort(runs)
+		sort.Strings(runs)
 
-		c.Expect(runs.Len()).Equals(5)
-		c.Expect(runs.At(0)).Equals("root,a,aa")
-		c.Expect(runs.At(1)).Equals("root,a,ab")
-		c.Expect(runs.At(2)).Equals("root,b,ba")
-		c.Expect(runs.At(3)).Equals("root,b,bb")
-		c.Expect(runs.At(4)).Equals("root,b,bc")
+		c.Expect(len(runs)).Equals(5)
+		c.Expect(runs[0]).Equals("root,a,aa")
+		c.Expect(runs[1]).Equals("root,a,ab")
+		c.Expect(runs[2]).Equals("root,b,ba")
+		c.Expect(runs[3]).Equals("root,b,bb")
+		c.Expect(runs[4]).Equals("root,b,bc")
 	})
 }
