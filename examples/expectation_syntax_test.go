@@ -12,7 +12,6 @@ import (
 	"os"
 )
 
-
 func ExpectationSyntaxSpec(c gospec.Context) {
 
 	c.Specify("Objects can be compared for equality", func() {

@@ -9,7 +9,6 @@ import (
 	. "gospec"
 )
 
-
 // This is the style that I've found the most useful in organizing tests.
 // In the parent spec(s) is done some action and then it has multiple child
 // specs which each verify one isolated piece of behaviour. Each spec has a

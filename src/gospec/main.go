@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-
 var (
 	printAll = flag.Bool("print-all", false, "print also passing specs and not only failing (GoSpec)")
 )

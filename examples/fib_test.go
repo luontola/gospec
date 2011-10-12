@@ -9,7 +9,6 @@ import (
 	. "gospec"
 )
 
-
 // The specs should read like a specification. The spec names in this example
 // are straight from Wikipedia (http://en.wikipedia.org/wiki/Fibonacci_number)
 // where the first paragraph defines the Fibonacci numbers as:

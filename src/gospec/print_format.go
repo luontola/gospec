@@ -9,13 +9,11 @@ import (
 	"io"
 )
 
-
 type PrintFormat interface {
 	PrintPassing(nestingLevel int, name string)
 	PrintFailing(nestingLevel int, name string, errors []*Error)
 	PrintSummary(passCount int, failCount int)
 }
-
 
 // PrintFormat for production use.
 func DefaultPrintFormat(out io.Writer) PrintFormat {
@@ -78,7 +76,6 @@ func (this *defaultPrintFormat) PrintSummary(passCount int, failCount int) {
 	// TODO: use colors (red if failures, else green)
 	fmt.Fprintf(this.out, "\n%v specs, %v failures\n", totalCount, failCount)
 }
-
 
 // PrintFormat for use in only tests. Does not print line numbers, colors or
 // other fancy stuff. Makes comparing as a string easier.

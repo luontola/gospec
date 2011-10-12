@@ -4,7 +4,6 @@
 
 package examples
 
-
 type Fib struct {
 	n0, n1 int
 }

@@ -122,7 +122,6 @@ func (r *Runner) Results() *ResultCollector {
 	return results
 }
 
-
 // Scheduled spec execution.
 type scheduledTask struct {
 	name    string
@@ -135,7 +134,6 @@ type specRoot func(Context)
 func newScheduledTask(name string, closure specRoot, context *taskContext) *scheduledTask {
 	return &scheduledTask{name, closure, context}
 }
-
 
 // Results of a spec execution.
 type taskResult struct {

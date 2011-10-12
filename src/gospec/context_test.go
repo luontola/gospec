@@ -8,7 +8,6 @@ import (
 	"nanospec"
 )
 
-
 func ContextSpec(c nanospec.Context) {
 
 	c.Specify("When specs are executed", func() {

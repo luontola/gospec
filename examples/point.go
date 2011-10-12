@@ -4,7 +4,6 @@
 
 package examples
 
-
 // Point2 implements the gospec.Equality interface, so it can be
 // compared for equality in GoSpec specs.
 //
@@ -29,7 +28,6 @@ func (this *Point2) equals(that *Point2) bool {
 	return this.X == that.X &&
 		this.Y == that.Y
 }
-
 
 // Point3 also implements the gospec.Equality interface, but unlike
 // with Point2, here we assume that Point3 will not be used as a value.

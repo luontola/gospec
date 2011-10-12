@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 func ExecutionModelSpec(c gospec.Context) {
 
 	// "Before block", for example common variables for use in all specs.
@@ -49,7 +48,7 @@ func ExecutionModelSpec(c gospec.Context) {
 		c.Specify("as many specs", func() {
 			c.Specify("as you wish.", func() {
 				c.Specify("GoSpec does not impose artificial limits, "+
-				          "so you can organize your specs freely.", func() {
+					"so you can organize your specs freely.", func() {
 				})
 			})
 		})

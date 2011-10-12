@@ -9,7 +9,6 @@ import (
 	"fmt"
 )
 
-
 // Represents a spec in a tree of specs.
 type specRun struct {
 	name             string
@@ -75,7 +74,6 @@ func (spec *specRun) String() string {
 	return fmt.Sprintf("%T{%v @ %v}", spec, spec.name, spec.path)
 }
 
-
 func asSpecArray(list *list.List) []*specRun {
 	arr := make([]*specRun, list.Len())
 	i := 0
@@ -86,7 +84,6 @@ func asSpecArray(list *list.List) []*specRun {
 	}
 	return arr
 }
-
 
 // Path of a specification.
 type path []int

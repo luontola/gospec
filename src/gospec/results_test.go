@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-
 func ResultsSpec(c nanospec.Context) {
 	results := newResultCollector()
 
@@ -343,7 +342,6 @@ func SpecsReportContains(needle string) nanospec.Matcher {
 		return ReportContains(needle)(runner.Results())
 	}
 }
-
 
 func resultToString(result *ResultCollector) string {
 	out := new(bytes.Buffer)

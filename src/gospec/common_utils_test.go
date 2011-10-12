@@ -8,7 +8,6 @@ import (
 	"container/vector"
 )
 
-
 func runSpec(spec func(Context)) *ResultCollector {
 	r := NewRunner()
 	r.AddNamedSpec("RootSpec", spec)
@@ -34,7 +33,6 @@ func countSpecNames(specs *vector.Vector) map[string]int {
 	}
 	return results
 }
-
 
 // Test dummies
 

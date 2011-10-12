@@ -9,7 +9,6 @@ import (
 	"testing"
 )
 
-
 func TestAllSpecs(t *testing.T) {
 	nanospec.Run(t, ConcurrencySpec)
 	nanospec.Run(t, ContextSpec)

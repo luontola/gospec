@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 var noErrors = []*Error{}
 var someError = []*Error{newError(OtherError, "some error", "", []*Location{})}
 

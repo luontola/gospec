@@ -13,7 +13,6 @@ import (
 	"os"
 )
 
-
 func MatcherMessagesSpec(c nanospec.Context) {
 	spy := new(SpyErrorLogger)
 	m := newMatcherAdapter(nil, spy, ExpectFailed)
@@ -72,7 +71,6 @@ func (this *SpyErrorLogger) LastError() string {
 func (this *SpyErrorLogger) Reset() {
 	this.lastError = nil
 }
-
 
 func MatchersSpec(c nanospec.Context) {
 
@@ -351,7 +349,6 @@ func MatchersSpec(c nanospec.Context) {
 		})
 }
 
-
 // Used by the Equals matcher's tests
 type DummyStruct struct {
 	value        int
@@ -375,7 +372,6 @@ func (this *DummyStruct) equals(that *DummyStruct) bool {
 func (this DummyStruct) String() string {
 	return fmt.Sprintf("DummyStruct%v", this.value)
 }
-
 
 // Test utilities
 

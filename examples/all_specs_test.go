@@ -9,7 +9,6 @@ import (
 	"testing"
 )
 
-
 // You will need to list every spec in a TestXxx method like this,
 // so that gotest can be used to run the specs. Later GoSpec might
 // get its own command line tool similar to gotest, but for now this

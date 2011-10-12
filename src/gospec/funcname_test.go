@@ -8,7 +8,6 @@ import (
 	"nanospec"
 )
 
-
 func FuncNameSpec(c nanospec.Context) {
 
 	c.Specify("The name of a function can be retrieved from a function reference", func() {

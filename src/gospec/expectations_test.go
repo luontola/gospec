@@ -8,7 +8,6 @@ import (
 	"nanospec"
 )
 
-
 func ExpectationsSpec(c nanospec.Context) {
 
 	c.Specify("When a spec has passing expectations or assumptions", func() {

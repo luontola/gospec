@@ -6,14 +6,12 @@ package gospec
 
 import ()
 
-
 type printMode int
 
 const (
 	ALL printMode = iota
 	ONLY_FAILING
 )
-
 
 // Printer formats the spec results into a human-readable format.
 type Printer struct {

@@ -46,7 +46,6 @@ func BenchmarkReport(b *testing.B) {
 	}
 }
 
-
 func runSpecs() *Runner {
 	runner := NewRunner()
 	for i := 0; i < ROOT_SPEC_COUNT; i++ {
@@ -72,13 +71,11 @@ func buildReport(results *ResultCollector) {
 	}
 }
 
-
 type NullWriter struct{}
 
 func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
 	return len(p), nil
 }
-
 
 func DummySpecForBenchmarks(c Context) {
 	// Some work, to create a more realistic workload and

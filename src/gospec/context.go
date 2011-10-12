@@ -8,7 +8,6 @@ import (
 	"container/list"
 )
 
-
 // Context controls the execution of the current spec. Child specs can be
 // created with the Specify method.
 type Context interface {
@@ -29,7 +28,6 @@ type Context interface {
 	// but on failure will not continue executing the child specs.
 	Assume(actual interface{}, matcher Matcher, expected ...interface{})
 }
-
 
 type taskContext struct {
 	targetPath     path
@@ -109,7 +107,6 @@ func (c *taskContext) Assume(actual interface{}, matcher Matcher, expected ...in
 	m := newMatcherAdapter(location, logger, AssumeFailed)
 	m.Expect(actual, matcher, expected...)
 }
-
 
 type expectationLogger struct {
 	log ratedErrorLogger

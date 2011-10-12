@@ -10,7 +10,6 @@ import (
 	"runtime"
 )
 
-
 type Location struct {
 	name string
 	file string

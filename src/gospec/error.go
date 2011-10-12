@@ -6,7 +6,6 @@ package gospec
 
 import ()
 
-
 type ErrorType int
 
 const (

@@ -10,7 +10,6 @@ import (
 	"sort"
 )
 
-
 // Collects test results for all specs in a reporting friendly format.
 type ResultCollector struct {
 	rootsByName map[string]*specResult
@@ -135,7 +134,6 @@ func (r *ResultCollector) sortedRootNames() []string {
 	sort.Strings(names)
 	return names
 }
-
 
 // Collects test results for one spec and its children in a reporting friendly format.
 type specResult struct {

@@ -8,7 +8,6 @@ import (
 	"container/vector"
 )
 
-
 type Stack struct {
 	stack *vector.Vector
 }

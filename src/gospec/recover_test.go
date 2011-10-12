@@ -8,7 +8,6 @@ import (
 	"nanospec"
 )
 
-
 func boom2() {
 	boom1()
 }
@@ -16,11 +15,10 @@ func boom1() {
 	boom0()
 }
 func boom0() {
-	panic("boom!") // line 19
+	panic("boom!") // line 18
 }
 func noBoom() {
 }
-
 
 func RecoverSpec(c nanospec.Context) {
 
@@ -42,7 +40,7 @@ func RecoverSpec(c nanospec.Context) {
 		})
 		c.Specify("the stack trace line numbers are the line of the call; not where the call will return", func() {
 			// For an explanation, see the comments at http://code.google.com/p/go/issues/detail?id=1100
-			c.Expect(err.StackTrace[0].Line()).Equals(19)
+			c.Expect(err.StackTrace[0].Line()).Equals(18)
 		})
 	})
 

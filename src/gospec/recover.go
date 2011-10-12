@@ -9,7 +9,6 @@ import (
 	"runtime"
 )
 
-
 type exception struct {
 	Cause      interface{}
 	StackTrace []*Location
@@ -22,7 +21,6 @@ func (this *exception) ToError() *Error {
 func (this *exception) String() string {
 	return fmt.Sprintf("panic: %v", this.Cause)
 }
-
 
 func recoverOnPanic(f func()) (err *exception) {
 	defer func() {

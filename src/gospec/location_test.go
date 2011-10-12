@@ -9,13 +9,12 @@ import (
 	"runtime"
 )
 
-
 func LocationSpec(c nanospec.Context) {
 
 	c.Specify("Location of the current method can be found", func() {
-		loc := currentLocation() // line 16
+		loc := currentLocation() // line 15
 		c.Expect(loc.FileName()).Equals("location_test.go")
-		c.Expect(loc.Line()).Equals(16)
+		c.Expect(loc.Line()).Equals(15)
 	})
 	c.Specify("The line number is that of the call instruction; not where the call will return to", func() {
 		// This indirection is needed to reproduce the off-by-one issue, because
@@ -24,8 +23,8 @@ func LocationSpec(c nanospec.Context) {
 		f := func() {
 			loc = callerLocation()
 		}
-		f() // line 27; call returns to line 28
-		c.Expect(loc.Line()).Equals(27)
+		f() // line 26; call returns to line 27
+		c.Expect(loc.Line()).Equals(26)
 	})
 	c.Specify("Location of the calling method can be found", func() {
 		loc := callerLocation()
