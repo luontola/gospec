@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
 	"math"
 	"nanospec"
@@ -36,7 +37,7 @@ func MatcherMessagesSpec(c nanospec.Context) {
 	})
 }
 
-func DummyEquals(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err os.Error) {
+func DummyEquals(actual interface{}, expected interface{}) (match bool, pos Message, neg Message, err error) {
 	if actual.(int) == 666 {
 		err = Errorf("illegal value")
 		return
@@ -297,7 +298,7 @@ func MatchersSpec(c nanospec.Context) {
 		})
 		c.Specify("unsupported value to array", func() {
 			_, err := toArray("foo")
-			c.Expect(err.String()).Equals("type error: expected a collection type, but was “foo” of type “string”")
+			c.Expect(err.Error()).Equals("type error: expected a collection type, but was “foo” of type “string”")
 		})
 	})
 
@@ -365,7 +366,7 @@ type ExpectationHolder struct {
 	match bool
 	pos   Message
 	neg   Message
-	err   os.Error
+	err   error
 }
 
 func E(actual interface{}, matcher Matcher, expected ...interface{}) *ExpectationHolder {
@@ -373,7 +374,7 @@ func E(actual interface{}, matcher Matcher, expected ...interface{}) *Expectatio
 	return &ExpectationHolder{match, pos, neg, err}
 }
 
-func Passes(v interface{}) os.Error {
+func Passes(v interface{}) error {
 	ex := v.(*ExpectationHolder)
 	if ex.match && ex.err == nil {
 		return nil
@@ -381,7 +382,7 @@ func Passes(v interface{}) os.Error {
 	return ex.ToError()
 }
 
-func Fails(v interface{}) os.Error {
+func Fails(v interface{}) error {
 	ex := v.(*ExpectationHolder)
 	if !ex.match && ex.err == nil {
 		return nil
@@ -390,7 +391,7 @@ func Fails(v interface{}) os.Error {
 }
 
 func FailsWithMessage(pos string, neg string) nanospec.Matcher {
-	return func(v interface{}) os.Error {
+	return func(v interface{}) error {
 		ex := v.(*ExpectationHolder)
 		if !ex.match &&
 			ex.pos != nil &&
@@ -405,17 +406,17 @@ func FailsWithMessage(pos string, neg string) nanospec.Matcher {
 }
 
 func GivesError(err string) nanospec.Matcher {
-	return func(v interface{}) os.Error {
+	return func(v interface{}) error {
 		ex := v.(*ExpectationHolder)
-		if ex.err != nil && ex.err.String() == err {
+		if ex.err != nil && ex.err.Error() == err {
 			return nil
 		}
 		return ex.ToError()
 	}
 }
 
-func (this *ExpectationHolder) ToError() os.Error {
-	return os.NewError(fmt.Sprintf(
+func (this *ExpectationHolder) ToError() error {
+	return errors.New(fmt.Sprintf(
 		"Mather failed its expectations\n\tmatch: %v\n\tpos: %v\n\tneg: %v\n\terr: %v",
 		this.match, this.pos, this.neg, this.err))
 }

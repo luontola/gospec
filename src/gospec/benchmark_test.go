@@ -73,7 +73,7 @@ func buildReport(results *ResultCollector) {
 
 type NullWriter struct{}
 
-func (w *NullWriter) Write(p []byte) (n int, err os.Error) {
+func (w *NullWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 

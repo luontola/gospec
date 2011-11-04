@@ -85,7 +85,7 @@ Version History
 
 **1.x.x (2011-xx-xx)**
 
-- Upgraded to Go weekly.2011-10-06
+- Upgraded to Go weekly.2011-11-02
 
 **1.3.8 (2011-08-04)**
 

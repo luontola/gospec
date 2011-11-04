@@ -92,7 +92,7 @@ func ExpectationSyntaxSpec(c gospec.Context) {
 	})
 }
 
-func HasSameLengthAs(actual interface{}, expected interface{}) (match bool, pos gospec.Message, neg gospec.Message, err os.Error) {
+func HasSameLengthAs(actual interface{}, expected interface{}) (match bool, pos gospec.Message, neg gospec.Message, err error) {
 	lenActual := len(actual.(string))
 	lenExpected := len(expected.(string))
 	difference := lenActual - lenExpected

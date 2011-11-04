@@ -6,8 +6,8 @@ package gospec
 
 import (
 	"bytes"
+	"errors"
 	"nanospec"
-	"os"
 	"strings"
 )
 
@@ -309,22 +309,22 @@ func ResultsSpec(c nanospec.Context) {
 }
 
 func ReportIs(expected string) nanospec.Matcher {
-	return func(v interface{}) os.Error {
+	return func(v interface{}) error {
 		actual := strings.TrimSpace(resultToString(v.(*ResultCollector)))
 		expected = strings.TrimSpace(expected)
 		if actual != expected {
-			return os.NewError("Expected report:\n" + expected + "\n\nBut was:\n" + actual)
+			return errors.New("Expected report:\n" + expected + "\n\nBut was:\n" + actual)
 		}
 		return nil
 	}
 }
 
 func ReportContains(needle string) nanospec.Matcher {
-	return func(v interface{}) os.Error {
+	return func(v interface{}) error {
 		actual := resultToString(v.(*ResultCollector))
 		found := strings.Index(actual, needle) >= 0
 		if !found {
-			return os.NewError("Expected report to contain:\n" + needle + "\n\nBut report was:\n" + actual)
+			return errors.New("Expected report to contain:\n" + needle + "\n\nBut report was:\n" + actual)
 		}
 		return nil
 	}
@@ -332,7 +332,7 @@ func ReportContains(needle string) nanospec.Matcher {
 
 // TODO: convert all the tests to use a matcher like this, which takes itself care of running the spec
 func SpecsReportContains(needle string) nanospec.Matcher {
-	return func(v interface{}) os.Error {
+	return func(v interface{}) error {
 		spec := v.(func(Context))
 
 		runner := NewRunner()
