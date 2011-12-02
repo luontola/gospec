@@ -21,10 +21,10 @@ func ConcurrencySpec(c nanospec.Context) {
 	r := NewRunner()
 	r.AddSpec(VerySlowDummySpec)
 
-	start := time.Nanoseconds()
+	start := time.Now()
 	r.Run()
-	end := time.Nanoseconds()
-	totalTime := end - start
+	end := time.Now()
+	totalTime := end.Sub(start).Nanoseconds()
 
 	// If the spec is executed single-threadedly, then it would take
 	// at least 4*DELAY to execute. If executed multi-threadedly, it
