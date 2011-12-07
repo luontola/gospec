@@ -5,8 +5,8 @@
 package gospec
 
 import (
-	"fmt"
 	"container/list"
+	"fmt"
 	"sort"
 )
 
@@ -127,7 +127,7 @@ func (r *ResultCollector) sortedRoots() <-chan *specResult {
 func (r *ResultCollector) sortedRootNames() []string {
 	names := make([]string, len(r.rootsByName))
 	i := 0
-	for name, _ := range r.rootsByName {
+	for name := range r.rootsByName {
 		names[i] = name
 		i++
 	}

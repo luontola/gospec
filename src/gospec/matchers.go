@@ -5,8 +5,8 @@
 package gospec
 
 import (
-	"fmt"
 	"container/list"
+	"fmt"
 	"math"
 	"reflect"
 )

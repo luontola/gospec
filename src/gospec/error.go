@@ -35,7 +35,7 @@ func stackTracesEqual(a []*Location, b []*Location) bool {
 	if len(a) != len(b) {
 		return false
 	}
-	for i, _ := range a {
+	for i := range a {
 		if !a[i].equals(b[i]) {
 			return false
 		}
