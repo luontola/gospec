@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"nanospec"
+	"strings"
 )
 
 func FuncNameSpec(c nanospec.Context) {
@@ -16,7 +17,9 @@ func FuncNameSpec(c nanospec.Context) {
 	})
 	c.Specify("Getting the name of an anonymous functions will fail gracefully", func() {
 		name := functionName(func() {})
-		c.Expect(name).Equals("<unknown function>")
+		//c.Expect(name).Equals("<unknown function>")
+		// since weekly.2012-01-15 even anonymous functions have a name
+		c.Expect(name).Satisfies(strings.HasPrefix(name, "gospec._func_"));
 	})
 }
 
