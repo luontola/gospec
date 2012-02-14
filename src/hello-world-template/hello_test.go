@@ -1,8 +1,8 @@
 package hello
 
 import (
-	"gospec"
-	. "gospec"
+	"github.com/orfjackal/gospec/src/gospec"
+	. "github.com/orfjackal/gospec/src/gospec"
 )
 
 func HelloSpec(c gospec.Context) {

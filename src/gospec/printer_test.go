@@ -6,7 +6,7 @@ package gospec
 
 import (
 	"bytes"
-	"nanospec"
+	"github.com/orfjackal/nanospec.go/src/nanospec"
 	"strings"
 )
 

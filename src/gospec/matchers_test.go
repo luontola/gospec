@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"nanospec"
+	"github.com/orfjackal/nanospec.go/src/nanospec"
 	"os"
 )
 

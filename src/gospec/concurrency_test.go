@@ -6,7 +6,7 @@ package gospec
 
 import (
 	"math"
-	"nanospec"
+	"github.com/orfjackal/nanospec.go/src/nanospec"
 	"time"
 )
 

@@ -5,7 +5,7 @@
 package gospec
 
 import (
-	"nanospec"
+	"github.com/orfjackal/nanospec.go/src/nanospec"
 )
 
 func ExpectationsSpec(c nanospec.Context) {

@@ -5,8 +5,8 @@
 package examples
 
 import (
-	"gospec"
-	. "gospec"
+	"github.com/orfjackal/gospec/src/gospec"
+	. "github.com/orfjackal/gospec/src/gospec"
 )
 
 // The specs should read like a specification. The spec names in this example

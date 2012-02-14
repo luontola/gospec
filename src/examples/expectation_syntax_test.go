@@ -6,8 +6,8 @@ package examples
 
 import (
 	"container/list"
-	"gospec"   // the "gospec.Context" interface
-	. "gospec" // the expectation matchers (Equals, IsTrue etc.), will later be renamed to "gospec/matchers"
+	"github.com/orfjackal/gospec/src/gospec"   // the "gospec.Context" interface
+	. "github.com/orfjackal/gospec/src/gospec" // the expectation matchers (Equals, IsTrue etc.), will later be renamed to "gospec/matchers"
 	"os"
 )
 

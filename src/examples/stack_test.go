@@ -5,8 +5,8 @@
 package examples
 
 import (
-	"gospec"
-	. "gospec"
+	"github.com/orfjackal/gospec/src/gospec"
+	. "github.com/orfjackal/gospec/src/gospec"
 )
 
 // This is the style that I've found the most useful in organizing tests.

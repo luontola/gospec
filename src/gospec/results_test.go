@@ -7,7 +7,7 @@ package gospec
 import (
 	"bytes"
 	"errors"
-	"nanospec"
+	"github.com/orfjackal/nanospec.go/src/nanospec"
 	"strings"
 )
 
