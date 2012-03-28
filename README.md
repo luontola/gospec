@@ -78,8 +78,10 @@ Version History
 
 **1.x.x (2011-xx-xx)**
 
+*UPGRADE NOTES:* Check your imports - when using the `go` tool they are different than when using the old hand-written Makefiles.
+
 - Build using the `go` tool instead of Makefiles
-- Upgraded to Go weekly.2012-02-07
+- Upgraded to Go 1 (weekly.2012-02-07)
 
 **1.3.8 (2011-08-04)**
 
