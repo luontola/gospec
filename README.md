@@ -62,21 +62,21 @@ For examples on how to write specs, see the files in the [examples] directory.
 <!---
 Replace /master/ with /gospec-1.x.x/ before making a release.
 -->
-[hello-world-template]:       http://github.com/orfjackal/gospec/tree/master/src/hello-world-template/
-[examples]:                   http://github.com/orfjackal/gospec/tree/master/src/examples/
-[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/master/src/examples/all_specs_test.go
-[fib.go]:                     http://github.com/orfjackal/gospec/blob/master/src/examples/fib.go
-[fib_test.go]:                http://github.com/orfjackal/gospec/blob/master/src/examples/fib_test.go
-[stack.go]:                   http://github.com/orfjackal/gospec/blob/master/src/examples/stack.go
-[stack_test.go]:              http://github.com/orfjackal/gospec/blob/master/src/examples/stack_test.go
-[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/master/src/examples/expectation_syntax_test.go
-[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/master/src/examples/execution_model_test.go
+[hello-world-template]:       http://github.com/orfjackal/gospec/tree/gospec-1.3.9/src/hello-world-template/
+[examples]:                   http://github.com/orfjackal/gospec/tree/gospec-1.3.9/src/examples/
+[all_specs_test.go]:          http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/all_specs_test.go
+[fib.go]:                     http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/fib.go
+[fib_test.go]:                http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/fib_test.go
+[stack.go]:                   http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/stack.go
+[stack_test.go]:              http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/stack_test.go
+[expectation_syntax_test.go]: http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/expectation_syntax_test.go
+[execution_model_test.go]:    http://github.com/orfjackal/gospec/blob/gospec-1.3.9/src/examples/execution_model_test.go
 
 
 Version History
 ---------------
 
-**1.x.x (2011-xx-xx)**
+**1.3.9 (2012-03-28)**
 
 *UPGRADE NOTES:* Check your imports - when using the `go` tool they are different than when using the old hand-written Makefiles.
 
