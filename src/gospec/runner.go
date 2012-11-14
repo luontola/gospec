@@ -23,14 +23,22 @@ type ParallelRunner struct {
 	results      chan *taskResult
 	executed     []*specRun
 	scheduled    []*scheduledTask
+	Parallel     bool
 }
 
-func NewParallelRunner() *ParallelRunner {
+// TODO Implement this as a type
+func NewSerialRunner() *ParallelRunner {
 	r := new(ParallelRunner)
 	r.runningTasks = 0
 	r.results = make(chan *taskResult, channelBufferSize)
 	r.executed = make([]*specRun, 0)
 	r.scheduled = make([]*scheduledTask, 0)
+	return r
+}
+
+func NewParallelRunner() *ParallelRunner {
+	r := NewSerialRunner()
+	r.Parallel = true
 	return r
 }
 
@@ -76,9 +84,13 @@ func (r *ParallelRunner) executeNextScheduledTask() {
 
 func (r *ParallelRunner) startNextScheduledTask() {
 	task := r.nextScheduledTask()
-	go func() {
+	if r.Parallel {
+		go func() {
+			r.results <- r.execute(task.name, task.closure, task.context)
+		}()
+	} else {
 		r.results <- r.execute(task.name, task.closure, task.context)
-	}()
+	}
 	r.runningTasks++
 }
 
