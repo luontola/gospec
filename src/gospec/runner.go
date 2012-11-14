@@ -14,6 +14,7 @@ type Runner struct {
 	results      chan *taskResult
 	executed     []*specRun
 	scheduled    []*scheduledTask
+	Parallel     bool
 }
 
 func NewRunner() *Runner {
@@ -22,6 +23,7 @@ func NewRunner() *Runner {
 	r.results = make(chan *taskResult, channelBufferSize)
 	r.executed = make([]*specRun, 0)
 	r.scheduled = make([]*scheduledTask, 0)
+	r.Parallel = true
 	return r
 }
 
@@ -67,9 +69,13 @@ func (r *Runner) executeNextScheduledTask() {
 
 func (r *Runner) startNextScheduledTask() {
 	task := r.nextScheduledTask()
-	go func() {
+	if r.Parallel {
+		go func() {
+			r.results <- r.execute(task.name, task.closure, task.context)
+		}()
+	} else {
 		r.results <- r.execute(task.name, task.closure, task.context)
-	}()
+	}
 	r.runningTasks++
 }
 
