@@ -106,7 +106,7 @@ func ResultsSpec(c nanospec.Context) {
 `))
 	})
 	c.Specify("Case: spec with multiple nested children", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddSpec(DummySpecWithMultipleNestedChildren)
 		runner.Run()
 		c.Expect(runner.Results()).Matches(ReportIs(`
@@ -148,7 +148,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 	c.Specify("When spec passes on 1st run but fails on 2nd run", func() {
 		i := 0
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			if i == 1 {
 				c.Expect(10, Equals, 20)
@@ -173,7 +173,7 @@ func ResultsSpec(c nanospec.Context) {
 		})
 	})
 	c.Specify("When root spec fails sporadically", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			i := 0
 			c.Specify("Child A", func() {
@@ -207,7 +207,7 @@ func ResultsSpec(c nanospec.Context) {
 		})
 	})
 	c.Specify("When non-root spec fails sporadically", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			c.Specify("Failing", func() {
 				i := 0
@@ -245,7 +245,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 
 	c.Specify("When an expectation gives an error", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			c.Expect(1, IsWithin(0.1), 1.0)
 		})
@@ -263,7 +263,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 
 	c.Specify("When a spec panics", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			c.Specify("Child A", func() {
 				boom2()
@@ -287,7 +287,7 @@ func ResultsSpec(c nanospec.Context) {
 	})
 
 	c.Specify("When a root spec panics", func() {
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", func(c Context) {
 			boom2()
 		})
@@ -335,7 +335,7 @@ func SpecsReportContains(needle string) nanospec.Matcher {
 	return func(v interface{}) error {
 		spec := v.(func(Context))
 
-		runner := NewRunner()
+		runner := NewParallelRunner()
 		runner.AddNamedSpec("RootSpec", spec)
 		runner.Run()
 

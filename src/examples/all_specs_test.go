@@ -16,7 +16,7 @@ import (
 // there will be typically only one top-level spec per class/feature.
 
 func TestAllSpecs(t *testing.T) {
-	r := gospec.NewRunner()
+	r := gospec.NewParallelRunner()
 
 	// List all specs here
 	r.AddSpec(ExecutionModelSpec)

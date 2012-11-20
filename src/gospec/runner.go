@@ -8,16 +8,25 @@ const (
 	channelBufferSize = 10
 )
 
+type Runner interface {
+	Run()
+
+	AddSpec(func(Context))
+	AddNamedSpec(string, func(Context))
+
+	Results() *ResultCollector
+}
+
 // Runner executes the specs and collects their results.
-type Runner struct {
+type ParallelRunner struct {
 	runningTasks int
 	results      chan *taskResult
 	executed     []*specRun
 	scheduled    []*scheduledTask
 }
 
-func NewRunner() *Runner {
-	r := new(Runner)
+func NewParallelRunner() *ParallelRunner {
+	r := new(ParallelRunner)
 	r.runningTasks = 0
 	r.results = make(chan *taskResult, channelBufferSize)
 	r.executed = make([]*specRun, 0)
@@ -27,13 +36,13 @@ func NewRunner() *Runner {
 
 // Adds a spec for later execution. Example:
 //     r.AddSpec(SomeSpec);
-func (r *Runner) AddSpec(closure func(Context)) {
+func (r *ParallelRunner) AddSpec(closure func(Context)) {
 	r.AddNamedSpec(functionName(closure), closure)
 }
 
 // Adds a spec for later execution. Uses the provided name instead of
 // retrieving the name of the spec function with reflection.
-func (r *Runner) AddNamedSpec(name string, closure func(Context)) {
+func (r *ParallelRunner) AddNamedSpec(name string, closure func(Context)) {
 	task := newScheduledTask(name, closure, newInitialContext())
 	r.scheduled = append(r.scheduled, task)
 }
@@ -41,18 +50,18 @@ func (r *Runner) AddNamedSpec(name string, closure func(Context)) {
 // Executes all the specs which have been added with AddSpec. The specs
 // are executed using as many goroutines as possible, so that even individual
 // spec methods are executed in multiple goroutines.
-func (r *Runner) Run() {
+func (r *ParallelRunner) Run() {
 	r.startAllScheduledTasks()
 	r.startNewTasksAndWaitUntilFinished()
 }
 
-func (r *Runner) startAllScheduledTasks() {
+func (r *ParallelRunner) startAllScheduledTasks() {
 	for r.hasScheduledTasks() {
 		r.startNextScheduledTask()
 	}
 }
 
-func (r *Runner) startNewTasksAndWaitUntilFinished() {
+func (r *ParallelRunner) startNewTasksAndWaitUntilFinished() {
 	for r.hasRunningTasks() {
 		r.processNextFinishedTask()
 		r.startAllScheduledTasks()
@@ -60,12 +69,12 @@ func (r *Runner) startNewTasksAndWaitUntilFinished() {
 }
 
 // For testing purposes, so that the specs can be executed deterministically.
-func (r *Runner) executeNextScheduledTask() {
+func (r *ParallelRunner) executeNextScheduledTask() {
 	r.startNextScheduledTask()
 	r.processNextFinishedTask()
 }
 
-func (r *Runner) startNextScheduledTask() {
+func (r *ParallelRunner) startNextScheduledTask() {
 	task := r.nextScheduledTask()
 	go func() {
 		r.results <- r.execute(task.name, task.closure, task.context)
@@ -73,22 +82,22 @@ func (r *Runner) startNextScheduledTask() {
 	r.runningTasks++
 }
 
-func (r *Runner) processNextFinishedTask() {
+func (r *ParallelRunner) processNextFinishedTask() {
 	result := <-r.results
 	r.runningTasks--
 	r.saveResult(result)
 }
 
-func (r *Runner) hasRunningTasks() bool   { return r.runningTasks > 0 }
-func (r *Runner) hasScheduledTasks() bool { return len(r.scheduled) > 0 }
-func (r *Runner) nextScheduledTask() *scheduledTask {
+func (r *ParallelRunner) hasRunningTasks() bool   { return r.runningTasks > 0 }
+func (r *ParallelRunner) hasScheduledTasks() bool { return len(r.scheduled) > 0 }
+func (r *ParallelRunner) nextScheduledTask() *scheduledTask {
 	last := len(r.scheduled) - 1
 	popped := r.scheduled[last]
 	r.scheduled = r.scheduled[:last]
 	return popped
 }
 
-func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskResult {
+func (r *ParallelRunner) execute(name string, closure specRoot, c *taskContext) *taskResult {
 	c.Specify(name, func() { closure(c) })
 	return &taskResult{
 		name,
@@ -98,7 +107,7 @@ func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskRes
 	}
 }
 
-func (r *Runner) saveResult(result *taskResult) {
+func (r *ParallelRunner) saveResult(result *taskResult) {
 	for _, spec := range result.executedSpecs {
 		r.executed = append(r.executed, spec)
 	}
@@ -108,7 +117,7 @@ func (r *Runner) saveResult(result *taskResult) {
 	}
 }
 
-func (r *Runner) Results() *ResultCollector {
+func (r *ParallelRunner) Results() *ResultCollector {
 	// TODO: Should this be done concurrently with executing the specs?
 	// The result collector could run in its own goroutine, and the
 	// Runner.saveResult() method would send executed specs to it as they

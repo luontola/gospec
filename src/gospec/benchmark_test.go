@@ -46,8 +46,8 @@ func BenchmarkReport(b *testing.B) {
 	}
 }
 
-func runSpecs() *Runner {
-	runner := NewRunner()
+func runSpecs() Runner {
+	runner := NewParallelRunner()
 	for i := 0; i < ROOT_SPEC_COUNT; i++ {
 		runner.AddNamedSpec(fmt.Sprintf("DummySpecForBenchmarks%v", i), DummySpecForBenchmarks)
 	}

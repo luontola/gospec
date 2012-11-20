@@ -18,7 +18,7 @@ const (
 )
 
 func ConcurrencySpec(c nanospec.Context) {
-	r := NewRunner()
+	r := NewParallelRunner()
 	r.AddSpec(VerySlowDummySpec)
 
 	start := time.Now()
