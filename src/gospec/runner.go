@@ -45,12 +45,17 @@ func (r *Runner) AddNamedSpec(name string, closure func(Context)) {
 // spec methods are executed in multiple goroutines.
 func (r *Runner) Run() {
 	r.startAllScheduledTasks()
-	r.startNewTasksAndWaitUntilFinished()
+	if r.Parallel {
+		r.startNewTasksAndWaitUntilFinished()
+	}
 }
 
 func (r *Runner) startAllScheduledTasks() {
 	for r.hasScheduledTasks() {
 		r.startNextScheduledTask()
+		if !r.Parallel {
+			r.processNextFinishedTask()
+		}
 	}
 }
 
