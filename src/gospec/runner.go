@@ -4,6 +4,8 @@
 
 package gospec
 
+import "testing"
+
 const (
 	channelBufferSize = 10
 )
@@ -14,6 +16,14 @@ type Runner struct {
 	results      chan *taskResult
 	executed     []*specRun
 	scheduled    []*scheduledTask
+	testContext  *testing.T
+}
+
+// Sets the runner test context. Used to aid in exposing
+// the test context to any spec. Example:
+// SetTestContext(t)
+func (r *Runner) SetTestContext(t *testing.T) {
+	r.testContext = t
 }
 
 func NewRunner() *Runner {
@@ -89,6 +99,7 @@ func (r *Runner) nextScheduledTask() *scheduledTask {
 }
 
 func (r *Runner) execute(name string, closure specRoot, c *taskContext) *taskResult {
+	c.testingContext = r.testContext
 	c.Specify(name, func() { closure(c) })
 	return &taskResult{
 		name,
