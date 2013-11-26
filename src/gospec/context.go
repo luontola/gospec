@@ -28,6 +28,9 @@ type Context interface {
 	// Makes an assumption. Otherwise the same as an expectation,
 	// but on failure will not continue executing the child specs.
 	Assume(actual interface{}, matcher Matcher, expected ...interface{})
+
+	// Returns the the testing context for the spec
+	TestingContext() *testing.T
 }
 
 type taskContext struct {
@@ -108,6 +111,10 @@ func (c *taskContext) Assume(actual interface{}, matcher Matcher, expected ...in
 	logger := assumptionLogger{c.currentSpec}
 	m := newMatcherAdapter(location, logger, AssumeFailed)
 	m.Expect(actual, matcher, expected...)
+}
+
+func (c *taskContext) TestingContext() *testing.T {
+	return c.testingContext
 }
 
 type expectationLogger struct {
