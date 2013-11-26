@@ -6,6 +6,7 @@ package gospec
 
 import (
 	"container/list"
+	"testing"
 )
 
 // Context controls the execution of the current spec. Child specs can be
@@ -34,6 +35,7 @@ type taskContext struct {
 	currentSpec    *specRun
 	executedSpecs  *list.List
 	postponedSpecs *list.List
+	testingContext *testing.T
 }
 
 func newInitialContext() *taskContext {
