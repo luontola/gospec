@@ -4,6 +4,8 @@ GoSpec
 
 GoSpec is a [BDD](http://dannorth.net/introducing-bdd)-style testing framework for the [Go programming language](http://golang.org/). It allows writing self-documenting tests/specs, and executes them in parallel and safely isolated.
 
+> **NOTICE: GoSpec has not been developed for quite some time, but there is a new testing framework called [GoConvey](http://goconvey.co/) which was inspired by GoSpec and does the same things plus much more.**
+
 Source code is available at <http://github.com/orfjackal/gospec>
 
 For discussion, use the [golang-nuts mailing list](http://groups.google.com/group/golang-nuts), at least until GoSpec has so many users that it requires its own mailing list. You may also contact GoSpec's developer, [Esko Luontola](http://github.com/orfjackal), by email.
