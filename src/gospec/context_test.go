@@ -41,7 +41,7 @@ func ContextSpec(c nanospec.Context) {
 	})
 
 	c.Specify("Postponed specs are scheduled for execution, until they all have been executed", func() {
-		r := NewRunner()
+		r := NewParallelRunner()
 		r.AddSpec(DummySpecWithTwoChildren)
 		r.Run()
 
@@ -53,7 +53,7 @@ func ContextSpec(c nanospec.Context) {
 	})
 
 	c.Specify("Multiple specs can be executed in one batch", func() {
-		r := NewRunner()
+		r := NewParallelRunner()
 		r.AddSpec(DummySpecWithOneChild)
 		r.AddSpec(DummySpecWithTwoChildren)
 		r.Run()

@@ -6,7 +6,7 @@ import (
 )
 
 func TestAllSpecs(t *testing.T) {
-	r := gospec.NewRunner()
+	r := gospec.NewParallelRunner()
 	r.AddSpec(HelloSpec)
 	gospec.MainGoTest(r, t)
 }

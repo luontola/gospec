@@ -18,7 +18,7 @@ var (
 // and prints the results to stdout. Exits the process after
 // it is finished - with zero or non-zero exit value,
 // depending on whether any specs failed.
-func Main(runner *Runner) {
+func Main(runner Runner) {
 	flag.Parse()
 	results := runAndPrint(runner)
 	if results.FailCount() > 0 {
@@ -31,7 +31,7 @@ func Main(runner *Runner) {
 // Executes the specs which have been added to the Runner
 // and prints the results to stdout. Fails the surrounding
 // test if any of the specs fails.
-func MainGoTest(runner *Runner, t *testing.T) {
+func MainGoTest(runner Runner, t *testing.T) {
 	// Assume that this method will then be executed by gotest and
 	// flag.Parse() has already been called in testing.Main() so
 	// we don't need to call it here.
@@ -42,7 +42,7 @@ func MainGoTest(runner *Runner, t *testing.T) {
 	}
 }
 
-func runAndPrint(runner *Runner) *ResultCollector {
+func runAndPrint(runner Runner) *ResultCollector {
 	printer := NewPrinter(DefaultPrintFormat(os.Stdout))
 	if *printAll {
 		printer.ShowAll()

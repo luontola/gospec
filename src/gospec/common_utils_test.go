@@ -5,7 +5,7 @@
 package gospec
 
 func runSpec(spec func(Context)) *ResultCollector {
-	r := NewRunner()
+	r := NewParallelRunner()
 	r.AddNamedSpec("RootSpec", spec)
 	r.Run()
 	return r.Results()
@@ -13,7 +13,7 @@ func runSpec(spec func(Context)) *ResultCollector {
 
 func runSpecWithContext(closure func(Context), context *taskContext) *taskResult {
 	resetTestSpy()
-	r := NewRunner()
+	r := NewParallelRunner()
 	return r.execute("RootSpec", closure, context)
 }
 
